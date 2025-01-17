@@ -20,7 +20,7 @@ public class Variables {
     Variables() {
         // misc
         this.wheelSpeed = 1;
-        this.extendArmSpeed = 1;
+        this.extendArmSpeed = 0.7;
         // Turn Arm Limits
         this.taLimitHigh = 10000;
         this.taLimitLow = -10000;

@@ -17,8 +17,6 @@ public class MainTest extends LinearOpMode {
     private DcMotor turnArm;
     private DcMotor extendArm;
 
-    private int taLimitHigh;
-    private int taLimitLow;
     private int taSP;
     private int taSPM;
     private int taSPL;
@@ -51,9 +49,6 @@ public class MainTest extends LinearOpMode {
         turnArm = hardwareMap.get(DcMotor.class, "TurnArm");
         extendArm = hardwareMap.get(DcMotor.class, "ExtendArm");
 
-        //Turn Arm Limits
-        taLimitHigh = variables.taLimitHigh;
-        taLimitLow = variables.taLimitLow;
         // starting POS
         taSP = variables.taSP;
         taSPM = variables.taSPM;
@@ -82,61 +77,12 @@ public class MainTest extends LinearOpMode {
             // Put run blocks here.
             while (opModeIsActive()) {
                 int taPOS = turnArm.getCurrentPosition();
-                // Hang extend turn arm
-                // int haPOS = hangExtendArm.getCurrentPosition();
-                // hang arm servo
-                // turnArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                // turnArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                 // left wheels
                 leftBackDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
                 leftFrontDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
                 // right wheels
                 rightFrontDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
                 rightBackDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
-                // extend arm code/limits DAVID
-        /*
-        if (gamepad1.dpad_up) {
-          extendArm.setPower(-extendArmSpeed);
-        } else if (gamepad1.dpad_down) {
-          extendArm.setPower(extendArmSpeed);
-        } else if (!gamepad1.dpad_up || !gamepad1.dpad_down) {
-          extendArm.setPower(0);
-        }
-        */
-        /*
-        if (taPOS > taLimitHigh && taPOS < taLimitLow) {
-          turnArm.setPower(gamepad1.right_stick_y);
-        } else if(taPOS < taLimitLow) {
-          if (gamepad1.right_stick_y > 0) {
-            turnArm.setPower(gamepad1.right_stick_y);
-          } else {
-            turnArm.setPower(0);
-          }
-        } else if(taPOS > taLimitHigh) {
-          if (gamepad1.right_stick_y < 0) {
-            turnArm.setPower(gamepad1.right_stick_y);
-          } else {
-            turnArm.setPower(0);
-          }
-        } else {
-          turnArm.setPower(0);
-        }
-        */
-                // rt to pickup pos
-                if(gamepad1.right_trigger > 0) {
-                    rtl = false;
-                }
-                if (rtl) {
-                    if (taPOS != taPL && taPOS != taPLM && taPOS != taPLL) {
-                        if (taPOS < taPL) {
-                            turnArm.setPower(0.7);
-                        } else if (taPOS > taSP) {
-                            turnArm.setPower(-0.7);
-                        }
-                    } else {
-                        rtl = false;
-                    }
-                }
                 // starting pos
                 if (!sp) {
                     if (taPOS != taSP && taPOS != taSPM && taPOS != taSPL) {
@@ -149,7 +95,7 @@ public class MainTest extends LinearOpMode {
                         sp = true;
                     }
                 }
-
+                // turnArm no limits code
                 if (gamepad1.right_stick_y > 0) {
                     turnArm.setPower(gamepad1.right_stick_y);
                 } else if (gamepad1.right_stick_y < 0) {
@@ -157,35 +103,15 @@ public class MainTest extends LinearOpMode {
                 } else {
                     turnArm.setPower(0);
                 }
-
+                // extendArm no limits code
                 if (gamepad1.left_bumper) {
-                    extendArm.setPower(-0.7);
+                    extendArm.setPower(extendArmSpeed);
                 } else if (gamepad1.right_bumper){
-                    extendArm.setPower(0.7);
+                    extendArm.setPower(extendArmSpeed);
                 } else {
                     extendArm.setPower(0);
                 }
-
-        /* limits code
-        if (taPOS > TALimitHigh && taPOS < TALimitLow) {
-          turnArm.setPower(gamepad1.right_stick_y);
-        } else if(taPOS < TALimitLow) {
-          if (gamepad1.right_stick_y > 0) {
-            turnArm.setPower(gamepad1.right_stick_y);
-          } else {
-            turnArm.setPower(0);
-          }
-        } else if(taPOS > TALimitHigh) {
-          if (gamepad1.right_stick_y < 0) {
-            turnArm.setPower(gamepad1.right_stick_y);
-          } else {
-            turnArm.setPower(0);
-          }
-        } else {
-          turnArm.setPower(0);
-        }
-        */
-
+                // telemetry
                 telemetry.addData("LeftBackDrive", leftBackDrive.getPower());
                 telemetry.addData("LeftFrontDrive", leftFrontDrive.getPower());
                 telemetry.addData("RightBackDrive", rightBackDrive.getPower());
