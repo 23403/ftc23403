@@ -1,6 +1,6 @@
 /***
  * MAIN V2 BY DAVID
- * coding from scratch for our robot, Biskut v2
+ * coding from scratch for our robot, Beastkit v2
  * started recoding at 1/20/25  @  10:41 am
  * robot v2 finished building at 1/25/25
  */
