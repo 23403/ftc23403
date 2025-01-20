@@ -1,5 +1,6 @@
 /***
- * MAIN V2 BY DAVID
+ * MAIN V2
+ * @author David Grieas - 23403 C{}de C<>nduct<>rs
  * coding from scratch for our robot, Beastkit v2
  * started recoding at 1/20/25  @  10:41 am
  * robot v2 finished building at 1/25/25
@@ -19,6 +20,7 @@ public class MainV2 extends LinearOpMode {
      * @TODO add intake and outtake code
      * @TODO have odometry working in teleOp
      * MAIN V2 BY DAVID
+     * @author David Grieas - 23403 C{}de C<>nduct<>rs
      */
     @Override
     public void runOpMode() {
@@ -71,10 +73,12 @@ public class MainV2 extends LinearOpMode {
             turnArm.setTargetPosition(taSP);
             turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             turnArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             // extendArm
             extendArm.setTargetPosition(eaSP);
             extendArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             extendArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            extendArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
         waitForStart();
         if (opModeIsActive()) {
@@ -150,12 +154,20 @@ public class MainV2 extends LinearOpMode {
                     turnArm.setTargetPosition(specimenLoc);
                     turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     turnArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
                 }
                 // submersal pos
                 if (gamepad1.dpad_down) {
                     turnArm.setTargetPosition(submersalLoc);
                     turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     turnArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                }
+                boolean manually;
+                // odometry testing
+                manually = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0 || gamepad1.right_stick_y > 0 || gamepad1.right_stick_y < 0;
+                if (!manually) {
+                    // odometry fixing itself
                 }
                 // telemetry
                 telemetry.addData("LeftBackDrive", leftBackDrive.getCurrentPosition());
@@ -164,6 +176,7 @@ public class MainV2 extends LinearOpMode {
                 telemetry.addData("RightFrontDrive", rightFrontDrive.getCurrentPosition());
                 telemetry.addData("Turn Arm Position:", taPOS);
                 telemetry.addData("Extend Arm Position:", eaPOS);
+                telemetry.addData("Manually moving robot?", manually);
                 telemetry.update();
             }
         }
