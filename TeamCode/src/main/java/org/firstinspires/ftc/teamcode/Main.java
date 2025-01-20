@@ -6,9 +6,10 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 
+import org.firstinspires.ftc.teamcode.variables.Variables;
+
 @TeleOp(name="Main", group="ftc23403")
 public class Main extends LinearOpMode {
-
     private DcMotor leftBackDrive;
     private DcMotor rightFrontDrive;
     private DcMotor rightBackDrive;
@@ -32,6 +33,7 @@ public class Main extends LinearOpMode {
     private int taPLL;
     private boolean pl;
     private boolean rtl;
+    private boolean taLimits;
 
     /**
      * This OpMode offers POV (point-of-view) style TeleOp control for a direct drive robot.
@@ -57,6 +59,7 @@ public class Main extends LinearOpMode {
         clawServo1 = hardwareMap.get(CRServo.class, "claw1");
 
         //Turn Arm Limits
+        taLimits = variables.taLimits;
         taLimitHigh = variables.taLimitHigh;
         taLimitLow = variables.taLimitLow;
         // starting POS
@@ -112,12 +115,12 @@ public class Main extends LinearOpMode {
           extendArm.setPower(0);
         }
         */
-                // Slider motor control AYTEN
+                // extend arm limits by AYTEN
                 int sliderPosition = extendArm.getCurrentPosition();
                 if (gamepad1.dpad_up && sliderPosition > teMax) {
-                    extendArm.setPower(-0.8);
+                    extendArm.setPower(-extendArmSpeed);
                 } else if (gamepad1.dpad_down && sliderPosition < teMin) {
-                    extendArm.setPower(0.8);
+                    extendArm.setPower(extendArmSpeed);
                 } else {
                     extendArm.setPower(0);
                 }
@@ -132,33 +135,34 @@ public class Main extends LinearOpMode {
                     clawServo.setPower(0);
                     clawServo1.setPower(0);
                 }
-                // turn arm code/limits
-                if (gamepad1.right_stick_y < 0) {
-                    turnArm.setPower(gamepad1.right_stick_y);
-                } else if (gamepad1.right_stick_y > 0) {
-                    turnArm.setPower(gamepad1.right_stick_y);
+                // turn arm code/limits by DAVID
+                if (taLimits) {
+                    if (taPOS > taLimitHigh && taPOS < taLimitLow) {
+                        turnArm.setPower(gamepad1.right_stick_y);
+                    } else if(taPOS < taLimitLow) {
+                        if (gamepad1.right_stick_y > 0) {
+                            turnArm.setPower(gamepad1.right_stick_y);
+                        } else {
+                            turnArm.setPower(0);
+                        }
+                    } else if(taPOS > taLimitHigh) {
+                        if (gamepad1.right_stick_y < 0) {
+                            turnArm.setPower(gamepad1.right_stick_y);
+                        } else {
+                            turnArm.setPower(0);
+                        }
+                    } else {
+                        turnArm.setPower(0);
+                    }
                 } else {
-                    turnArm.setPower(0);
+                    if (gamepad1.right_stick_y < 0) {
+                        turnArm.setPower(gamepad1.right_stick_y);
+                    } else if (gamepad1.right_stick_y > 0) {
+                        turnArm.setPower(gamepad1.right_stick_y);
+                    } else {
+                        turnArm.setPower(0);
+                    }
                 }
-        /*
-        if (taPOS > taLimitHigh && taPOS < taLimitLow) {
-          turnArm.setPower(gamepad1.right_stick_y);
-        } else if(taPOS < taLimitLow) {
-          if (gamepad1.right_stick_y > 0) {
-            turnArm.setPower(gamepad1.right_stick_y);
-          } else {
-            turnArm.setPower(0);
-          }
-        } else if(taPOS > taLimitHigh) {
-          if (gamepad1.right_stick_y < 0) {
-            turnArm.setPower(gamepad1.right_stick_y);
-          } else {
-            turnArm.setPower(0);
-          }
-        } else {
-          turnArm.setPower(0);
-        }
-        */
                 // rt to pickup pos
                 if(gamepad1.right_trigger > 0) {
                     rtl = false;

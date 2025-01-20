@@ -2,10 +2,9 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.Servo;
+
+import org.firstinspires.ftc.teamcode.variables.Variables;
 
 @TeleOp(name="MainTest", group="ftc23403")
 public class MainTest extends LinearOpMode {
@@ -23,11 +22,14 @@ public class MainTest extends LinearOpMode {
     private boolean sp;
     private double wheelSpeed;
     private double extendArmSpeed;
+    private int taLimitHigh;
+    private int taLimitLow;
     private int taPL;
     private int taPLM;
     private int taPLL;
     private boolean pl;
     private boolean rtl;
+    private boolean taLimits;
 
     /**
      * This OpMode offers POV (point-of-view) style TeleOp control for a direct drive robot.
@@ -49,6 +51,10 @@ public class MainTest extends LinearOpMode {
         turnArm = hardwareMap.get(DcMotor.class, "TurnArm");
         extendArm = hardwareMap.get(DcMotor.class, "ExtendArm");
 
+        //Turn Arm Limits
+        taLimits = variables.taLimits;
+        taLimitHigh = variables.taLimitHigh;
+        taLimitLow = variables.taLimitLow;
         // starting POS
         taSP = variables.taSP;
         taSPM = variables.taSPM;
@@ -95,13 +101,33 @@ public class MainTest extends LinearOpMode {
                         sp = true;
                     }
                 }
-                // turnArm no limits code
-                if (gamepad1.right_stick_y > 0) {
-                    turnArm.setPower(gamepad1.right_stick_y);
-                } else if (gamepad1.right_stick_y < 0) {
-                    turnArm.setPower(gamepad1.right_stick_y);
+                // turnArm code
+                if (taLimits) {
+                    if (taPOS > taLimitHigh && taPOS < taLimitLow) {
+                        turnArm.setPower(gamepad1.right_stick_y);
+                    } else if(taPOS < taLimitLow) {
+                        if (gamepad1.right_stick_y > 0) {
+                            turnArm.setPower(gamepad1.right_stick_y);
+                        } else {
+                            turnArm.setPower(0);
+                        }
+                    } else if(taPOS > taLimitHigh) {
+                        if (gamepad1.right_stick_y < 0) {
+                            turnArm.setPower(gamepad1.right_stick_y);
+                        } else {
+                            turnArm.setPower(0);
+                        }
+                    } else {
+                        turnArm.setPower(0);
+                    }
                 } else {
-                    turnArm.setPower(0);
+                    if (gamepad1.right_stick_y < 0) {
+                        turnArm.setPower(-gamepad1.right_stick_y);
+                    } else if (gamepad1.right_stick_y > 0) {
+                        turnArm.setPower(gamepad1.right_stick_y);
+                    } else {
+                        turnArm.setPower(0);
+                    }
                 }
                 // extendArm no limits code
                 if (gamepad1.left_bumper) {

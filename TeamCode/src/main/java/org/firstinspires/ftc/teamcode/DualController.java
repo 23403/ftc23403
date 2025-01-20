@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 
+import org.firstinspires.ftc.teamcode.variables.Variables;
+
 @TeleOp(name="Dual Controller", group="ftc23403")
 public class DualController extends LinearOpMode {
 

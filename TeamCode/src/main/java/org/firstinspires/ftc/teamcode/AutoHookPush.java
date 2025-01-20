@@ -6,6 +6,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 
+import org.firstinspires.ftc.teamcode.variables.Variables;
+
 @Autonomous(name="Hook Push", group="ftc23403")
 public class AutoHookPush extends LinearOpMode {
 

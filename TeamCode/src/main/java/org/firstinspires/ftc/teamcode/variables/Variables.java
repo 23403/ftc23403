@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.variables;
 public class Variables {
     // pub variables
     public int taLimitHigh;
@@ -16,12 +16,14 @@ public class Variables {
     public double wheelSpeed;
     public double extendArmSpeed;
     public int EaMaxConstant;
+    public boolean taLimits;
     // access limits across places
-    Variables() {
+    public Variables() {
         // misc
         this.wheelSpeed = 1;
         this.extendArmSpeed = 0.7;
         // Turn Arm Limits
+        this.taLimits = false;
         this.taLimitHigh = 10000;
         this.taLimitLow = -10000;
         // extend arm limits
