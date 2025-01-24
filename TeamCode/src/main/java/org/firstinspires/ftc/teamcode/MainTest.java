@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.variables.Variables;
 
@@ -77,7 +78,7 @@ public class MainTest extends LinearOpMode {
         // You will have to determine which motor to reverse for your robot.
         // In this example, the right motor was reversed so that positive
         // applied power makes it move the robot in the forward direction.
-        rightBackDrive.setDirection(DcMotor.Direction.FORWARD);
+        rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
         waitForStart();
         if (opModeIsActive()) {
             // Put run blocks here.
@@ -115,6 +116,7 @@ public class MainTest extends LinearOpMode {
                         if (gamepad1.right_stick_y < 0) {
                             turnArm.setPower(gamepad1.right_stick_y);
                         } else {
+
                             turnArm.setPower(0);
                         }
                     } else {
@@ -122,11 +124,15 @@ public class MainTest extends LinearOpMode {
                     }
                 } else {
                     if (gamepad1.right_stick_y < 0) {
+                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         turnArm.setPower(-gamepad1.right_stick_y);
                     } else if (gamepad1.right_stick_y > 0) {
+                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         turnArm.setPower(gamepad1.right_stick_y);
                     } else {
-                        turnArm.setPower(0);
+                        turnArm.setTargetPosition(turnArm.getCurrentPosition());
+                        turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        turnArm.setPower(0.8);
                     }
                 }
                 // extendArm no limits code
