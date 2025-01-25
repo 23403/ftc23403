@@ -69,6 +69,7 @@ public class MainTest extends LinearOpMode {
         taPLL = variables.taPLL;
         pl = variables.pl;
         rtl = false;
+        int cpos = 0;
 
         // Reverse one of the drive motors.
         // You will have to determine which motor to reverse for your robot.
@@ -102,6 +103,7 @@ public class MainTest extends LinearOpMode {
                         sp = true;
                     }
                 }
+                /*
                 // turnArm code
                 if (taLimits) {
                     if (taPOS > taLimitHigh && taPOS < taLimitLow) {
@@ -124,10 +126,10 @@ public class MainTest extends LinearOpMode {
                     }
                 } else {
                     if (gamepad1.right_stick_y < 0) {
-                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        turnArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         turnArm.setPower(-gamepad1.right_stick_y);
                     } else if (gamepad1.right_stick_y > 0) {
-                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        turnArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
                         turnArm.setPower(gamepad1.right_stick_y);
                     } else {
                         turnArm.setTargetPosition(turnArm.getCurrentPosition());
@@ -135,11 +137,26 @@ public class MainTest extends LinearOpMode {
                         turnArm.setPower(0.8);
                     }
                 }
+
+*/
+                if (gamepad1.right_stick_y > 0) {
+                    turnArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    turnArm.setPower(gamepad1.right_stick_y);
+                    cpos = turnArm.getCurrentPosition();
+                } else if (gamepad1.right_stick_y < 0) {
+                    turnArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+                    turnArm.setPower(-gamepad1.right_stick_y);
+                    cpos = turnArm.getCurrentPosition();
+                } else {
+                    turnArm.setTargetPosition(cpos);
+                    turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    turnArm.setPower(1);
+                }
                 // extendArm no limits code
                 if (gamepad1.left_bumper) {
                     extendArm.setPower(extendArmSpeed);
                 } else if (gamepad1.right_bumper){
-                    extendArm.setPower(extendArmSpeed);
+                    extendArm.setPower(-extendArmSpeed);
                 } else {
                     extendArm.setPower(0);
                 }
@@ -149,6 +166,7 @@ public class MainTest extends LinearOpMode {
                 telemetry.addData("RightBackDrive", rightBackDrive.getPower());
                 telemetry.addData("RightFrontDrive", rightFrontDrive.getPower());
                 telemetry.addData("Turn Arm Position:", taPOS);
+                telemetry.addData("test", cpos);
                 telemetry.update();
             }
         }

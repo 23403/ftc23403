@@ -3,6 +3,7 @@ public class VariablesNew {
     // pub variables
     public double wheelSpeed;
     public double extendArmSpeed;
+    public double turnArmSpeed;
     // turnArm
     public boolean taLimits;
     public int taLimitHigh;
@@ -23,7 +24,8 @@ public class VariablesNew {
     public VariablesNew() {
         // misc
         this.wheelSpeed = 1;
-        this.extendArmSpeed = 0.7;
+        this.extendArmSpeed = 0.2;
+        this.turnArmSpeed = 0.3;
         // Turn Arm Limits
         this.taLimits = false;
         this.taLimitHigh = 10000;

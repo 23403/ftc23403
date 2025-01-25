@@ -32,7 +32,8 @@ public class MainV2 extends LinearOpMode {
         DcMotor rightBackDrive = hardwareMap.dcMotor.get("rightRear");
         DcMotor leftFrontDrive = hardwareMap.dcMotor.get("leftFront");
         DcMotor turnArm = hardwareMap.dcMotor.get("TurnArm");
-        DcMotor extendArm = hardwareMap.dcMotor.get("ExtendArm");
+        DcMotor extendArm1 = hardwareMap.dcMotor.get("ExtendArm1");
+        DcMotor extendArm2 = hardwareMap.dcMotor.get("ExtendArm2");
         // servos
         /*
         Servo servo = hardwareMap.get(Servo.class, "servo");
@@ -41,6 +42,7 @@ public class MainV2 extends LinearOpMode {
         // variables
         double wheelSpeed = variables.wheelSpeed;
         double extendArmSpeed = variables.extendArmSpeed;
+        double turnArmSpeed = variables.turnArmSpeed;
         // Turn Arm Limits
         boolean taLimits = variables.taLimits;
         int taLimitHigh = variables.taLimitHigh;
@@ -66,7 +68,10 @@ public class MainV2 extends LinearOpMode {
         leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        extendArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // starting pos
         if (sp) {
             // turnArm
@@ -75,16 +80,22 @@ public class MainV2 extends LinearOpMode {
             turnArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             // extendArm
-            extendArm.setTargetPosition(eaSP);
-            extendArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            extendArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            extendArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            extendArm1.setTargetPosition(eaSP);
+            extendArm2.setTargetPosition(eaSP);
+            extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+            extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
+        int taCpos = 0;
+        int eaCpos = 0;
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 int taPOS = turnArm.getCurrentPosition();
-                int eaPOS = extendArm.getCurrentPosition();
+                int eaPOS = extendArm1.getCurrentPosition();
                 // left wheels
                 leftBackDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
                 leftFrontDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
@@ -112,40 +123,59 @@ public class MainV2 extends LinearOpMode {
                         turnArm.setPower(0);
                     }
                 } else {
-                    if (gamepad1.right_stick_y < 0) {
-                        turnArm.setPower(-gamepad1.right_stick_y);
-                    } else if (gamepad1.right_stick_y > 0) {
-                        turnArm.setPower(gamepad1.right_stick_y);
+                    if (gamepad1.right_stick_y > 0) {
+                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        turnArm.setPower(turnArmSpeed);
+                        taCpos = turnArm.getCurrentPosition();
+                    } else if (gamepad1.right_stick_y < 0) {
+                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        turnArm.setPower(-turnArmSpeed);
+                        taCpos = turnArm.getCurrentPosition();
                     } else {
-                        turnArm.setPower(0);
+                        turnArm.setTargetPosition(taCpos);
+                        turnArm.setPower(1);
+                        turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     }
                 }
                 // extendArm code
                 if (eaLimits) {
                     if (eaPOS > eaLimitHigh && eaPOS < eaLimitLow) {
-                        extendArm.setPower(gamepad1.right_stick_y);
+                        extendArm1.setPower(gamepad1.right_stick_y);
                     } else if(eaPOS < eaLimitLow) {
                         if (gamepad1.right_bumper) {
-                            extendArm.setPower(-extendArmSpeed);
+                            extendArm1.setPower(-extendArmSpeed);
                         } else {
-                            extendArm.setPower(0);
+                            extendArm1.setPower(0);
                         }
                     } else if(eaPOS > eaLimitHigh) {
                         if (gamepad1.left_bumper) {
-                            extendArm.setPower(extendArmSpeed);
+                            extendArm1.setPower(extendArmSpeed);
                         } else {
-                            extendArm.setPower(0);
+                            extendArm1.setPower(0);
                         }
                     } else {
-                        extendArm.setPower(0);
+                        extendArm1.setPower(0);
                     }
                 } else {
                     if (gamepad1.left_bumper) {
-                        extendArm.setPower(-extendArmSpeed);
+                        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        extendArm1.setPower(-extendArmSpeed);
+                        extendArm2.setPower(-extendArmSpeed);
+                        eaCpos = extendArm1.getCurrentPosition();
                     } else if (gamepad1.right_bumper){
-                        extendArm.setPower(extendArmSpeed);
+                        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        extendArm1.setPower(extendArmSpeed);
+                        extendArm2.setPower(extendArmSpeed);
+                        eaCpos = extendArm1.getCurrentPosition();
                     } else {
-                        extendArm.setPower(0);
+                        extendArm1.setTargetPosition(eaCpos);
+                        extendArm2.setTargetPosition(eaCpos);
+                        extendArm1.setPower(1);
+                        extendArm2.setPower(1);
+                        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     }
                 }
                 // preset code
@@ -165,7 +195,7 @@ public class MainV2 extends LinearOpMode {
                 }
                 boolean manually;
                 // odometry testing
-                manually = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0 || gamepad1.right_stick_y > 0 || gamepad1.right_stick_y < 0;
+                manually = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 if (!manually) {
                     // odometry fixing itself
                 }
@@ -175,7 +205,8 @@ public class MainV2 extends LinearOpMode {
                 telemetry.addData("RightBackDrive", rightBackDrive.getCurrentPosition());
                 telemetry.addData("RightFrontDrive", rightFrontDrive.getCurrentPosition());
                 telemetry.addData("Turn Arm Position:", taPOS);
-                telemetry.addData("Extend Arm Position:", eaPOS);
+                telemetry.addData("Extend Arm Position1:", extendArm1.getCurrentPosition());
+                telemetry.addData("Extend Arm Position2:", extendArm2.getCurrentPosition());
                 telemetry.addData("Manually moving robot?", manually);
                 telemetry.update();
             }
