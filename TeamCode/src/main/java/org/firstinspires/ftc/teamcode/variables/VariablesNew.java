@@ -24,7 +24,7 @@ public class VariablesNew {
     public VariablesNew() {
         // misc
         this.wheelSpeed = 1;
-        this.extendArmSpeed = 0.5;
+        this.extendArmSpeed = 0.2;
         this.turnArmSpeed = 0.3;
         // Turn Arm Limits
         this.taLimits = false;
