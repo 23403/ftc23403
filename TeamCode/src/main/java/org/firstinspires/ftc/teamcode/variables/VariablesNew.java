@@ -26,18 +26,18 @@ public class VariablesNew {
     public VariablesNew() {
         // misc
         this.wheelSpeed = 1;
-        this.extendArmSpeed = 1;
-        this.turnArmSpeed = 0.5;
+        this.extendArmSpeed = 0.2;
+        this.turnArmSpeed = 0.3;
         // turn arm
-        this.taLimits = true;
-        this.taCorrection = true;
-        this.taLimitHigh = 919;
-        this.taLimitLow = -18;
+        this.taLimits = false;
+        this.taCorrection = false;
+        this.taLimitHigh = 10000;
+        this.taLimitLow = -10000;
         // extend arm
-        this.eaLimits = true;
-        this.eaCorrection = true;
-        this.eaLimitHigh = 2272;
-        this.eaLimitLow = 0;
+        this.eaLimits = false;
+        this.eaCorrection = false;
+        this.eaLimitHigh = -10000;
+        this.eaLimitLow = 10000;
         // starting POS
         this.sp = false;
         this.taSP = 263;
@@ -47,3 +47,5 @@ public class VariablesNew {
         this.submersalLoc = -1000;
     }
 }
+
+// -1858
