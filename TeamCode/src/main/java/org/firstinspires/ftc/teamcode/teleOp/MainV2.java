@@ -76,8 +76,8 @@ public class MainV2 extends LinearOpMode {
         turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // starting pos
         if (sp) {
             // turnArm

@@ -30,7 +30,7 @@ public class VariablesNew {
         this.turnArmSpeed = 0.3;
         // turn arm
         this.taLimits = false;
-        this.taCorrection = true;
+        this.taCorrection = false;
         this.taLimitHigh = 10000;
         this.taLimitLow = -10000;
         // extend arm
