@@ -6,10 +6,12 @@ public class VariablesNew {
     public double turnArmSpeed;
     // turnArm
     public boolean taLimits;
+    public boolean taCorrection;
     public int taLimitHigh;
     public int taLimitLow;
     // extendArm
     public boolean eaLimits;
+    public boolean eaCorrection;
     public int eaLimitHigh;
     public int eaLimitLow;
     // starting position
@@ -26,12 +28,14 @@ public class VariablesNew {
         this.wheelSpeed = 1;
         this.extendArmSpeed = 0.2;
         this.turnArmSpeed = 0.3;
-        // Turn Arm Limits
+        // turn arm
         this.taLimits = false;
+        this.taCorrection = true;
         this.taLimitHigh = 10000;
         this.taLimitLow = -10000;
-        // extend arm limits
+        // extend arm
         this.eaLimits = false;
+        this.eaCorrection = false;
         this.eaLimitHigh = -10000;
         this.eaLimitLow = 10000;
         // starting POS

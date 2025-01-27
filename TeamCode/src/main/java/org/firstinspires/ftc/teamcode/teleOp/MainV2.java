@@ -3,7 +3,7 @@
  * @author David Grieas - 23403 C{}de C<>nduct<>rs
  * coding from scratch for our robot, Beastkit v2
  * started recoding at 1/20/25  @  10:41 am
- * robot v2 finished building at 1/26/25
+ * robot v2 finished building at 1/30/25
  */
 package org.firstinspires.ftc.teamcode.teleOp;
 
@@ -16,7 +16,10 @@ import org.firstinspires.ftc.teamcode.variables.VariablesNew;
 @TeleOp(name="Main v2", group="ftc23403")
 public class MainV2 extends LinearOpMode {
     /**
+     * @TODO add proper WORKING limits to the turnArm and extendArms
      * @TODO add intake and outtake code
+     * @TODO add wrist and arm code
+     * @TODO add the preset locations positions
      * @TODO have odometry working in teleOp
      * @TODO make the slides correction more smooth
      * MAIN V2 BY DAVID
@@ -44,12 +47,14 @@ public class MainV2 extends LinearOpMode {
         double extendArmSpeed = variables.extendArmSpeed;
         double turnArmSpeedM = variables.turnArmSpeed;
         double turnArmSpeed = (gamepad1.right_stick_y > turnArmSpeedM) ? turnArmSpeedM : Math.abs(gamepad1.left_stick_y); // will ALWAYS return POSITIVE value!
-        // Turn Arm Limits
+        // Turn Arm
         boolean taLimits = variables.taLimits;
+        boolean taCorrection = variables.taCorrection;
         int taLimitHigh = variables.taLimitHigh;
         int taLimitLow = variables.taLimitLow;
-        // Extend Arm Limits
+        // Extend Arm
         boolean eaLimits = variables.eaLimits;
+        boolean eaCorrection = variables.eaCorrection;
         int eaLimitHigh = variables.eaLimitHigh;
         int eaLimitLow = variables.eaLimitLow;
         // starting POS
@@ -91,7 +96,8 @@ public class MainV2 extends LinearOpMode {
             extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
         int taCpos = 0;
-        int eaCpos = 0;
+        int eaCpos1 = extendArm1.getCurrentPosition();
+        int eaCpos2 = extendArm2.getCurrentPosition();
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
@@ -104,25 +110,25 @@ public class MainV2 extends LinearOpMode {
                 // right wheels
                 rightFrontDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
                 rightBackDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
-
                 // turnArm code
                 if (taLimits) {
-                    if (taPOS < taLimitHigh && taPOS > taLimitLow) {
-                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        turnArm.setPower(turnArmSpeed);
+                    if (gamepad1.right_stick_y > 0) {
+                        turnArm.setTargetPosition(taLimitHigh);
+                        turnArm.setPower(1);
+                        turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         taCpos = turnArm.getCurrentPosition();
-                    } else if(taPOS < taLimitLow && gamepad1.right_stick_y > 0) {
-                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        turnArm.setPower(-turnArmSpeed);
+                    } else if (gamepad1.right_stick_y < 0) {
+                        turnArm.setTargetPosition(taLimitLow);
+                        turnArm.setPower(1);
+                        turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         taCpos = turnArm.getCurrentPosition();
-                    } else if(taPOS > taLimitHigh && gamepad1.right_stick_y < 0) {
-                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        turnArm.setPower(turnArmSpeed);
-                        taCpos = turnArm.getCurrentPosition();
-                    } else {
+                    } else if (taCorrection) {
                         turnArm.setTargetPosition(taCpos);
                         turnArm.setPower(1);
                         turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    } else {
+                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        turnArm.setPower(0);
                     }
                 } else {
                     if (gamepad1.right_stick_y > 0) {
@@ -133,86 +139,87 @@ public class MainV2 extends LinearOpMode {
                         turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         turnArm.setPower(-turnArmSpeed);
                         taCpos = turnArm.getCurrentPosition();
-                    } else {
+                    } else if (taCorrection) {
                         turnArm.setTargetPosition(taCpos);
                         turnArm.setPower(1);
                         turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    } else {
+                        turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        turnArm.setPower(0);
                     }
                 }
                 // extendArm code
                 if (eaLimits) {
-                    if (eaPOS < eaLimitHigh && eaPOS > eaLimitLow) {
-                        if (gamepad1.left_bumper) {
-                            extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm1.setPower(-extendArmSpeed);
-                            extendArm2.setPower(-extendArmSpeed);
-                            eaCpos = extendArm1.getCurrentPosition();
-                        } else if (gamepad1.right_bumper){
-                            extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm1.setPower(extendArmSpeed);
-                            extendArm2.setPower(extendArmSpeed);
-                            eaCpos = extendArm1.getCurrentPosition();
-                        }
-                    } else if(taPOS < taLimitLow && gamepad1.right_bumper) {
-                        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    if (gamepad1.right_bumper) {
+                        extendArm1.setTargetPosition(eaLimitHigh);
+                        extendArm2.setTargetPosition(eaLimitHigh);
                         extendArm1.setPower(extendArmSpeed);
                         extendArm2.setPower(extendArmSpeed);
-                        eaCpos = extendArm1.getCurrentPosition();
-                    } else if(taPOS > taLimitHigh && gamepad1.left_bumper) {
-                        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm1.setPower(-extendArmSpeed);
-                        extendArm2.setPower(-extendArmSpeed);
-                        eaCpos = extendArm1.getCurrentPosition();
-                    } else {
-                        extendArm1.setTargetPosition(eaCpos);
-                        extendArm2.setTargetPosition(eaCpos);
+                        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        eaCpos1 = extendArm1.getCurrentPosition();
+                        eaCpos2 = extendArm2.getCurrentPosition();
+                    } else if (gamepad1.left_bumper) {
+                        extendArm1.setTargetPosition(eaLimitLow);
+                        extendArm2.setTargetPosition(eaLimitLow);
+                        extendArm1.setPower(extendArmSpeed);
+                        extendArm2.setPower(extendArmSpeed);
+                        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        eaCpos1 = extendArm1.getCurrentPosition();
+                        eaCpos2 = extendArm2.getCurrentPosition();
+                    } else if (eaCorrection) {
+                        extendArm1.setTargetPosition(eaCpos1);
+                        extendArm2.setTargetPosition(eaCpos2);
                         extendArm1.setPower(1);
                         extendArm2.setPower(1);
                         extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    } else {
+                        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        extendArm1.setPower(0);
+                        extendArm2.setPower(0);
                     }
                 } else {
-                    if (gamepad1.left_bumper) {
+                    if (gamepad1.right_bumper) {
                         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm1.setPower(-extendArmSpeed);
-                        extendArm2.setPower(-extendArmSpeed);
-                        eaCpos = extendArm1.getCurrentPosition();
-                    } else if (gamepad1.right_bumper){
+                        extendArm1.setPower(turnArmSpeed);
+                        extendArm2.setPower(turnArmSpeed);
+                        eaCpos1 = extendArm1.getCurrentPosition();
+                        eaCpos2 = extendArm2.getCurrentPosition();
+                    } else if (gamepad1.right_stick_y < 0) {
                         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm1.setPower(extendArmSpeed);
-                        extendArm2.setPower(extendArmSpeed);
-                        eaCpos = extendArm1.getCurrentPosition();
-                    } else {
-                        extendArm1.setTargetPosition(eaCpos);
-                        extendArm2.setTargetPosition(eaCpos);
+                        extendArm1.setPower(-turnArmSpeed);
+                        extendArm2.setPower(-turnArmSpeed);
+                        eaCpos1 = extendArm1.getCurrentPosition();
+                        eaCpos2 = extendArm2.getCurrentPosition();
+                    } else if (taCorrection) {
+                        extendArm1.setTargetPosition(eaCpos1);
+                        extendArm2.setTargetPosition(eaCpos2);
                         extendArm1.setPower(1);
                         extendArm2.setPower(1);
                         extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    } else {
+                        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                        extendArm1.setPower(0);
+                        extendArm2.setPower(0);
                     }
                 }
                 // preset code
                 // specimen pos
                 if (gamepad1.dpad_up) {
-                    turnArm.setTargetPosition(specimenLoc);
-                    turnArm.setPower(1);
-                    turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    turnArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    // use correction code cuz its easier fr fr
+                    taCpos = specimenLoc;
                 }
                 // submersal pos
                 if (gamepad1.dpad_down) {
-                    turnArm.setTargetPosition(submersalLoc);
-                    turnArm.setPower(1);
-                    turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    turnArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-                    turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    // use correction code cuz its easier fr fr
+                    taCpos = submersalLoc;
                 }
                 // odometry
                 if (!moving) {
