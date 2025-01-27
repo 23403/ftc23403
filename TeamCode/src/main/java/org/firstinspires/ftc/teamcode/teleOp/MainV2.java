@@ -10,6 +10,7 @@ package org.firstinspires.ftc.teamcode.teleOp;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.variables.VariablesNew;
 
@@ -46,7 +47,7 @@ public class MainV2 extends LinearOpMode {
         double wheelSpeed = variables.wheelSpeed;
         double extendArmSpeed = variables.extendArmSpeed;
         double turnArmSpeedM = variables.turnArmSpeed;
-        double turnArmSpeed = (gamepad1.right_stick_y > turnArmSpeedM) ? turnArmSpeedM : Math.abs(gamepad1.left_stick_y); // will ALWAYS return POSITIVE value!
+
         // Turn Arm
         boolean taLimits = variables.taLimits;
         boolean taCorrection = variables.taCorrection;
@@ -68,6 +69,7 @@ public class MainV2 extends LinearOpMode {
         // Reverse one side of the drive train.
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
+        extendArm2.setDirection(DcMotor.Direction.REVERSE);
         // breaks
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -102,8 +104,8 @@ public class MainV2 extends LinearOpMode {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
+                double turnArmSpeed = (gamepad1.right_stick_y > turnArmSpeedM || gamepad1.right_stick_y < -turnArmSpeedM) ? turnArmSpeedM : Math.abs(gamepad1.left_stick_y); // will ALWAYS return POSITIVE value!
                 int taPOS = turnArm.getCurrentPosition();
-                int eaPOS = extendArm1.getCurrentPosition();
                 // left wheels
                 leftBackDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
                 leftFrontDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
@@ -112,14 +114,14 @@ public class MainV2 extends LinearOpMode {
                 rightBackDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
                 // turnArm code
                 if (taLimits) {
-                    if (gamepad1.right_stick_y > 0) {
+                    if (gamepad1.right_stick_y < 0) {
                         turnArm.setTargetPosition(taLimitHigh);
-                        turnArm.setPower(1);
+                        turnArm.setPower(turnArmSpeed);
                         turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         taCpos = turnArm.getCurrentPosition();
-                    } else if (gamepad1.right_stick_y < 0) {
+                    } else if (gamepad1.right_stick_y > 0) {
                         turnArm.setTargetPosition(taLimitLow);
-                        turnArm.setPower(1);
+                        turnArm.setPower(turnArmSpeed);
                         turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         taCpos = turnArm.getCurrentPosition();
                     } else if (taCorrection) {
@@ -232,6 +234,7 @@ public class MainV2 extends LinearOpMode {
                 telemetry.addData("rightFrontDrive POS:", rightFrontDrive.getCurrentPosition());
                 telemetry.addData("Turn Arm Position:", taPOS);
                 telemetry.addData("Turn Arm correction Position:", taCpos);
+                telemetry.addData("Turn Arm Speed", turnArmSpeed);
                 telemetry.addData("Extend Arm Position1:", extendArm1.getCurrentPosition());
                 telemetry.addData("Extend Arm Position2:", extendArm2.getCurrentPosition());
                 telemetry.addData("Manually moving robot?", moving);
