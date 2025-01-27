@@ -1,5 +1,5 @@
 package org.firstinspires.ftc.teamcode.variables;
-public class Variables {
+public class VariablesOld {
     // pub variables
     public int taLimitHigh;
     public int taLimitLow;
@@ -18,7 +18,7 @@ public class Variables {
     public int EaMaxConstant;
     public boolean taLimits;
     // access limits across places
-    public Variables() {
+    public VariablesOld() {
         // misc
         this.wheelSpeed = 1;
         this.extendArmSpeed = 0.7;

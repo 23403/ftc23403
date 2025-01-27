@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleOp.old;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -6,10 +6,11 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-import org.firstinspires.ftc.teamcode.variables.Variables;
+import org.firstinspires.ftc.teamcode.variables.VariablesOld;
 
-@TeleOp(name="Main", group="ftc23403")
-public class Main extends LinearOpMode {
+@TeleOp(name="Dual Controller", group="old_ftc23403")
+public class DualController extends LinearOpMode {
+
     private DcMotor leftBackDrive;
     private DcMotor rightFrontDrive;
     private DcMotor rightBackDrive;
@@ -33,7 +34,6 @@ public class Main extends LinearOpMode {
     private int taPLL;
     private boolean pl;
     private boolean rtl;
-    private boolean taLimits;
 
     /**
      * This OpMode offers POV (point-of-view) style TeleOp control for a direct drive robot.
@@ -42,12 +42,12 @@ public class Main extends LinearOpMode {
      * right joystick (left and right) spins the robot left (counterclockwise) and right (clockwise).
      */
 
-    private int teMax = -2300; //upp
-    private int teMin = -50; //down
+    private int MAX_SLIDER_POSITION = -2300; //upp
+    private int MIN_SLIDER_POSITION = -50; //down
 
     @Override
     public void runOpMode() {
-        Variables variables = new Variables();
+        VariablesOld variablesOld = new VariablesOld();
         leftBackDrive = hardwareMap.get(DcMotor.class, "leftRear");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "rightFront");
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightRear");
@@ -59,21 +59,20 @@ public class Main extends LinearOpMode {
         clawServo1 = hardwareMap.get(CRServo.class, "claw1");
 
         //Turn Arm Limits
-        taLimits = variables.taLimits;
-        taLimitHigh = variables.taLimitHigh;
-        taLimitLow = variables.taLimitLow;
+        taLimitHigh = variablesOld.taLimitHigh;
+        taLimitLow = variablesOld.taLimitLow;
         // starting POS
-        taSP = variables.taSP;
-        taSPM = variables.taSPM;
-        taSPL = variables.taSPL;
-        sp = variables.sp;
-        wheelSpeed = variables.wheelSpeed;
-        extendArmSpeed = variables.extendArmSpeed;
+        taSP = variablesOld.taSP;
+        taSPM = variablesOld.taSPM;
+        taSPL = variablesOld.taSPL;
+        sp = variablesOld.sp;
+        wheelSpeed = variablesOld.wheelSpeed;
+        extendArmSpeed = variablesOld.extendArmSpeed;
         // pickup low POS
-        taPL = variables.taPL;
-        taPLM = variables.taPLM;
-        taPLL = variables.taPLL;
-        pl = variables.pl;
+        taPL = variablesOld.taPL;
+        taPLM = variablesOld.taPLM;
+        taPLL = variablesOld.taPLL;
+        pl = variablesOld.pl;
         rtl = false;
 
         // Reverse one of the drive motors.
@@ -115,12 +114,12 @@ public class Main extends LinearOpMode {
           extendArm.setPower(0);
         }
         */
-                // extend arm limits by AYTEN
+                // Slider motor control AYTEN
                 int sliderPosition = extendArm.getCurrentPosition();
-                if (gamepad1.dpad_up && sliderPosition > teMax) {
-                    extendArm.setPower(-extendArmSpeed);
-                } else if (gamepad1.dpad_down && sliderPosition < teMin) {
-                    extendArm.setPower(extendArmSpeed);
+                if (gamepad2.dpad_up && sliderPosition > MAX_SLIDER_POSITION) {
+                    extendArm.setPower(-0.8);
+                } else if (gamepad2.dpad_down && sliderPosition < MIN_SLIDER_POSITION) {
+                    extendArm.setPower(0.8);
                 } else {
                     extendArm.setPower(0);
                 }
@@ -135,34 +134,26 @@ public class Main extends LinearOpMode {
                     clawServo.setPower(0);
                     clawServo1.setPower(0);
                 }
-                // turn arm code/limits by DAVID
-                if (taLimits) {
-                    if (taPOS > taLimitHigh && taPOS < taLimitLow) {
-                        turnArm.setPower(gamepad1.right_stick_y);
-                    } else if(taPOS < taLimitLow) {
-                        if (gamepad1.right_stick_y > 0) {
-                            turnArm.setPower(gamepad1.right_stick_y);
-                        } else {
-                            turnArm.setPower(0);
-                        }
-                    } else if(taPOS > taLimitHigh) {
-                        if (gamepad1.right_stick_y < 0) {
-                            turnArm.setPower(gamepad1.right_stick_y);
-                        } else {
-                            turnArm.setPower(0);
-                        }
-                    } else {
-                        turnArm.setPower(0);
-                    }
-                } else {
-                    if (gamepad1.right_stick_y < 0) {
-                        turnArm.setPower(gamepad1.right_stick_y);
-                    } else if (gamepad1.right_stick_y > 0) {
-                        turnArm.setPower(gamepad1.right_stick_y);
-                    } else {
-                        turnArm.setPower(0);
-                    }
-                }
+                // turn arm code/limits
+        /*
+        if (taPOS > taLimitHigh && taPOS < taLimitLow) {
+          turnArm.setPower(gamepad1.right_stick_y);
+        } else if(taPOS < taLimitLow) {
+          if (gamepad1.right_stick_y > 0) {
+            turnArm.setPower(gamepad1.right_stick_y);
+          } else {
+            turnArm.setPower(0);
+          }
+        } else if(taPOS > taLimitHigh) {
+          if (gamepad1.right_stick_y < 0) {
+            turnArm.setPower(gamepad1.right_stick_y);
+          } else {
+            turnArm.setPower(0);
+          }
+        } else {
+          turnArm.setPower(0);
+        }
+        */
                 // rt to pickup pos
                 if(gamepad1.right_trigger > 0) {
                     rtl = false;
@@ -191,15 +182,15 @@ public class Main extends LinearOpMode {
                     }
                 }
                 // hangArm
-                if(gamepad1.y) {
+                if(gamepad2.y) {
                     hangServo.setPosition(0.4);
-                } else if(gamepad1.a) {
+                } else if(gamepad2.a) {
                     hangServo.setPosition(0);
                 }
-                if (gamepad1.right_stick_y > 0) {
-                    turnArm.setPower(gamepad1.right_stick_y);
-                } else if (gamepad1.right_stick_y < 0) {
-                    turnArm.setPower(gamepad1.right_stick_y);
+                if (gamepad2.right_stick_y > 0) {
+                    turnArm.setPower(gamepad2.right_stick_y);
+                } else if (gamepad2.right_stick_y < 0) {
+                    turnArm.setPower(gamepad2.right_stick_y);
                 } else {
                     turnArm.setPower(0);
                 }

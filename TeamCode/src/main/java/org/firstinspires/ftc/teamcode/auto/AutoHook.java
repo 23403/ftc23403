@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -6,10 +6,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-import org.firstinspires.ftc.teamcode.variables.Variables;
+import org.firstinspires.ftc.teamcode.variables.VariablesOld;
 
-@Autonomous(name="Hook Reverse", group="ftc23403")
-public class AutoHookReverse extends LinearOpMode {
+@Autonomous(name="Hook", group="ftc23403")
+public class AutoHook extends LinearOpMode {
 
     private DcMotor leftBackDrive;
     private DcMotor rightFrontDrive;
@@ -20,19 +20,8 @@ public class AutoHookReverse extends LinearOpMode {
     private Servo hangServo;
     private CRServo clawServo;
     private CRServo clawServo1;
+    private int eaPOS;
 
-    //Variables
-    private int taLimitHigh;
-    private int taLimitLow;
-    private double wheelSpeed;
-    private double extendArmSpeed;
-    private int taPL;
-    private int taPLM;
-    private int taPLL;
-    private boolean pl;
-    private int LowExtendLimit;
-    private int HighExtendLimit;
-    private double Cir;
     /**
      * This OpMode offers POV (point-of-view) style TeleOp control for a direct drive robot.
      *
@@ -41,7 +30,7 @@ public class AutoHookReverse extends LinearOpMode {
      */
     @Override
     public void runOpMode() {
-        Variables variables = new Variables();
+        VariablesOld variables = new VariablesOld();
         leftBackDrive = hardwareMap.get(DcMotor.class, "leftRear");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "rightFront");
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightRear");
@@ -52,19 +41,7 @@ public class AutoHookReverse extends LinearOpMode {
         clawServo = hardwareMap.get(CRServo.class, "claw");
         clawServo1 = hardwareMap.get(CRServo.class, "claw1");
 
-        //Turn Arm Limits
-        taLimitHigh = variables.taLimitHigh;
-        taLimitLow = variables.taLimitLow;
-        //
-        wheelSpeed = variables.wheelSpeed;
-        extendArmSpeed = variables.extendArmSpeed;
-        LowExtendLimit = extendArm.getCurrentPosition();
-        HighExtendLimit = LowExtendLimit + variables.EaMaxConstant;
-        // pickup low POS
-        taPL = variables.taPL;
-        taPLM = variables.taPLM;
-        taPLL = variables.taPLL;
-        pl = variables.pl;
+        eaPOS = extendArm.getCurrentPosition();
         int ataPOS = turnArm.getCurrentPosition();
 
         waitForStart();
@@ -74,12 +51,12 @@ public class AutoHookReverse extends LinearOpMode {
     turnArmMove(1000, 1);
     extendArmMove(200, 1);
     */
-        forward(90, 1);
+        forward(90, 0.5);
         // arm
         turnArmMove(1750, 0.7);
         // move
-        sideways(-160, 1);
-        forward(200, 1);
+        sideways(260, 0.5);
+        forward(200, 0.5);
         // hang specimen
         extendArmMove(1300, 0.7);
         extendArmMoveOld(-1);
@@ -89,7 +66,7 @@ public class AutoHookReverse extends LinearOpMode {
         forward(-170, 0.3);
         motorRest(0.5);
         // sideways(-550, 1); // to push blocks
-        sideways(-1000, 0.7); // to park
+        sideways(-700, 0.7); // to park
         motorRest(0.4);
         // forward(350, 1); // to push blocks
         motorRest(0.8);
@@ -123,6 +100,7 @@ public class AutoHookReverse extends LinearOpMode {
     }
 
     private void turnArmMove(int dis, double power) {
+        turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // formula
         turnArm.setDirection(DcMotor.Direction.REVERSE);
         // reset pos
@@ -143,6 +121,7 @@ public class AutoHookReverse extends LinearOpMode {
     }
 
     private void extendArmMove(int dis, double power) {
+        extendArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // formula
         extendArm.setDirection(DcMotor.Direction.REVERSE);
         // reset pos
@@ -172,6 +151,10 @@ public class AutoHookReverse extends LinearOpMode {
     }
 
     private void forwardOld(double power) {
+        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // formula
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -186,6 +169,10 @@ public class AutoHookReverse extends LinearOpMode {
 
 
     private void forward(int dis, double power) {
+        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // formula
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -227,6 +214,10 @@ public class AutoHookReverse extends LinearOpMode {
     }
 
     private void turn(int dis, double power) {
+        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // formula
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         leftFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -268,6 +259,10 @@ public class AutoHookReverse extends LinearOpMode {
     }
 
     private void sideways(int dis, double power) {
+        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // formula
         leftBackDrive.setDirection(DcMotor.Direction.REVERSE);
         leftFrontDrive.setDirection(DcMotor.Direction.FORWARD);
@@ -292,7 +287,7 @@ public class AutoHookReverse extends LinearOpMode {
         leftBackDrive.setPower(power);
         leftFrontDrive.setPower(power);
         rightBackDrive.setPower(power);
-        rightFrontDrive.setPower(power - 0.05);
+        rightFrontDrive.setPower(power);
 
         while (leftBackDrive.isBusy() && leftFrontDrive.isBusy() && rightBackDrive.isBusy()  && rightFrontDrive.isBusy() ) {
             telemetry.addData("LeftBackPos:", leftBackDrive.getCurrentPosition());
@@ -309,6 +304,10 @@ public class AutoHookReverse extends LinearOpMode {
     }
 
     private void diagonal(double FrontPow, double SidePow) {
+        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftBackDrive.setPower(-SidePow+FrontPow);
         leftFrontDrive.setPower(SidePow+FrontPow);
         rightBackDrive.setPower(SidePow+FrontPow);

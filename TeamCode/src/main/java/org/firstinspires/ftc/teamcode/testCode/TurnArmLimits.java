@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.testCode;
 
 
 
@@ -6,11 +6,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import java.security.PrivateKey;
 
-
-@TeleOp(name="Main v4", group="ftc23403")
-public class MainV4 extends LinearOpMode {
+@TeleOp(name="Turn Arm Limits", group="test_ftc23403")
+public class TurnArmLimits extends LinearOpMode {
 
     private int MAX_TURN = 7 ;
     private int MIN_TURN = -50;

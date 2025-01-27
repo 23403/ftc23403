@@ -1,13 +1,12 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.testCode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
-import org.firstinspires.ftc.teamcode.variables.Variables;
+import org.firstinspires.ftc.teamcode.variables.VariablesOld;
 
-@TeleOp(name="MainTest", group="ftc23403")
+@TeleOp(name="Main Test", group="test_ftc23403")
 public class MainTest extends LinearOpMode {
 
     private DcMotor leftBackDrive;
@@ -44,7 +43,7 @@ public class MainTest extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        Variables variables = new Variables();
+        VariablesOld variables = new VariablesOld();
         leftBackDrive = hardwareMap.get(DcMotor.class, "leftRear");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "rightFront");
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightRear");

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.auto;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -6,10 +6,10 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.CRServo;
 
-import org.firstinspires.ftc.teamcode.variables.Variables;
+import org.firstinspires.ftc.teamcode.variables.VariablesOld;
 
-@Autonomous(name="Hook Push", group="ftc23403")
-public class AutoHookPush extends LinearOpMode {
+@Autonomous(name="Hook Reverse", group="ftc23403")
+public class AutoHookReverse extends LinearOpMode {
 
     private DcMotor leftBackDrive;
     private DcMotor rightFrontDrive;
@@ -41,7 +41,7 @@ public class AutoHookPush extends LinearOpMode {
      */
     @Override
     public void runOpMode() {
-        Variables variables = new Variables();
+        VariablesOld variables = new VariablesOld();
         leftBackDrive = hardwareMap.get(DcMotor.class, "leftRear");
         rightFrontDrive = hardwareMap.get(DcMotor.class, "rightFront");
         rightBackDrive = hardwareMap.get(DcMotor.class, "rightRear");
@@ -78,7 +78,7 @@ public class AutoHookPush extends LinearOpMode {
         // arm
         turnArmMove(1750, 0.7);
         // move
-        sideways(160, 1);
+        sideways(-160, 1);
         forward(200, 1);
         // hang specimen
         extendArmMove(1300, 0.7);
@@ -89,7 +89,7 @@ public class AutoHookPush extends LinearOpMode {
         forward(-170, 0.3);
         motorRest(0.5);
         // sideways(-550, 1); // to push blocks
-        sideways(-700, 0.7); // to park
+        sideways(-1000, 0.7); // to park
         motorRest(0.4);
         // forward(350, 1); // to push blocks
         motorRest(0.8);

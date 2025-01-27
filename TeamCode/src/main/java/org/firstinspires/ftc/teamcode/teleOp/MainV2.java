@@ -5,7 +5,7 @@
  * started recoding at 1/20/25  @  10:41 am
  * robot v2 finished building at 1/26/25
  */
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;

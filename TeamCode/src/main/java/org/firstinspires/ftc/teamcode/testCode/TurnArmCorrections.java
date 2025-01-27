@@ -1,17 +1,14 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.testCode;
 
 
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
-import org.firstinspires.ftc.teamcode.variables.Variables;
 
 
-@TeleOp(name="Main v3", group="ftc23403")
-public class MainV3 extends LinearOpMode {
+@TeleOp(name="Turn Arm Corrections", group="test_ftc23403")
+public class TurnArmCorrections extends LinearOpMode {
 
 
 int  aPos = 0;
