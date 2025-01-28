@@ -1,7 +1,7 @@
 package pedroPathing.constants;
 
-import com.pedropathing.localization.*;
-import com.pedropathing.localization.constants.*;
+import com.pedropathing.localization.Encoder;
+import com.pedropathing.localization.constants.TwoWheelConstants;
 import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 public class LConstants {

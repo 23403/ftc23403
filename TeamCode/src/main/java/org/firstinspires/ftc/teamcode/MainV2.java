@@ -5,12 +5,11 @@
  * started recoding at 1/20/25  @  10:41 am
  * robot v2 finished building at 1/30/25
  */
-package org.firstinspires.ftc.teamcode.teleOp;
+package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 import org.firstinspires.ftc.teamcode.variables.VariablesNew;
 
