@@ -5,11 +5,13 @@
  * started recoding at 1/20/25  @  10:41 am
  * robot v2 finished building at 1/30/25
  */
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.teleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.variables.VariablesNew;
 
@@ -38,10 +40,10 @@ public class MainV2 extends LinearOpMode {
         DcMotor extendArm1 = hardwareMap.dcMotor.get("ExtendArm1");
         DcMotor extendArm2 = hardwareMap.dcMotor.get("ExtendArm2");
         // servos
-        /*
-        Servo servo = hardwareMap.get(Servo.class, "servo");
-        CRServo crServo = hardwareMap.get(CRServo.class, "crServo");
-        */
+        Servo claw = hardwareMap.get(Servo.class, "claw");
+        Servo wrist = hardwareMap.get(Servo.class, "wrist");
+        CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL");
+        CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR");
         // variables
         double wheelSpeed = variables.wheelSpeed;
         double extendArmSpeed = variables.extendArmSpeed;
@@ -64,6 +66,8 @@ public class MainV2 extends LinearOpMode {
         // preset locations
         int specimenLoc = variables.specimenLoc;
         int submersalLoc = variables.submersalLoc;
+        int feildLoc = variables.feildLoc;;
+        int basketLoc = variables.basketLoc;;
 
         // Reverse one side of the drive train.
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
@@ -96,14 +100,16 @@ public class MainV2 extends LinearOpMode {
             extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
-        int taCpos = 0;
+        int taCpos = 180;
+        double wristCpos = 0;
         int eaCpos1 = extendArm1.getCurrentPosition();
         int eaCpos2 = extendArm2.getCurrentPosition();
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
+                wrist.setPosition(wristCpos);
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
-                double turnArmSpeed = (gamepad1.right_stick_y > turnArmSpeedM || gamepad1.right_stick_y < -turnArmSpeedM) ? turnArmSpeedM : Math.abs(gamepad1.left_stick_y); // will ALWAYS return POSITIVE value!
+                double turnArmSpeed = (Math.abs(gamepad1.right_stick_y) > turnArmSpeedM) ? turnArmSpeedM : Math.abs(gamepad1.left_stick_y); // will ALWAYS return POSITIVE value!
                 int taPOS = turnArm.getCurrentPosition();
                 // left wheels
                 leftBackDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
@@ -151,7 +157,7 @@ public class MainV2 extends LinearOpMode {
                 }
                 // extendArm code
                 if (eaLimits) {
-                    if (gamepad1.right_bumper) {
+                    if (gamepad1.dpad_up) {
                         extendArm1.setTargetPosition(eaLimitHigh);
                         extendArm2.setTargetPosition(eaLimitHigh);
                         extendArm1.setPower(extendArmSpeed);
@@ -160,7 +166,7 @@ public class MainV2 extends LinearOpMode {
                         extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         eaCpos1 = extendArm1.getCurrentPosition();
                         eaCpos2 = extendArm2.getCurrentPosition();
-                    } else if (gamepad1.left_bumper) {
+                    } else if (gamepad1.dpad_down) {
                         extendArm1.setTargetPosition(eaLimitLow);
                         extendArm2.setTargetPosition(eaLimitLow);
                         extendArm1.setPower(extendArmSpeed);
@@ -183,21 +189,21 @@ public class MainV2 extends LinearOpMode {
                         extendArm2.setPower(0);
                     }
                 } else {
-                    if (gamepad1.right_bumper) {
+                    if (gamepad1.dpad_up) {
                         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm1.setPower(turnArmSpeed);
                         extendArm2.setPower(turnArmSpeed);
                         eaCpos1 = extendArm1.getCurrentPosition();
                         eaCpos2 = extendArm2.getCurrentPosition();
-                    } else if (gamepad1.right_stick_y < 0) {
+                    } else if (gamepad1.dpad_down) {
                         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm1.setPower(-turnArmSpeed);
                         extendArm2.setPower(-turnArmSpeed);
                         eaCpos1 = extendArm1.getCurrentPosition();
                         eaCpos2 = extendArm2.getCurrentPosition();
-                    } else if (taCorrection) {
+                    } else if (eaCorrection) {
                         extendArm1.setTargetPosition(eaCpos1);
                         extendArm2.setTargetPosition(eaCpos2);
                         extendArm1.setPower(1);
@@ -212,15 +218,29 @@ public class MainV2 extends LinearOpMode {
                     }
                 }
                 // preset code
+                // field pos
+                if (gamepad1.a) {
+                    // use correction code cuz its easier fr fr
+                    taCpos = feildLoc;
+                    wristCpos = 0.12;
+                }
+                // baskets pos
+                if (gamepad1.y) {
+                    // use correction code cuz its easier fr fr
+                    taCpos = basketLoc;
+                    wristCpos = 0.12;
+                }
                 // specimen pos
-                if (gamepad1.dpad_up) {
+                if (gamepad1.b) {
                     // use correction code cuz its easier fr fr
                     taCpos = specimenLoc;
+                    wristCpos = 0.09;
                 }
                 // submersal pos
-                if (gamepad1.dpad_down) {
+                if (gamepad1.x) {
                     // use correction code cuz its easier fr fr
                     taCpos = submersalLoc;
+                    wristCpos = 0.5;
                 }
                 // odometry
                 if (!moving) {
@@ -236,6 +256,7 @@ public class MainV2 extends LinearOpMode {
                 telemetry.addData("Turn Arm Speed", turnArmSpeed);
                 telemetry.addData("Extend Arm Position1:", extendArm1.getCurrentPosition());
                 telemetry.addData("Extend Arm Position2:", extendArm2.getCurrentPosition());
+                telemetry.addData("Wrist Position:", wrist.getPosition());
                 telemetry.addData("Manually moving robot?", moving);
                 telemetry.update();
             }

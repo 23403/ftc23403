@@ -21,6 +21,8 @@ public class VariablesNew {
     // preset locations
     public int specimenLoc;
     public int submersalLoc;
+    public int feildLoc;
+    public int basketLoc;
 
     // access limits across places
     public VariablesNew() {
@@ -32,7 +34,7 @@ public class VariablesNew {
         this.taLimits = true;
         this.taCorrection = true;
         this.taLimitHigh = 919;
-        this.taLimitLow = -18;
+        this.taLimitLow = -253;
         // extend arm
         this.eaLimits = true;
         this.eaCorrection = true;
@@ -43,7 +45,9 @@ public class VariablesNew {
         this.taSP = 263;
         this.eaSP = 120;
         // preset locations
-        this.specimenLoc = 1000;
-        this.submersalLoc = -1000;
+        this.feildLoc = -260;
+        this.basketLoc = 717;
+        this.specimenLoc = 420;
+        this.submersalLoc = 200;
     }
 }

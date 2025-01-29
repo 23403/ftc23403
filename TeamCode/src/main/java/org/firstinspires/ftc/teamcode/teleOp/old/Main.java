@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.old;
+package org.firstinspires.ftc.teamcode.teleOp.old;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -8,9 +8,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.variables.VariablesOld;
 
-@TeleOp(name="Dual Controller", group="old_ftc23403")
-public class DualController extends LinearOpMode {
-
+@TeleOp(name="Main", group="old_ftc23403")
+public class Main extends LinearOpMode {
     private DcMotor leftBackDrive;
     private DcMotor rightFrontDrive;
     private DcMotor rightBackDrive;
@@ -34,6 +33,7 @@ public class DualController extends LinearOpMode {
     private int taPLL;
     private boolean pl;
     private boolean rtl;
+    private boolean taLimits;
 
     /**
      * This OpMode offers POV (point-of-view) style TeleOp control for a direct drive robot.
@@ -42,8 +42,8 @@ public class DualController extends LinearOpMode {
      * right joystick (left and right) spins the robot left (counterclockwise) and right (clockwise).
      */
 
-    private int MAX_SLIDER_POSITION = -2300; //upp
-    private int MIN_SLIDER_POSITION = -50; //down
+    private int teMax = -2300; //upp
+    private int teMin = -50; //down
 
     @Override
     public void runOpMode() {
@@ -59,6 +59,7 @@ public class DualController extends LinearOpMode {
         clawServo1 = hardwareMap.get(CRServo.class, "claw1");
 
         //Turn Arm Limits
+        taLimits = variablesOld.taLimits;
         taLimitHigh = variablesOld.taLimitHigh;
         taLimitLow = variablesOld.taLimitLow;
         // starting POS
@@ -114,12 +115,12 @@ public class DualController extends LinearOpMode {
           extendArm.setPower(0);
         }
         */
-                // Slider motor control AYTEN
+                // extend arm limits by AYTEN
                 int sliderPosition = extendArm.getCurrentPosition();
-                if (gamepad2.dpad_up && sliderPosition > MAX_SLIDER_POSITION) {
-                    extendArm.setPower(-0.8);
-                } else if (gamepad2.dpad_down && sliderPosition < MIN_SLIDER_POSITION) {
-                    extendArm.setPower(0.8);
+                if (gamepad1.dpad_up && sliderPosition > teMax) {
+                    extendArm.setPower(-extendArmSpeed);
+                } else if (gamepad1.dpad_down && sliderPosition < teMin) {
+                    extendArm.setPower(extendArmSpeed);
                 } else {
                     extendArm.setPower(0);
                 }
@@ -134,26 +135,34 @@ public class DualController extends LinearOpMode {
                     clawServo.setPower(0);
                     clawServo1.setPower(0);
                 }
-                // turn arm code/limits
-        /*
-        if (taPOS > taLimitHigh && taPOS < taLimitLow) {
-          turnArm.setPower(gamepad1.right_stick_y);
-        } else if(taPOS < taLimitLow) {
-          if (gamepad1.right_stick_y > 0) {
-            turnArm.setPower(gamepad1.right_stick_y);
-          } else {
-            turnArm.setPower(0);
-          }
-        } else if(taPOS > taLimitHigh) {
-          if (gamepad1.right_stick_y < 0) {
-            turnArm.setPower(gamepad1.right_stick_y);
-          } else {
-            turnArm.setPower(0);
-          }
-        } else {
-          turnArm.setPower(0);
-        }
-        */
+                // turn arm code/limits by DAVID
+                if (taLimits) {
+                    if (taPOS > taLimitHigh && taPOS < taLimitLow) {
+                        turnArm.setPower(gamepad1.right_stick_y);
+                    } else if(taPOS < taLimitLow) {
+                        if (gamepad1.right_stick_y > 0) {
+                            turnArm.setPower(gamepad1.right_stick_y);
+                        } else {
+                            turnArm.setPower(0);
+                        }
+                    } else if(taPOS > taLimitHigh) {
+                        if (gamepad1.right_stick_y < 0) {
+                            turnArm.setPower(gamepad1.right_stick_y);
+                        } else {
+                            turnArm.setPower(0);
+                        }
+                    } else {
+                        turnArm.setPower(0);
+                    }
+                } else {
+                    if (gamepad1.right_stick_y < 0) {
+                        turnArm.setPower(gamepad1.right_stick_y);
+                    } else if (gamepad1.right_stick_y > 0) {
+                        turnArm.setPower(gamepad1.right_stick_y);
+                    } else {
+                        turnArm.setPower(0);
+                    }
+                }
                 // rt to pickup pos
                 if(gamepad1.right_trigger > 0) {
                     rtl = false;
@@ -182,15 +191,15 @@ public class DualController extends LinearOpMode {
                     }
                 }
                 // hangArm
-                if(gamepad2.y) {
+                if(gamepad1.y) {
                     hangServo.setPosition(0.4);
-                } else if(gamepad2.a) {
+                } else if(gamepad1.a) {
                     hangServo.setPosition(0);
                 }
-                if (gamepad2.right_stick_y > 0) {
-                    turnArm.setPower(gamepad2.right_stick_y);
-                } else if (gamepad2.right_stick_y < 0) {
-                    turnArm.setPower(gamepad2.right_stick_y);
+                if (gamepad1.right_stick_y > 0) {
+                    turnArm.setPower(gamepad1.right_stick_y);
+                } else if (gamepad1.right_stick_y < 0) {
+                    turnArm.setPower(gamepad1.right_stick_y);
                 } else {
                     turnArm.setPower(0);
                 }
