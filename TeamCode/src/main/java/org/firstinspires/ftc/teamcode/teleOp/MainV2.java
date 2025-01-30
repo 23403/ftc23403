@@ -108,6 +108,7 @@ public class MainV2 extends LinearOpMode {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 wrist.setPosition(wristCpos);
+                claw.setPosition(0.4);
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 double turnArmSpeed = (Math.abs(gamepad1.right_stick_y) > turnArmSpeedM) ? turnArmSpeedM : Math.abs(gamepad1.left_stick_y); // will ALWAYS return POSITIVE value!
                 int taPOS = turnArm.getCurrentPosition();
@@ -242,7 +243,18 @@ public class MainV2 extends LinearOpMode {
                     taCpos = submersalLoc;
                     wristCpos = 0.5;
                 }
-                // odometry
+                // intake
+                if (gamepad1.right_bumper) {
+                    intake1.setPower(-1);
+                    intake2.setPower(1);
+                } else if (gamepad1.left_bumper) {
+                    intake1.setPower(1);
+                    intake2.setPower(-1);
+                } else {
+                    intake1.setPower(0);
+                    intake2.setPower(0);
+                }
+                 // odometry
                 if (!moving) {
                     // odometry fixing itself
                 }
