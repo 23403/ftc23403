@@ -44,10 +44,5 @@ public class VariablesNew {
         this.sp = false;
         this.taSP = 263;
         this.eaSP = 120;
-        // preset locations
-        this.feildLoc = -260;
-        this.basketLoc = 717;
-        this.specimenLoc = 420;
-        this.submersalLoc = 200;
     }
 }

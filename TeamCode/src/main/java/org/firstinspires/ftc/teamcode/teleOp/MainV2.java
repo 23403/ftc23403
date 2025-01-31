@@ -14,6 +14,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.variables.ConfigVariables;
 import org.firstinspires.ftc.teamcode.variables.VariablesNew;
 
 @TeleOp(name="Main v2", group="ftc23403")
@@ -66,16 +67,16 @@ public class MainV2 extends LinearOpMode {
         int taSP = variables.taSP;
         int eaSP = variables.eaSP;
         // preset locations
-        int specimenLoc = variables.specimenLoc;
-        int submersalLoc = variables.submersalLoc;
-        int feildLoc = variables.feildLoc;;
-        int basketLoc = variables.basketLoc;;
+        int specimenLoc = ConfigVariables.specimenLoc;
+        int submersalLoc = ConfigVariables.submersalLoc;
+        int feildLoc = ConfigVariables.feildLoc;;
+        int basketLoc = ConfigVariables.basketLoc;;
 
         // Reverse one side of the drive train.
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
-        wrist.setDirection(Servo.Direction.REVERSE);
+        // wrist.setDirection(Servo.Direction.REVERSE);
         // claw.setDirection(Servo.Direction.REVERSE);
         // breaks
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -85,8 +86,8 @@ public class MainV2 extends LinearOpMode {
         turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        // extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        // extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // starting pos
         /*
         if (sp) {
@@ -106,16 +107,19 @@ public class MainV2 extends LinearOpMode {
             extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
         */
-        int taCpos = 180;
-        double wristCpos = 0.02;
+        ConfigVariables.eaCpos1 = extendArm1.getCurrentPosition();
+        ConfigVariables.eaCpos2 = extendArm2.getCurrentPosition();
+        int taCpos = ConfigVariables.taCpos;
         int eaCpos1 = extendArm1.getCurrentPosition();
         int eaCpos2 = extendArm2.getCurrentPosition();
         boolean tightClaw = false;
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
+                double wristCpos = ConfigVariables.wristCpos;
+                double clawCpos = ConfigVariables.clawCpos;
                 wrist.setPosition(wristCpos);
-                claw.setPosition(0);
+                claw.setPosition(clawCpos);
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 double turnArmSpeed = (Math.abs(gamepad2.right_stick_y) > turnArmSpeedM) ? turnArmSpeedM : Math.abs(gamepad2.left_stick_y); // will ALWAYS return POSITIVE value!
                 int taPOS = turnArm.getCurrentPosition();
