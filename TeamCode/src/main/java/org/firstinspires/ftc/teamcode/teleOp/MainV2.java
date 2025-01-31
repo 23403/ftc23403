@@ -9,6 +9,7 @@ package org.firstinspires.ftc.teamcode.teleOp;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Blinker;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -17,6 +18,8 @@ import org.firstinspires.ftc.teamcode.variables.VariablesNew;
 
 @TeleOp(name="Main v2", group="ftc23403")
 public class MainV2 extends LinearOpMode {
+    private Blinker control_Hub;
+    private Blinker expansion_Hub_2;
     /**
      * @TODO add proper WORKING limits to the turnArm and extendArms
      * @TODO add intake and outtake code
@@ -48,7 +51,6 @@ public class MainV2 extends LinearOpMode {
         double wheelSpeed = variables.wheelSpeed;
         double extendArmSpeed = variables.extendArmSpeed;
         double turnArmSpeedM = variables.turnArmSpeed;
-
         // Turn Arm
         boolean taLimits = variables.taLimits;
         boolean taCorrection = variables.taCorrection;
@@ -73,6 +75,8 @@ public class MainV2 extends LinearOpMode {
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
         rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
+        wrist.setDirection(Servo.Direction.REVERSE);
+        // claw.setDirection(Servo.Direction.REVERSE);
         // breaks
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -103,14 +107,15 @@ public class MainV2 extends LinearOpMode {
         }
         */
         int taCpos = 180;
-        double wristCpos = 0;
+        double wristCpos = 0.02;
         int eaCpos1 = extendArm1.getCurrentPosition();
         int eaCpos2 = extendArm2.getCurrentPosition();
+        boolean tightClaw = false;
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 wrist.setPosition(wristCpos);
-                claw.setPosition(0.4);
+                claw.setPosition(0);
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 double turnArmSpeed = (Math.abs(gamepad2.right_stick_y) > turnArmSpeedM) ? turnArmSpeedM : Math.abs(gamepad2.left_stick_y); // will ALWAYS return POSITIVE value!
                 int taPOS = turnArm.getCurrentPosition();
@@ -256,6 +261,19 @@ public class MainV2 extends LinearOpMode {
                     intake1.setPower(0);
                     intake2.setPower(0);
                 }
+                // claw
+                if (gamepad1.right_trigger > 0) {
+                    claw.setPosition(0);
+                    tightClaw = false;
+                } else if (gamepad1.left_trigger > 0) {
+                    if (!tightClaw) {
+                        claw.setPosition(0.25);
+                        tightClaw = true;
+                    } else {
+                        claw.setPosition(0.35);
+                        tightClaw = false;
+                    }
+                }
                  // odometry
                 if (!moving) {
                     // odometry fixing itself
@@ -271,6 +289,10 @@ public class MainV2 extends LinearOpMode {
                 telemetry.addData("Extend Arm Position1:", extendArm1.getCurrentPosition());
                 telemetry.addData("Extend Arm Position2:", extendArm2.getCurrentPosition());
                 telemetry.addData("Wrist Position:", wrist.getPosition());
+                telemetry.addData("Claw Position:", claw.getPosition());
+                telemetry.addData("tightClaw?", tightClaw);
+                telemetry.addData("triggersR?", gamepad1.right_trigger);
+                telemetry.addData("triggersL?", gamepad1.left_trigger);
                 telemetry.addData("Manually moving robot?", moving);
                 telemetry.update();
             }
