@@ -84,6 +84,7 @@ public class MainV2 extends LinearOpMode {
         // extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // starting pos
+        /*
         if (sp) {
             // turnArm
             turnArm.setTargetPosition(taSP);
@@ -100,6 +101,7 @@ public class MainV2 extends LinearOpMode {
             extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         }
+        */
         int taCpos = 180;
         double wristCpos = 0;
         int eaCpos1 = extendArm1.getCurrentPosition();
@@ -110,7 +112,7 @@ public class MainV2 extends LinearOpMode {
                 wrist.setPosition(wristCpos);
                 claw.setPosition(0.4);
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
-                double turnArmSpeed = (Math.abs(gamepad1.right_stick_y) > turnArmSpeedM) ? turnArmSpeedM : Math.abs(gamepad1.left_stick_y); // will ALWAYS return POSITIVE value!
+                double turnArmSpeed = (Math.abs(gamepad2.right_stick_y) > turnArmSpeedM) ? turnArmSpeedM : Math.abs(gamepad2.left_stick_y); // will ALWAYS return POSITIVE value!
                 int taPOS = turnArm.getCurrentPosition();
                 // left wheels
                 leftBackDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
@@ -120,12 +122,12 @@ public class MainV2 extends LinearOpMode {
                 rightBackDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
                 // turnArm code
                 if (taLimits) {
-                    if (gamepad1.right_stick_y < 0) {
+                    if (gamepad2.right_stick_y < 0) {
                         turnArm.setTargetPosition(taLimitHigh);
                         turnArm.setPower(turnArmSpeed);
                         turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         taCpos = turnArm.getCurrentPosition();
-                    } else if (gamepad1.right_stick_y > 0) {
+                    } else if (gamepad2.right_stick_y > 0) {
                         turnArm.setTargetPosition(taLimitLow);
                         turnArm.setPower(turnArmSpeed);
                         turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -139,11 +141,11 @@ public class MainV2 extends LinearOpMode {
                         turnArm.setPower(0);
                     }
                 } else {
-                    if (gamepad1.right_stick_y > 0) {
+                    if (gamepad2.right_stick_y > 0) {
                         turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         turnArm.setPower(turnArmSpeed);
                         taCpos = turnArm.getCurrentPosition();
-                    } else if (gamepad1.right_stick_y < 0) {
+                    } else if (gamepad2.right_stick_y < 0) {
                         turnArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         turnArm.setPower(-turnArmSpeed);
                         taCpos = turnArm.getCurrentPosition();
@@ -158,7 +160,7 @@ public class MainV2 extends LinearOpMode {
                 }
                 // extendArm code
                 if (eaLimits) {
-                    if (gamepad1.dpad_up) {
+                    if (gamepad2.dpad_up) {
                         extendArm1.setTargetPosition(eaLimitHigh);
                         extendArm2.setTargetPosition(eaLimitHigh);
                         extendArm1.setPower(extendArmSpeed);
@@ -167,7 +169,7 @@ public class MainV2 extends LinearOpMode {
                         extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         eaCpos1 = extendArm1.getCurrentPosition();
                         eaCpos2 = extendArm2.getCurrentPosition();
-                    } else if (gamepad1.dpad_down) {
+                    } else if (gamepad2.dpad_down) {
                         extendArm1.setTargetPosition(eaLimitLow);
                         extendArm2.setTargetPosition(eaLimitLow);
                         extendArm1.setPower(extendArmSpeed);
@@ -190,18 +192,18 @@ public class MainV2 extends LinearOpMode {
                         extendArm2.setPower(0);
                     }
                 } else {
-                    if (gamepad1.dpad_up) {
+                    if (gamepad2.dpad_up) {
                         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm1.setPower(turnArmSpeed);
-                        extendArm2.setPower(turnArmSpeed);
+                        extendArm1.setPower(extendArmSpeed);
+                        extendArm2.setPower(extendArmSpeed);
                         eaCpos1 = extendArm1.getCurrentPosition();
                         eaCpos2 = extendArm2.getCurrentPosition();
-                    } else if (gamepad1.dpad_down) {
+                    } else if (gamepad2.dpad_down) {
                         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm1.setPower(-turnArmSpeed);
-                        extendArm2.setPower(-turnArmSpeed);
+                        extendArm1.setPower(-extendArmSpeed);
+                        extendArm2.setPower(-extendArmSpeed);
                         eaCpos1 = extendArm1.getCurrentPosition();
                         eaCpos2 = extendArm2.getCurrentPosition();
                     } else if (eaCorrection) {
@@ -220,25 +222,25 @@ public class MainV2 extends LinearOpMode {
                 }
                 // preset code
                 // field pos
-                if (gamepad1.a) {
+                if (gamepad2.a) {
                     // use correction code cuz its easier fr fr
                     taCpos = feildLoc;
                     wristCpos = 0.12;
                 }
                 // baskets pos
-                if (gamepad1.y) {
+                if (gamepad2.y) {
                     // use correction code cuz its easier fr fr
                     taCpos = basketLoc;
                     wristCpos = 0.12;
                 }
                 // specimen pos
-                if (gamepad1.b) {
+                if (gamepad2.b) {
                     // use correction code cuz its easier fr fr
                     taCpos = specimenLoc;
                     wristCpos = 0.09;
                 }
                 // submersal pos
-                if (gamepad1.x) {
+                if (gamepad2.x) {
                     // use correction code cuz its easier fr fr
                     taCpos = submersalLoc;
                     wristCpos = 0.5;
