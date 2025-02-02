@@ -1,5 +1,5 @@
-package org.firstinspires.ftc.teamcode.variables;
-public class VariablesNew {
+package org.firstinspires.ftc.teamcode.variables.old;
+public class VariablesNewOld {
     // pub variables
     public double wheelSpeed;
     public double extendArmSpeed;
@@ -25,7 +25,7 @@ public class VariablesNew {
     public int basketLoc;
 
     // access limits across places
-    public VariablesNew() {
+    public VariablesNewOld() {
         // misc
         this.wheelSpeed = 1;
         this.extendArmSpeed = 1;
@@ -44,5 +44,10 @@ public class VariablesNew {
         this.sp = false;
         this.taSP = 263;
         this.eaSP = 120;
+        // preset locations
+        this.feildLoc = -260;
+        this.basketLoc = 717;
+        this.specimenLoc = 420;
+        this.submersalLoc = 200;
     }
 }

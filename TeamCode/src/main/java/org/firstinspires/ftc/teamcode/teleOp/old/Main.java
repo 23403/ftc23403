@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.variables.VariablesOld;
+import org.firstinspires.ftc.teamcode.variables.old.VariablesOld;
 
 @TeleOp(name="Main", group="old_ftc23403")
 public class Main extends LinearOpMode {
