@@ -5,7 +5,10 @@ import com.acmerobotics.dashboard.config.Config;
 @Config("MainV2")
 public class ConfigVariables {
     public static double wristCpos = 0;
-    public static double clawCpos = 0.5;
+    public static double clawCpos = 0.6;
+    // 0.574 is the close/tight pos
+    // 0.6 is open pos
+    // 0.58 is perfect pos
     public static int taCpos = 180;
     public static int eaCpos1 = 0;
     public static int eaCpos2 = 0;
