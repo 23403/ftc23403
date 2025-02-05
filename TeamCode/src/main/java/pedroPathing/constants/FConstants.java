@@ -20,22 +20,22 @@ public class FConstants {
 
         FollowerConstants.mass = 10.8;
 
-        FollowerConstants.xMovement = 45.6524561878;
-        FollowerConstants.yMovement = 35.3194451653;
+        FollowerConstants.xMovement = 81.9791625;
+        FollowerConstants.yMovement = 54.54123875;
 
-        FollowerConstants.forwardZeroPowerAcceleration = -42.8844090465;
+        FollowerConstants.forwardZeroPowerAcceleration = -144.074266667;
         FollowerConstants.lateralZeroPowerAcceleration = -82.3057413453;
 
         FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0);
-        FollowerConstants.useSecondaryTranslationalPID = false;
+        FollowerConstants.useSecondaryTranslationalPID = true;
         FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0); // Not being used, @see useSecondaryTranslationalPID
 
         FollowerConstants.headingPIDFCoefficients.setCoefficients(2,0,0.1,0);
-        FollowerConstants.useSecondaryHeadingPID = false;
+        FollowerConstants.useSecondaryHeadingPID = true;
         FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(2,0,0.1,0); // Not being used, @see useSecondaryHeadingPID
 
         FollowerConstants.drivePIDFCoefficients.setCoefficients(0.1,0,0,0.6,0);
-        FollowerConstants.useSecondaryDrivePID = false;
+        FollowerConstants.useSecondaryDrivePID = true;
         FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.1,0,0,0.6,0); // Not being used, @see useSecondaryDrivePID
 
         FollowerConstants.zeroPowerAccelerationMultiplier = 4;
