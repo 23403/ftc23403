@@ -1,6 +1,8 @@
 package pedroPathing.constants;
 
+import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
+import com.pedropathing.localization.Localizer;
 import com.pedropathing.localization.Localizers;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
@@ -20,11 +22,11 @@ public class FConstants {
 
         FollowerConstants.mass = 10.8;
 
-        FollowerConstants.xMovement = 81.9791625;
-        FollowerConstants.yMovement = 54.54123875;
+        FollowerConstants.xMovement = 78.5119220992;
+        FollowerConstants.yMovement = 68.5929007868;
 
-        FollowerConstants.forwardZeroPowerAcceleration = -144.074266667;
-        FollowerConstants.lateralZeroPowerAcceleration = -82.3057413453;
+        FollowerConstants.forwardZeroPowerAcceleration = -17.7761877971;
+        FollowerConstants.lateralZeroPowerAcceleration = -27.4690987267;
 
         FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0);
         FollowerConstants.useSecondaryTranslationalPID = true;
