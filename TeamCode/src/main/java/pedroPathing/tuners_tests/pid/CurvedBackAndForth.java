@@ -10,6 +10,7 @@ import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.IMU;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
@@ -49,6 +50,8 @@ public class CurvedBackAndForth extends OpMode {
      */
     @Override
     public void init() {
+        IMU imu = hardwareMap.get(IMU.class, "imu");
+        imu.resetYaw();
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
 

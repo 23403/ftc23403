@@ -13,6 +13,7 @@ import com.qualcomm.robotcore.hardware.Blinker;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Gamepad;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.variables.ConfigVariables;
@@ -31,6 +32,7 @@ public class MainV2 extends LinearOpMode {
     @Override
     public void runOpMode() {
         // hardware
+        IMU imu = hardwareMap.get(IMU.class, "imu");
         if (gamepad1.type.equals(Gamepad.Type.SONY_PS4)) {
             gamepad1.setLedColor(0, 255, 0, Integer.MAX_VALUE);
         }
@@ -67,6 +69,7 @@ public class MainV2 extends LinearOpMode {
         extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        imu.resetYaw();
         // starting pos
         ConfigVariables.eaCpos1 = extendArm1.getCurrentPosition();
         ConfigVariables.eaCpos2 = extendArm2.getCurrentPosition();
