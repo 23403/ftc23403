@@ -55,7 +55,7 @@ public class MainV2 extends LinearOpMode {
         rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
         // wrist.setDirection(Servo.Direction.REVERSE);
-        // claw.setDirection(Servo.Direction.REVERSE);
+        claw.setDirection(Servo.Direction.REVERSE);
         // claw.scaleRange(0.574, 0.6);
         // breaks
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
