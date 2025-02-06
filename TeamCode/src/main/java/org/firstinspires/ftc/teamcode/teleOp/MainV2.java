@@ -35,7 +35,7 @@ public class MainV2 extends LinearOpMode {
             gamepad1.setLedColor(0, 255, 0, Integer.MAX_VALUE);
         }
         if (gamepad2.type.equals(Gamepad.Type.SONY_PS4)) {
-            gamepad2.setLedColor(0, 208, 255, Integer.MAX_VALUE);
+            gamepad2.setLedColor(0, 0, 255, Integer.MAX_VALUE);
         }
         // motors
         DcMotor leftBackDrive = hardwareMap.dcMotor.get("leftRear");
@@ -56,7 +56,7 @@ public class MainV2 extends LinearOpMode {
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
         // wrist.setDirection(Servo.Direction.REVERSE);
         // claw.setDirection(Servo.Direction.REVERSE);
-        claw.scaleRange(0.574, 0.6);
+        // claw.scaleRange(0.574, 0.6);
         // breaks
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
