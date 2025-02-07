@@ -58,7 +58,7 @@ public class MainV2 extends LinearOpMode {
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
         // wrist.setDirection(Servo.Direction.REVERSE);
         claw.setDirection(Servo.Direction.REVERSE);
-        // claw.scaleRange(0.574, 0.6);
+        // claw.scaleRange(0.3, 0.54);
         // breaks
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -67,8 +67,8 @@ public class MainV2 extends LinearOpMode {
         turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        // extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        // extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         imu.resetYaw();
         // starting pos
         ConfigVariables.eaCpos1 = extendArm1.getCurrentPosition();
@@ -95,7 +95,9 @@ public class MainV2 extends LinearOpMode {
                 int eaLimitLow1 = ConfigVariables.eaLimitLow1;
                 int eaLimitLow2 = ConfigVariables.eaLimitLow2;
                 // preset locations
-                int specimenLoc = ConfigVariables.specimenLoc;
+                int taSpecimenLoc = ConfigVariables.taSpecimenLoc;
+                int eaSpecimenLoc1 = ConfigVariables.eaSpecimenLoc1;
+                int eaSpecimenLoc2 = ConfigVariables.eaSpecimenLoc2;
                 int submersalLoc = ConfigVariables.submersalLoc;
                 int feildLoc = ConfigVariables.feildLoc;
                 int basketLoc = ConfigVariables.basketLoc;
@@ -122,12 +124,15 @@ public class MainV2 extends LinearOpMode {
                         turnArm.setTargetPosition(taLimitHigh);
                         turnArm.setPower(turnArmSpeed);
                         turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        ConfigVariables.taCpos = turnArm.getCurrentPosition();
+                        if(turnArm.getCurrentPosition() < ConfigVariables.taCpos)
+                            ConfigVariables.taCpos = turnArm.getCurrentPosition();
+
                     } else if (gamepad2.right_stick_y > 0) {
                         turnArm.setTargetPosition(taLimitLow);
                         turnArm.setPower(turnArmSpeed);
                         turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        ConfigVariables.taCpos = turnArm.getCurrentPosition();
+                        if(turnArm.getCurrentPosition() > ConfigVariables.taCpos)
+                            ConfigVariables.taCpos = turnArm.getCurrentPosition();
                     } else if (taCorrection) {
                         turnArm.setTargetPosition(taCpos);
                         turnArm.setPower(1);
@@ -230,13 +235,15 @@ public class MainV2 extends LinearOpMode {
                     wristCpos = 0.12;
                 }
                 // specimen pos
-                if (gamepad2.b) {
+                if (gamepad2.x) {
                     // use correction code cuz its easier fr fr
-                    taCpos = specimenLoc;
+                    ConfigVariables.taCpos = taSpecimenLoc;
+                    ConfigVariables.eaCpos1 = eaSpecimenLoc1;
+                    ConfigVariables.eaCpos2 = eaSpecimenLoc2;
                     wristCpos = 0.09;
                 }
                 // submersal pos
-                if (gamepad2.x) {
+                if (gamepad2.b) {
                     // use correction code cuz its easier fr fr
                     taCpos = submersalLoc;
                     wristCpos = 0.5;
@@ -253,17 +260,21 @@ public class MainV2 extends LinearOpMode {
                     intake2.setPower(0);
                 }
                 // claw
-                if (gamepad1.right_trigger > 0) {
-                    claw.setPosition(0);
-                    tightClaw = false;
-                } else if (gamepad1.left_trigger > 0) {
+                if (gamepad1.left_trigger > 0) {
+                    // ConfigVariables.clawCpos = 0.3;
+                    ConfigVariables.clawCpos = 0.47;
+                    // tightClaw = false;
+                } else if (gamepad1.right_trigger > 0) {
+                    /*
                     if (!tightClaw) {
-                        claw.setPosition(0.25);
+                        ConfigVariables.clawCpos = 0.47;
                         tightClaw = true;
                     } else {
-                        claw.setPosition(0.35);
+                        ConfigVariables.clawCpos = 0.54;
                         tightClaw = false;
                     }
+                    */
+                    ConfigVariables.clawCpos = 0.54;
                 }
                  // odometry self-correction
                 if (!moving) {
