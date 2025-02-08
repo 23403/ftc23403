@@ -10,7 +10,9 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
+import com.qualcomm.robotcore.hardware.Servo;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -44,26 +46,22 @@ public class AutoHookOdometry extends OpMode {
      * Lets assume the Robot is facing the human player and we want to score in the bucket */
 
     /** Start Pose of our robot */
-    private final Pose startPose = new Pose(9, 56, Math.toRadians(0));
-
-    /** Scoring Pose of our robot. It is facing the submersible at a -45 degree (315 degree) angle. */
-    private final Pose line1 = new Pose(29, 56, Math.toRadians(0));
-
-    /** Lowest (First) Sample from the Spike Mark */
-    private final Pose line2 = new Pose(30, 71, Math.toRadians(0));
-
-    private final Pose line3 = new Pose(35, 36, Math.toRadians(0));
-    private final Pose line4 = new Pose(62, 36, Math.toRadians(0));
-    private final Pose line5 = new Pose(62, 28, Math.toRadians(0));
-    private final Pose line6 = new Pose(15, 25, Math.toRadians(0));
-    private final Pose line7 = new Pose(62, 23, Math.toRadians(0));
-    private final Pose line8 = new Pose(62, 15.5, Math.toRadians(0));
-    private final Pose line9 = new Pose(15, 17, Math.toRadians(0));
-    private final Pose line10 = new Pose(62, 16, Math.toRadians(0));
-    private final Pose line11 = new Pose(62, 14.5, Math.toRadians(0));
-    private final Pose line12 = new Pose(16, 13.5, Math.toRadians(0));
-    private Path scorePreload, park;
-    private PathChain hook, goYellow, pushBot1, pushBot2, pushBot3, pushBot4, pushBot5, pushBot6, pushBot7, pushBot8, pushBot9, pushBot10;
+    private final Pose startPos = new Pose(9, 56, Math.toRadians(0)); // start Pos
+    private final Pose moveForward = new Pose(29, 56, Math.toRadians(0)); // line1
+    private final Pose specimenLoc = new Pose(33, 71, Math.toRadians(0)); // line2
+    private final Pose specimenLoc1 = new Pose(30, 71, Math.toRadians(0)); // line2a
+    private final Pose moveToSide = new Pose(35, 36, Math.toRadians(0)); // line3
+    private final Pose moveForward1 = new Pose(62, 36, Math.toRadians(0)); // line4
+    private final Pose moveSide = new Pose(62, 28, Math.toRadians(0)); // line5
+    private final Pose pushBott = new Pose(15, 25, Math.toRadians(0)); // line6
+    private final Pose goBack = new Pose(62, 23, Math.toRadians(0)); // line7
+    private final Pose moveSide1 = new Pose(62, 15.5, Math.toRadians(0)); // line8
+    private final Pose pushBott1 = new Pose(15, 17, Math.toRadians(0)); // line9
+    private final Pose goBack1 = new Pose(62, 16, Math.toRadians(0)); // line10
+    private final Pose moveSide2 = new Pose(62, 14.5, Math.toRadians(0)); // line11
+    private final Pose pushBott2 = new Pose(16, 13.5, Math.toRadians(0)); // line12
+    private Path scorePreload;
+    private PathChain hook, hook1, goYellow, pushBot1, pushBot2, pushBot3, pushBot4, pushBot5, pushBot6, pushBot7, pushBot8, pushBot9;
 
     /** Build the paths for the auto (adds, for example, constant/linear headings while doing paths)
      * It is necessary to do this so that all the paths are built before the auto starts. **/
@@ -85,138 +83,137 @@ public class AutoHookOdometry extends OpMode {
          * Here is a explanation of the difference between Paths and PathChains <https://pedropathing.com/commonissues/pathtopathchain.html> */
 
         /* This is our scorePreload path. We are using a BezierLine, which is a straight line. */
-        scorePreload = new Path(new BezierLine(new Point(startPose), new Point(line1)));
-        scorePreload.setLinearHeadingInterpolation(startPose.getHeading(), line1.getHeading());
+        scorePreload = new Path(new BezierLine(new Point(startPos), new Point(moveForward)));
+        scorePreload.setLinearHeadingInterpolation(startPos.getHeading(), moveForward.getHeading());
         /* This is our grabPickup1 PathChain. We are using a single path with a BezierLine, which is a straight line. */
         hook = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line1), new Point(line2)))
-                .setLinearHeadingInterpolation(line1.getHeading(), line2.getHeading())
+                .addPath(new BezierLine(new Point(moveForward), new Point(specimenLoc)))
+                .setLinearHeadingInterpolation(moveForward.getHeading(), specimenLoc.getHeading())
+                .build();
+        hook1 = follower.pathBuilder()
+                .addPath(new BezierLine(new Point(specimenLoc), new Point(specimenLoc1)))
+                .setLinearHeadingInterpolation(specimenLoc.getHeading(), specimenLoc1.getHeading())
                 .build();
         goYellow = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line2), new Point(line3)))
-                .setLinearHeadingInterpolation(line2.getHeading(), line3.getHeading())
+                .addPath(new BezierLine(new Point(specimenLoc1), new Point(moveToSide)))
+                .setLinearHeadingInterpolation(specimenLoc1.getHeading(), moveToSide.getHeading())
                 .build();
         pushBot1 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line3), new Point(line4)))
-                .setLinearHeadingInterpolation(line3.getHeading(), line4.getHeading())
+                .addPath(new BezierLine(new Point(moveToSide), new Point(moveForward1)))
+                .setLinearHeadingInterpolation(moveToSide.getHeading(), moveForward1.getHeading())
                 .build();
         pushBot2 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line4), new Point(line5)))
-                .setLinearHeadingInterpolation(line4.getHeading(), line5.getHeading())
+                .addPath(new BezierLine(new Point(moveForward1), new Point(moveSide)))
+                .setLinearHeadingInterpolation(moveForward1.getHeading(), moveSide.getHeading())
                 .build();
         pushBot3 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line5), new Point(line6)))
-                .setLinearHeadingInterpolation(line5.getHeading(), line6.getHeading())
+                .addPath(new BezierLine(new Point(moveSide), new Point(pushBott)))
+                .setLinearHeadingInterpolation(moveSide.getHeading(), pushBott.getHeading())
                 .build();
         pushBot4 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line6), new Point(line7)))
-                .setLinearHeadingInterpolation(line6.getHeading(), line7.getHeading())
+                .addPath(new BezierLine(new Point(pushBott), new Point(goBack)))
+                .setLinearHeadingInterpolation(pushBott.getHeading(), goBack.getHeading())
                 .build();
         pushBot5 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line7), new Point(line8)))
-                .setLinearHeadingInterpolation(line7.getHeading(), line8.getHeading())
+                .addPath(new BezierLine(new Point(goBack), new Point(moveSide1)))
+                .setLinearHeadingInterpolation(goBack.getHeading(), moveSide1.getHeading())
                 .build();
         pushBot6 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line8), new Point(line9)))
-                .setLinearHeadingInterpolation(line8.getHeading(), line9.getHeading())
+                .addPath(new BezierLine(new Point(moveSide1), new Point(pushBott1)))
+                .setLinearHeadingInterpolation(moveSide1.getHeading(), pushBott1.getHeading())
                 .build();
         pushBot7 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line9), new Point(line10)))
-                .setLinearHeadingInterpolation(line9.getHeading(), line10.getHeading())
+                .addPath(new BezierLine(new Point(pushBott1), new Point(goBack1)))
+                .setLinearHeadingInterpolation(pushBott1.getHeading(), goBack1.getHeading())
                 .build();
         pushBot8 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line10), new Point(line11)))
-                .setLinearHeadingInterpolation(line10.getHeading(), line11.getHeading())
+                .addPath(new BezierLine(new Point(goBack1), new Point(moveSide2)))
+                .setLinearHeadingInterpolation(goBack1.getHeading(), moveSide2.getHeading())
                 .build();
         pushBot9 = follower.pathBuilder()
-                .addPath(new BezierLine(new Point(line11), new Point(line12)))
-                .setLinearHeadingInterpolation(line11.getHeading(), line12.getHeading())
+                .addPath(new BezierLine(new Point(moveSide2), new Point(pushBott2)))
+                .setLinearHeadingInterpolation(moveSide2.getHeading(), pushBott2.getHeading())
                 .build();
     }
 
     /** This switch is called continuously and runs the pathing, at certain points, it triggers the action state.
      * Everytime the switch changes case, it will reset the timer. (This is because of the setPathState() method)
      * The followPath() function sets the follower to run the specific path, but does NOT wait for it to finish before moving on. */
-    public void autonomousPathUpdate() {
+    /* You could check for
+        - Follower State: "if(!follower.isBusy() {}"
+        - Time: "if(pathTimer.getElapsedTimeSeconds() > 1) {}"
+        - Robot Position: "if(follower.getPose().getX() > 36) {}"
+    */
+    public void autonomousPathUpdate() throws InterruptedException {
         switch (pathState) {
             case 0:
                 follower.followPath(scorePreload);
                 setPathState(1);
                 break;
             case 1:
-
-                /* You could check for
-                - Follower State: "if(!follower.isBusy() {}"
-                - Time: "if(pathTimer.getElapsedTimeSeconds() > 1) {}"
-                - Robot Position: "if(follower.getPose().getX() > 36) {}"
-                */
-
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
+                turnArmMove(775, 1);
+                extendArmMove(451, 447, 1);
                 if(!follower.isBusy()) {
-                    /* Score Preload */
-
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(hook,true);
                     setPathState(2);
                 }
                 break;
             case 2:
+                wait(30);
+                claw(0.47);
+                if (!follower.isBusy()) {
+                    follower.followPath(hook1, true);
+                    setPathState(3);
+                }
+            case 3:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup1Pose's position */
                 if(!follower.isBusy()) {
                     /* Grab Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(goYellow,true);
-                    setPathState(3);
+                    setPathState(4);
                 }
                 break;
-            case 3:
+            case 4:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(pushBot1,true);
-                    setPathState(4);
+                    setPathState(5);
                 }
                 break;
-            case 4:
+            case 5:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup2Pose's position */
                 if(!follower.isBusy()) {
                     /* Grab Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(pushBot2,true);
-                    setPathState(5);
+                    setPathState(6);
                 }
                 break;
-            case 5:
+            case 6:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
                 if(!follower.isBusy()) {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are grabbing the sample */
                     follower.followPath(pushBot3,true);
-                    setPathState(6);
+                    setPathState(7);
                 }
                 break;
-            case 6:
+            case 7:
                 /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the pickup3Pose's position */
                 if(!follower.isBusy()) {
                     /* Grab Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are scoring the sample */
                     follower.followPath(pushBot4, true);
-                    setPathState(7);
-                }
-                break;
-            case 7:
-                /* This case checks the robot's position and will wait until the robot position is close (1 inch away) from the scorePose's position */
-                if(!follower.isBusy()) {
-                    /* Score Sample */
-
-                    /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(pushBot5,true);
                     setPathState(8);
                 }
                 break;
@@ -226,7 +223,7 @@ public class AutoHookOdometry extends OpMode {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(pushBot6,true);
+                    follower.followPath(pushBot5,true);
                     setPathState(9);
                 }
                 break;
@@ -236,7 +233,7 @@ public class AutoHookOdometry extends OpMode {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(pushBot7,true);
+                    follower.followPath(pushBot6,true);
                     setPathState(10);
                 }
                 break;
@@ -246,7 +243,7 @@ public class AutoHookOdometry extends OpMode {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(pushBot8,true);
+                    follower.followPath(pushBot7,true);
                     setPathState(11);
                 }
                 break;
@@ -256,7 +253,7 @@ public class AutoHookOdometry extends OpMode {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(pushBot9,true);
+                    follower.followPath(pushBot8,true);
                     setPathState(12);
                 }
                 break;
@@ -266,7 +263,7 @@ public class AutoHookOdometry extends OpMode {
                     /* Score Sample */
 
                     /* Since this is a pathChain, we can have Pedro hold the end point while we are parked */
-                    follower.followPath(pushBot10,true);
+                    follower.followPath(pushBot9,true);
                     setPathState(13);
                 }
                 break;
@@ -282,6 +279,75 @@ public class AutoHookOdometry extends OpMode {
         }
     }
 
+    // movements
+    private void turnArmMove(int dis, double power) {
+        DcMotor turnArm = hardwareMap.dcMotor.get("TurnArm");
+        turnArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        // reset pos
+        // turnArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // target
+        turnArm.setTargetPosition(turnArm.getCurrentPosition() + dis);
+        // move moters
+        turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // power
+        turnArm.setPower(power);
+        int taCpos = 0;
+        while (turnArm.isBusy()) {
+            telemetry.addData("TurnArmPos:", turnArm.getCurrentPosition());
+            telemetry.update();
+            taCpos = turnArm.getCurrentPosition();
+        }
+        // stop
+        turnArm.setTargetPosition(taCpos);
+        turnArm.setPower(1);
+        turnArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    private void extendArmMove(int dis1, int dis2, double power) {
+        DcMotor extendArm1 = hardwareMap.dcMotor.get("ExtendArm1");
+        DcMotor extendArm2 = hardwareMap.dcMotor.get("ExtendArm2");
+        // stuff
+        extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        // formula
+        extendArm2.setDirection(DcMotor.Direction.REVERSE);
+        // reset pos
+        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // target
+        extendArm1.setTargetPosition(dis1);
+        extendArm2.setTargetPosition(dis2);
+        // move moters
+        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // power
+        extendArm1.setPower(power);
+        extendArm2.setPower(power);
+        int eaCpos1 = 0;
+        int eaCpos2 = 0;
+        while (extendArm1.isBusy() || extendArm2.isBusy()) {
+            telemetry.addData("ExtendArm1Pos:", extendArm1.getCurrentPosition());
+            telemetry.addData("ExtendArm2Pos:", extendArm2.getCurrentPosition());
+            telemetry.update();
+            eaCpos1 = extendArm1.getCurrentPosition();
+            eaCpos2 = extendArm2.getCurrentPosition();
+        }
+        // stop
+        extendArm1.setTargetPosition(eaCpos1);
+        extendArm2.setTargetPosition(eaCpos2);
+        extendArm1.setPower(1);
+        extendArm2.setPower(1);
+        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
+
+    private void claw(double pos) {
+        Servo claw = hardwareMap.get(Servo.class, "claw");
+        claw.setDirection(Servo.Direction.REVERSE);
+        claw.setPosition(pos);
+    }
+
+
     /** These change the states of the paths and actions
      * It will also reset the timers of the individual switches **/
     public void setPathState(int pState) {
@@ -295,7 +361,11 @@ public class AutoHookOdometry extends OpMode {
 
         // These loop the movements of the robot
         follower.update();
-        autonomousPathUpdate();
+        try {
+            autonomousPathUpdate();
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
@@ -307,14 +377,26 @@ public class AutoHookOdometry extends OpMode {
     /** This method is called once at the init of the OpMode. **/
     @Override
     public void init() {
+        // hardware
         IMU imu = hardwareMap.get(IMU.class, "imu");
+        // servos
+        Servo wrist = hardwareMap.get(Servo.class, "wrist");
+        Servo claw = hardwareMap.get(Servo.class, "claw");
+        // formulas
+        claw.setDirection(Servo.Direction.REVERSE);
+        // positions
         imu.resetYaw();
+        wrist.setPosition(1);
+        claw.setPosition(0.48);
+        // arm goes from 180 to 992
+        turnArmMove(180, 1);
+        // movement
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
         Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
-        follower.setStartingPose(startPose);
+        follower.setStartingPose(startPos);
         buildPaths();
     }
 
