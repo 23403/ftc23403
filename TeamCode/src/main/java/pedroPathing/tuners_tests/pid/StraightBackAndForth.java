@@ -32,7 +32,7 @@ import pedroPathing.constants.LConstants;
  * @version 1.0, 3/12/2024
  */
 @Config
-@Autonomous (name = "Straight Back And Forth")
+@Autonomous (name = "Straight Back And Forth", group = "tuning_ftc23403_Straight Back and Forth")
 public class StraightBackAndForth extends OpMode {
     private Telemetry telemetryA;
 

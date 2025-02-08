@@ -31,7 +31,7 @@ import pedroPathing.constants.LConstants;
  * @version 1.0, 3/13/2024
  */
 @Config
-@Autonomous (name = "Curved Back And Forth")
+@Autonomous (name = "Curved Back And Forth", group = "tuning_ftc23403_Curved Back and Forth")
 public class CurvedBackAndForth extends OpMode {
     private Telemetry telemetryA;
 
