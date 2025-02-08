@@ -22,7 +22,7 @@ import org.firstinspires.ftc.teamcode.variables.ConfigVariables;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Autonomous(name = "Hook Odometry", group = "ftc23403")
+@Autonomous(name = "Hook Odometry", group = ".ftc23403")
 public class AutoHookOdometry extends OpMode {
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
