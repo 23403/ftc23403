@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.variables.ConfigVariables;
 
-@TeleOp(name="Main v2", group="ftc23403")
+@TeleOp(name="Main v2", group=".ftc23403")
 public class MainV2 extends LinearOpMode {
     private Blinker control_Hub;
     private Blinker expansion_Hub_2;
