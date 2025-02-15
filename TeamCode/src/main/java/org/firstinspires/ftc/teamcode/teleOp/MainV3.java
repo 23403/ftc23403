@@ -1,6 +1,6 @@
 /***
  * MAIN V3
- * @author David Grieas - 23403 C{}de C<>nduct<>rs
+ * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
  * coding from scratch for our robot, Beastkit v3
  * started recoding at 2/14/25  @  8:31 pm
  * robot v3 expected to be finished building by 2/20/25
@@ -29,7 +29,7 @@ public class MainV3 extends LinearOpMode {
      * @TODO make the slides correction more smooth
      * @TODO have wrist and claw for both arms working
      * MAIN V3 BY DAVID
-     * @author David Grieas - 23403 C{}de C<>nduct<>rs
+     * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
     public static double wristCpos = 1;
     // 0.5 low pos
