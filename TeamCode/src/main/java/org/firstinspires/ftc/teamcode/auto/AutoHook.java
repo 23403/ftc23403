@@ -202,6 +202,7 @@ public class AutoHook extends OpMode {
     @Override
     public void loop() {
         follower.update();
+        getState(specimen);
         if (follower.atParametricEnd()) {
             follower.followPath(specimen);
         }
@@ -349,7 +350,7 @@ public class AutoHook extends OpMode {
      * It is a bit jank but it should work!
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
-    private String getState(@NonNull PathChain path) {
+    private void getState(@NonNull PathChain path) {
         for (int i = 0; i <= path.size(); i++) {
             if (path.getPath(i).isAtParametricStart()) {
                 state = "Started" + i;
@@ -365,7 +366,6 @@ public class AutoHook extends OpMode {
                 state = "Running" + i;
             }
         }
-        return state;
     }
     private void pause(double ms) {
         int RealTime = (int) ms*1000;
