@@ -31,6 +31,7 @@ public class MainV3 extends LinearOpMode {
      * MAIN V3 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
+    // servos
     public static double wristCpos = 1;
     // 0.5 low pos
     // 1 high pos
@@ -40,11 +41,24 @@ public class MainV3 extends LinearOpMode {
     // 0.54 is close
     // 0.3 is open pos
     // 0.47 is perfect pos
+    // corrections
     public static int eaCpos1 = 0;
     public static int eaCpos2 = 0;
     public static int saCpos1 = 0;
     public static int saCpos2 = 0;
     // misc
+    private int cacheR1 = 0;
+    private int cacheR2 = 0;
+    private int cacheG1 = 0;
+    private int cacheG2 = 0;
+    private int cacheB1 = 0;
+    private int cacheB2 = 0;
+    private int oldR1 = 0;
+    private int oldR2 = 0;
+    private int oldG1 = 0;
+    private int oldG2 = 0;
+    private int oldB1 = 0;
+    private int oldB2 = 0;
     public static double extendArmSpeed = 1;
     public static double submersibleArmSpeed = 1;
     public static double wheelSpeed = 1;
@@ -120,12 +134,8 @@ public class MainV3 extends LinearOpMode {
         imu.resetYaw();
         control_Hub.setConstant(16711927); // use http://www.shodor.org/~efarrow/trunk/html/rgbint.html for colorInt converter
         expansion_Hub_2.setConstant(16711927); // use http://www.shodor.org/~efarrow/trunk/html/rgbint.html for colorInt converter
-        if (gamepad1.type.equals(Gamepad.Type.SONY_PS4)) {
-            gamepad1.setLedColor(0, 255, 0, Integer.MAX_VALUE);
-        }
-        if (gamepad2.type.equals(Gamepad.Type.SONY_PS4)) {
-            gamepad2.setLedColor(0, 0, 255, Integer.MAX_VALUE);
-        }
+        gamepadColor(1, 0, 255, 0, Integer.MAX_VALUE);
+        gamepadColor(2, 255, 0, 255, Integer.MAX_VALUE);
         // starting pos
         eaCpos1 = extendArm1.getCurrentPosition();
         saCpos1 = submersibleArm1.getCurrentPosition();
@@ -311,6 +321,30 @@ public class MainV3 extends LinearOpMode {
                     expansion_Hub_2.setConstant(65535); // use http://www.shodor.org/~efarrow/trunk/html/rgbint.html for colorInt converter
                 }
                 // color sensor code
+                if ((sensor.red() > 20 && sensor.green() > 10 && sensor.blue() > 10) && sensor.getDistance(DistanceUnit.MM) < 1) {
+                    // red
+                    gamepadColor(1, 255, 0, 0, Integer.MAX_VALUE);
+                    gamepadColor(2, 255, 0, 0, Integer.MAX_VALUE);
+                    gamepad1.rumble(1000);
+                    gamepad2.rumble(1000);
+                } else if ((sensor.red() > 10 && sensor.green() > 10 && sensor.blue() > 20) && sensor.getDistance(DistanceUnit.MM) < 1) {
+                    // blue
+                    gamepadColor(1, 0, 0, 255, Integer.MAX_VALUE);
+                    gamepadColor(2, 0, 0, 255, Integer.MAX_VALUE);
+                    gamepad1.rumble(1000);
+                    gamepad2.rumble(1000);
+                } else if ((sensor.red() > 30 && sensor.green() > 30 && sensor.blue() > 0) && sensor.getDistance(DistanceUnit.MM) < 1) {
+                    // yellow
+                    gamepadColor(1, 255, 255, 0, Integer.MAX_VALUE);
+                    gamepadColor(2, 255, 255, 0, Integer.MAX_VALUE);
+                    gamepad1.rumble(1000);
+                    gamepad2.rumble(1000);
+                } else {
+                    // none
+                    gamepadColor(1, oldR1, oldG1, oldB1, Integer.MAX_VALUE);
+                    gamepadColor(2, oldR2, oldG2, oldB2, Integer.MAX_VALUE);
+                }
+                // auto intake
                 if (redSide) { //                       red                                                              yellow                                         not picked up
                     if (((sensor.red() > 20 && sensor.green() > 10 && sensor.blue() > 10) || (sensor.red() > 30 && sensor.green() > 30 && sensor.blue() > 0)) && sensor.getDistance(DistanceUnit.MM) > 1) {
                         intake1.setPower(-1);
@@ -347,4 +381,46 @@ public class MainV3 extends LinearOpMode {
             }
         }
     }
+
+    private boolean first = true;
+    private void gamepadColor(int gamepad, int R, int G, int B, int time) {
+        if (gamepad == 1) {
+            if (first) {
+                cacheR1 = R;
+                cacheG1 = G;
+                cacheB1 = B;
+                first = false;
+            }
+            if (cacheR1 != oldR1 || cacheG1 != oldG1 || cacheB1 != oldB1) {
+                oldR1 = cacheR1;
+                oldG1 = cacheG1;
+                oldB1 = cacheB1;
+            }
+            if (gamepad1.type.equals(Gamepad.Type.SONY_PS4)) {
+                gamepad1.setLedColor(R, G, B, time);
+            }
+            cacheR1 = R;
+            cacheG1 = G;
+            cacheB1 = B;
+        } else {
+            if (first) {
+                cacheR2 = R;
+                cacheG2 = G;
+                cacheB2 = B;
+                first = false;
+            }
+            if (cacheR2 != oldR2 || cacheG2 != oldG2 || cacheB2 != oldB2) {
+                oldR2 = cacheR2;
+                oldG2 = cacheG2;
+                oldB2 = cacheB2;
+            }
+            if (gamepad2.type.equals(Gamepad.Type.SONY_PS4)) {
+                gamepad2.setLedColor(R, G, B, time);
+            }
+            cacheR2 = R;
+            cacheG2 = G;
+            cacheB2 = B;
+        }
+    }
+
 }
