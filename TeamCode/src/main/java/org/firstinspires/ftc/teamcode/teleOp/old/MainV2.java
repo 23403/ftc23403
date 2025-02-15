@@ -5,7 +5,7 @@
  * started recoding at 1/20/25  @  10:41 am
  * robot v2 finished building at 1/30/25
  */
-package org.firstinspires.ftc.teamcode.teleOp;
+package org.firstinspires.ftc.teamcode.teleOp.old;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -18,7 +18,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.variables.ConfigVariables;
 
-@TeleOp(name="Main v2", group=".ftc23403")
+@TeleOp(name="Main v2", group="old_ftc23403")
 public class MainV2 extends LinearOpMode {
     private Blinker control_Hub;
     private Blinker expansion_Hub_2;
