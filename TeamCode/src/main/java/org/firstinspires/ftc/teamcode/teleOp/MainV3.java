@@ -47,6 +47,7 @@ public class MainV3 extends LinearOpMode {
     public static int saCpos1 = 0;
     public static int saCpos2 = 0;
     // misc
+    private static boolean redSide = true;
     private int cacheR1 = 0;
     private int cacheR2 = 0;
     private int cacheG1 = 0;
@@ -145,7 +146,6 @@ public class MainV3 extends LinearOpMode {
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 // variables
-                boolean redSide = true;
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 // misc
                 wrist.setPosition(wristCpos);
