@@ -7,7 +7,11 @@
  */
 package org.firstinspires.ftc.teamcode.teleOp;
 
+import android.graphics.Color;
+
 import com.acmerobotics.dashboard.config.Config;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Blinker;
@@ -63,6 +67,12 @@ public class MainV3 extends LinearOpMode {
     public static double extendArmSpeed = 1;
     public static double submersibleArmSpeed = 1;
     public static double wheelSpeed = 1;
+    // odometry
+    private static double X = 0;
+    private static double Y = 0;
+    private static double HEADING;
+    private static boolean selfCorrection = false;
+    private static boolean odoDrive = false;
     // extend arm
     public static boolean eaLimits = false;
     public static boolean eaCorrection = true;
@@ -95,6 +105,7 @@ public class MainV3 extends LinearOpMode {
     public void runOpMode() {
         // hardware
         IMU imu = hardwareMap.get(IMU.class, "imu");
+        Follower follower = new Follower(hardwareMap);
         Blinker control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
         Blinker expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
@@ -133,8 +144,6 @@ public class MainV3 extends LinearOpMode {
         extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // misc
         imu.resetYaw();
-        control_Hub.setConstant(16711927); // use http://www.shodor.org/~efarrow/trunk/html/rgbint.html for colorInt converter
-        expansion_Hub_2.setConstant(16711927); // use http://www.shodor.org/~efarrow/trunk/html/rgbint.html for colorInt converter
         gamepadColor(1, 0, 255, 0, Integer.MAX_VALUE);
         gamepadColor(2, 255, 0, 255, Integer.MAX_VALUE);
         // starting pos
@@ -315,26 +324,46 @@ public class MainV3 extends LinearOpMode {
                     clawCpos = 0.54;
                 }
                 // odometry self-correction
-                if (!moving) {
-                    // odometry self-correction code
-                    control_Hub.setConstant(65535); // use http://www.shodor.org/~efarrow/trunk/html/rgbint.html for colorInt converter
-                    expansion_Hub_2.setConstant(65535); // use http://www.shodor.org/~efarrow/trunk/html/rgbint.html for colorInt converter
+                if (selfCorrection) {
+                    if (!moving) {
+                        // odometry self-correction code
+                        if (odoDrive) {
+                            follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
+                            follower.startTeleopDrive();
+                        } else {
+                            follower.holdPoint(new Point(X, Y), HEADING);
+                        }
+                        control_Hub.setConstant(Color.argb(1, 0, 255, 0));
+                        expansion_Hub_2.setConstant(Color.argb(1, 0, 255, 0));
+                    } else {
+                        control_Hub.setConstant(Color.argb(1, 255, 0, 255));
+                        expansion_Hub_2.setConstant(Color.argb(1, 255, 0, 255));
+                        X = follower.getPose().getX();
+                        Y = follower.getPose().getY();
+                        HEADING = follower.getPose().getHeading();
+                    }
                 }
                 // color sensor code
                 if ((sensor.red() > 20 && sensor.green() > 10 && sensor.blue() > 10) && sensor.getDistance(DistanceUnit.MM) < 1) {
                     // red
+                    control_Hub.setConstant(Color.argb(1, 255, 0, 0));
+                    expansion_Hub_2.setConstant(Color.argb(1, 255, 0, 0));
                     gamepadColor(1, 255, 0, 0, Integer.MAX_VALUE);
                     gamepadColor(2, 255, 0, 0, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
                     gamepad2.rumble(1000);
                 } else if ((sensor.red() > 10 && sensor.green() > 10 && sensor.blue() > 20) && sensor.getDistance(DistanceUnit.MM) < 1) {
                     // blue
+                    control_Hub.setConstant(Color.argb(1, 0, 0, 255));
+                    expansion_Hub_2.setConstant(Color.argb(1, 0, 0, 255));
                     gamepadColor(1, 0, 0, 255, Integer.MAX_VALUE);
                     gamepadColor(2, 0, 0, 255, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
                     gamepad2.rumble(1000);
                 } else if ((sensor.red() > 30 && sensor.green() > 30 && sensor.blue() > 0) && sensor.getDistance(DistanceUnit.MM) < 1) {
                     // yellow
+                    control_Hub.setConstant(Color.argb(1, 255, 255, 0));
+                    expansion_Hub_2.setConstant(Color.argb(1, 255, 255, 0));
                     gamepadColor(1, 255, 255, 0, Integer.MAX_VALUE);
                     gamepadColor(2, 255, 255, 0, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
