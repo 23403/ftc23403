@@ -33,9 +33,9 @@ import pedroPathing.constants.LConstants;
  * @version 2.0, 2/15/25
  */
 
-@Config("Auto Hook")
-@Autonomous (name = "Auto Hook", group = ".ftc23403")
-public class AutoHook extends OpMode {
+@Config("Auto Hook alpha")
+@Autonomous (name = "Auto Hook alpha", group = "ftc23403")
+public class AutoHookALPHA extends OpMode {
     private Telemetry telemetryA;
     private String state;
     private Follower follower;
