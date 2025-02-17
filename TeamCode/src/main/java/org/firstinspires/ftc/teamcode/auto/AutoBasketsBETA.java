@@ -16,6 +16,8 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import org.firstinspires.ftc.teamcode.variables.AutoVariables;
+
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
@@ -197,6 +199,8 @@ public class AutoBasketsBETA extends OpMode {
         DcMotor extendArm1 = hardwareMap.dcMotor.get("ExtendArm1");
         DcMotor extendArm2 = hardwareMap.dcMotor.get("ExtendArm2");
         // stuff
+        AutoVariables.eaMovements1+=dis1;
+        AutoVariables.eaMovements2+=dis2;
         extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // formula
@@ -234,6 +238,8 @@ public class AutoBasketsBETA extends OpMode {
         DcMotor submersibleArm1 = hardwareMap.dcMotor.get("SubArm1");
         DcMotor submersibleArm2 = hardwareMap.dcMotor.get("SubArm2");
         // stuff
+        AutoVariables.saMovements1+=dis1;
+        AutoVariables.saMovements1+=dis2;
         submersibleArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         submersibleArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // formula
@@ -301,6 +307,10 @@ public class AutoBasketsBETA extends OpMode {
     public void init() {
         // hardware
         hardwareMap.get(IMU.class, "imu").resetYaw();
+        AutoVariables.eaMovements1 = 0;
+        AutoVariables.eaMovements2 = 0;
+        AutoVariables.saMovements1 = 0;
+        AutoVariables.saMovements2 = 0;
         // movement
         pathTimer = new Timer();
         opmodeTimer = new Timer();

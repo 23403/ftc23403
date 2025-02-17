@@ -23,6 +23,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.variables.AutoVariables;
 
 @Config("MainV3")
 @TeleOp(name="Main v3", group=".ftc23403")
@@ -141,11 +142,32 @@ public class MainV3 extends LinearOpMode {
         submersibleArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         submersibleArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        submersibleArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        submersibleArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // misc
-        imu.resetYaw();
         gamepadColor(1, 0, 255, 0, Integer.MAX_VALUE);
         gamepadColor(2, 255, 0, 255, Integer.MAX_VALUE);
+        // calibration
+        imu.resetYaw();
+        extendArm1.setTargetPosition(-AutoVariables.eaMovements1);
+        submersibleArm1.setTargetPosition(-AutoVariables.saMovements1);
+        extendArm2.setTargetPosition(-AutoVariables.eaMovements2);
+        submersibleArm2.setTargetPosition(-AutoVariables.saMovements2);
+        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        submersibleArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        submersibleArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        while (extendArm1.isBusy() || submersibleArm1.isBusy() || extendArm2.isBusy() || submersibleArm2.isBusy()) {
+            telemetry.addData("RESETTING", "POSITIONS");
+            telemetry.update();
+        }
+        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        submersibleArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        submersibleArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        telemetry.addData("RESETTING", "DONE!");
+        telemetry.update();
         // starting pos
         eaCpos1 = extendArm1.getCurrentPosition();
         saCpos1 = submersibleArm1.getCurrentPosition();
