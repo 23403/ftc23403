@@ -131,7 +131,7 @@ public class AutoBasketsBETA extends OpMode {
         park = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(15.900, 128.200, Point.CARTESIAN),
-                        new Point(59.800, 95.400, Point.CARTESIAN)
+                        new Point(61.100, 96.300, Point.CARTESIAN)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(137), Math.toRadians(-90))
                 .build();

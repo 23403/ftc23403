@@ -83,14 +83,14 @@ public class AutoHookBETA extends OpMode {
                 .addPath(new BezierCurve(
                         new Point(38.000, 76.000, Point.CARTESIAN),
                         new Point(23.000, 28.000, Point.CARTESIAN),
-                        new Point(9.000, 31.000, Point.CARTESIAN)
+                        new Point(16.500, 31.000, Point.CARTESIAN)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         /* line3 */
         hangSpecimen1 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(9.000, 31.000, Point.CARTESIAN),
+                        new Point(16.500, 31.000, Point.CARTESIAN),
                         new Point(21.000, 28.000, Point.CARTESIAN),
                         new Point(38.000, 75.000, Point.CARTESIAN)
                 ))
@@ -149,14 +149,14 @@ public class AutoHookBETA extends OpMode {
         grabSpecimen2 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         new Point(38.000, 32.000, Point.CARTESIAN),
-                        new Point(9.000, 31.000, Point.CARTESIAN)
+                        new Point(16.500, 31.000, Point.CARTESIAN)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(58), Math.toRadians(-180))
                 .build();
         /* line11 */
         hangSpecimen2 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(9.000, 31.000, Point.CARTESIAN),
+                        new Point(16.500, 31.000, Point.CARTESIAN),
                         new Point(21.000, 29.000, Point.CARTESIAN),
                         new Point(38.000, 75.000, Point.CARTESIAN)
                 ))
@@ -167,14 +167,14 @@ public class AutoHookBETA extends OpMode {
                 .addPath(new BezierCurve(
                         new Point(38.000, 75.000, Point.CARTESIAN),
                         new Point(22.000, 28.000, Point.CARTESIAN),
-                        new Point(9.000, 31.000, Point.CARTESIAN)
+                        new Point(16.500, 31.000, Point.CARTESIAN)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-180))
                 .build();
         /* line13 */
         hangSpecimen3 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(9.000, 31.000, Point.CARTESIAN),
+                        new Point(16.500, 31.000, Point.CARTESIAN),
                         new Point(22.000, 28.000, Point.CARTESIAN),
                         new Point(38.000, 75.000, Point.CARTESIAN)
                 ))
@@ -185,14 +185,14 @@ public class AutoHookBETA extends OpMode {
                 .addPath(new BezierCurve(
                         new Point(38.000, 75.000, Point.CARTESIAN),
                         new Point(21.000, 29.000, Point.CARTESIAN),
-                        new Point(9.000, 31.000, Point.CARTESIAN)
+                        new Point(16.500, 31.000, Point.CARTESIAN)
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-180))
                 .build();
         /* line15 */
         hangSpecimen4 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(9.000, 31.000, Point.CARTESIAN),
+                        new Point(16.500, 31.000, Point.CARTESIAN),
                         new Point(22.000, 28.000, Point.CARTESIAN),
                         new Point(38.000, 75.000, Point.CARTESIAN)
                 ))
