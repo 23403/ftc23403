@@ -37,22 +37,38 @@ public class MainV3 extends LinearOpMode {
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
     // servos
-    public static double wristCpos = 1;
+    public static double wristCpos1 = 1;
     // 0.5 low pos
     // 1 high pos
-    public static double clawCpos = 0.47;
+    public static double clawCpos1 = 0.47;
     // claw max pos 0.3 to 0.54
     // 0.48 is the close/tight pos
     // 0.54 is close
     // 0.3 is open pos
     // 0.47 is perfect pos
+    public static double sweeperCpos = 1;
+    // 0.5 low pos
+    // 1 high pos
+    public static double wristCpos2 = 1;
+    // 0.5 low pos
+    // 1 high pos
+    public static double clawCpos2 = 0.47;
+    // claw max pos 0.3 to 0.54
+    // 0.48 is the close/tight pos
+    // 0.54 is close
+    // 0.3 is open pos
+    // 0.47 is perfect pos
+    public static double armCpos1 = 1;
+    public static double armCpos2 = 1;
+    public static double armCpos3 = 1;
+    public static double armCpos4 = 1;
     // corrections
     public static int eaCpos1 = 0;
     public static int eaCpos2 = 0;
     public static int saCpos1 = 0;
     public static int saCpos2 = 0;
     // misc
-    private static boolean redSide = true;
+    public static boolean redSide = true;
     private int cacheR1 = 0;
     private int cacheR2 = 0;
     private int cacheG1 = 0;
@@ -69,11 +85,11 @@ public class MainV3 extends LinearOpMode {
     public static double submersibleArmSpeed = 1;
     public static double wheelSpeed = 1;
     // odometry
-    private static double X = 0;
-    private static double Y = 0;
-    private static double HEADING;
-    private static boolean selfCorrection = false;
-    private static boolean odoDrive = false;
+    public static double X = 0;
+    public static double Y = 0;
+    public static double HEADING;
+    public static boolean selfCorrection = false;
+    public static boolean odoDrive = false;
     // extend arm
     public static boolean eaLimits = false;
     public static boolean eaCorrection = true;
@@ -120,8 +136,17 @@ public class MainV3 extends LinearOpMode {
         DcMotor submersibleArm1 = hardwareMap.dcMotor.get("SubArm1");
         DcMotor submersibleArm2 = hardwareMap.dcMotor.get("SubArm2");
         // servos
-        Servo claw = hardwareMap.get(Servo.class, "claw");
-        Servo wrist = hardwareMap.get(Servo.class, "wrist");
+        Servo sweeper = hardwareMap.get(Servo.class, "sweeper");
+        // ea
+        Servo arm1 = hardwareMap.get(Servo.class, "arm1");
+        Servo arm2 = hardwareMap.get(Servo.class, "arm2");
+        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1");
+        Servo claw1 = hardwareMap.get(Servo.class, "claw1");
+        // sa
+        Servo arm3 = hardwareMap.get(Servo.class, "arm3");
+        Servo arm4 = hardwareMap.get(Servo.class, "arm4");
+        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2");
+        Servo claw2 = hardwareMap.get(Servo.class, "claw2");
         CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL");
         CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR");
         // reverse motors
@@ -130,7 +155,8 @@ public class MainV3 extends LinearOpMode {
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
         submersibleArm2.setDirection(DcMotor.Direction.REVERSE);
         // wrist.setDirection(Servo.Direction.REVERSE);
-        claw.setDirection(Servo.Direction.REVERSE);
+        // claw.setDirection(Servo.Direction.REVERSE);
+        // positions
         // claw.scaleRange(0.3, 0.54);
         // breaks
         leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -179,8 +205,15 @@ public class MainV3 extends LinearOpMode {
                 // variables
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 // misc
-                wrist.setPosition(wristCpos);
-                claw.setPosition(clawCpos);
+                wrist1.setPosition(wristCpos1);
+                wrist2.setPosition(wristCpos2);
+                claw1.setPosition(clawCpos1);
+                claw2.setPosition(clawCpos2);
+                arm1.setPosition(armCpos1);
+                arm2.setPosition(armCpos2);
+                arm3.setPosition(armCpos3);
+                arm4.setPosition(armCpos4);
+                sweeper.setPosition(sweeperCpos);
                 if (gamepad1.share || gamepad2.share) {
                     redSide = redSide ? false : true;
                 }
@@ -341,9 +374,9 @@ public class MainV3 extends LinearOpMode {
                 }
                 // claw
                 if (gamepad1.left_trigger > 0) {
-                    clawCpos = 0.47;
+                    clawCpos1 = 0.47;
                 } else if (gamepad1.right_trigger > 0) {
-                    clawCpos = 0.54;
+                    clawCpos1 = 0.54;
                 }
                 // odometry self-correction
                 if (selfCorrection) {
@@ -415,15 +448,20 @@ public class MainV3 extends LinearOpMode {
                 }
                 // telemetry
                 telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
-                telemetry.addData("Sensor RGBA:", sensor.red() + sensor.green() + sensor.blue() + sensor.alpha());
-                telemetry.addData("debug:", true);
-                telemetry.addData("debug:", true);
+                telemetry.addData("Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
                 telemetry.addData("Extend Arm Position1:", extendArm1.getCurrentPosition());
                 telemetry.addData("Extend Arm Position2:", extendArm2.getCurrentPosition());
                 telemetry.addData("Submersible Arm Position1:", submersibleArm1.getCurrentPosition());
                 telemetry.addData("Submersible Arm Position2:", submersibleArm2.getCurrentPosition());
-                telemetry.addData("Wrist Position:", wrist.getPosition());
-                telemetry.addData("Claw Position:", claw.getPosition());
+                telemetry.addData("Wrist Position1:", wrist1.getPosition());
+                telemetry.addData("Wrist Position2:", wrist2.getPosition());
+                telemetry.addData("Claw Position1:", claw1.getPosition());
+                telemetry.addData("Claw Position2:", claw2.getPosition());
+                telemetry.addData("Arm Position1:", arm1.getPosition());
+                telemetry.addData("Arm Position2:", arm2.getPosition());
+                telemetry.addData("Arm Position3:", arm3.getPosition());
+                telemetry.addData("Arm Position4:", arm4.getPosition());
+                telemetry.addData("Sweeper Position:", sweeper.getPosition());
                 telemetry.addData("triggersR?", gamepad1.right_trigger);
                 telemetry.addData("triggersL?", gamepad1.left_trigger);
                 telemetry.addData("Manually moving robot?", moving);
