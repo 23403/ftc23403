@@ -123,8 +123,8 @@ public class MainV3 extends LinearOpMode {
         // hardware
         IMU imu = hardwareMap.get(IMU.class, "imu");
         Follower follower = new Follower(hardwareMap);
-        Blinker control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
-        Blinker expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
+        // Blinker control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
+        // Blinker expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         // motors
         DcMotor leftBackDrive = hardwareMap.dcMotor.get("leftRear");
@@ -388,11 +388,11 @@ public class MainV3 extends LinearOpMode {
                         } else {
                             follower.holdPoint(new Point(X, Y), HEADING);
                         }
-                        control_Hub.setConstant(Color.argb(1, 0, 255, 0));
-                        expansion_Hub_2.setConstant(Color.argb(1, 0, 255, 0));
+                        // control_Hub.setConstant(Color.argb(1, 0, 255, 0));
+                        // expansion_Hub_2.setConstant(Color.argb(1, 0, 255, 0));
                     } else {
-                        control_Hub.setConstant(Color.argb(1, 255, 0, 255));
-                        expansion_Hub_2.setConstant(Color.argb(1, 255, 0, 255));
+                        // control_Hub.setConstant(Color.argb(1, 255, 0, 255));
+                        // expansion_Hub_2.setConstant(Color.argb(1, 255, 0, 255));
                         X = follower.getPose().getX();
                         Y = follower.getPose().getY();
                         HEADING = follower.getPose().getHeading();
@@ -401,24 +401,24 @@ public class MainV3 extends LinearOpMode {
                 // color sensor code
                 if ((sensor.red() > 20 && sensor.green() > 10 && sensor.blue() > 10) && sensor.getDistance(DistanceUnit.MM) < 1) {
                     // red
-                    control_Hub.setConstant(Color.argb(1, 255, 0, 0));
-                    expansion_Hub_2.setConstant(Color.argb(1, 255, 0, 0));
+                    // control_Hub.setConstant(Color.argb(1, 255, 0, 0));
+                    // expansion_Hub_2.setConstant(Color.argb(1, 255, 0, 0));
                     gamepadColor(1, 255, 0, 0, Integer.MAX_VALUE);
                     gamepadColor(2, 255, 0, 0, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
                     gamepad2.rumble(1000);
                 } else if ((sensor.red() > 10 && sensor.green() > 10 && sensor.blue() > 20) && sensor.getDistance(DistanceUnit.MM) < 1) {
                     // blue
-                    control_Hub.setConstant(Color.argb(1, 0, 0, 255));
-                    expansion_Hub_2.setConstant(Color.argb(1, 0, 0, 255));
+                    // control_Hub.setConstant(Color.argb(1, 0, 0, 255));
+                    // expansion_Hub_2.setConstant(Color.argb(1, 0, 0, 255));
                     gamepadColor(1, 0, 0, 255, Integer.MAX_VALUE);
                     gamepadColor(2, 0, 0, 255, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
                     gamepad2.rumble(1000);
                 } else if ((sensor.red() > 30 && sensor.green() > 30 && sensor.blue() > 0) && sensor.getDistance(DistanceUnit.MM) < 1) {
                     // yellow
-                    control_Hub.setConstant(Color.argb(1, 255, 255, 0));
-                    expansion_Hub_2.setConstant(Color.argb(1, 255, 255, 0));
+                    // control_Hub.setConstant(Color.argb(1, 255, 255, 0));
+                    // expansion_Hub_2.setConstant(Color.argb(1, 255, 255, 0));
                     gamepadColor(1, 255, 255, 0, Integer.MAX_VALUE);
                     gamepadColor(2, 255, 255, 0, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
