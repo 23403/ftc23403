@@ -89,7 +89,7 @@ public class MainV3 extends LinearOpMode {
     public static double Y = 0;
     public static double HEADING;
     public static boolean selfCorrection = false;
-    public static boolean odoDrive = false;
+    public static boolean odoDrive = true;
     // extend arm
     public static boolean eaLimits = false;
     public static boolean eaCorrection = true;
@@ -217,12 +217,18 @@ public class MainV3 extends LinearOpMode {
                 if (gamepad1.share || gamepad2.share) {
                     redSide = redSide ? false : true;
                 }
-                // left wheels
-                leftBackDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
-                leftFrontDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
-                // right wheels
-                rightFrontDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
-                rightBackDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
+                // movements
+                if (odoDrive) {
+                    follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
+                    follower.startTeleopDrive();
+                } else {
+                    // left wheels
+                    leftBackDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
+                    leftFrontDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
+                    // right wheels
+                    rightFrontDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
+                    rightBackDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
+                }
                 // extendArm code
                 if (eaLimits) {
                     if (gamepad1.dpad_up) {
@@ -382,12 +388,7 @@ public class MainV3 extends LinearOpMode {
                 if (selfCorrection) {
                     if (!moving) {
                         // odometry self-correction code
-                        if (odoDrive) {
-                            follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
-                            follower.startTeleopDrive();
-                        } else {
-                            follower.holdPoint(new Point(X, Y), HEADING);
-                        }
+                        follower.holdPoint(new Point(X, Y), HEADING);
                         // control_Hub.setConstant(Color.argb(1, 0, 255, 0));
                         // expansion_Hub_2.setConstant(Color.argb(1, 0, 255, 0));
                     } else {
