@@ -12,7 +12,6 @@ import android.graphics.Color;
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.pathgen.Point;
-import metroLib.motors.motorUtils;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Blinker;
@@ -25,8 +24,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.variables.AutoVariables;
-
-import java.util.List;
 
 @Config("MainV3")
 @TeleOp(name="Main v3", group=".ftc23403")
@@ -162,17 +159,23 @@ public class MainV3 extends LinearOpMode {
         // positions
         // claw.scaleRange(0.3, 0.54);
         // breaks
-        motorUtils.setBrakeMode(List.of(leftBackDrive, rightFrontDrive, rightBackDrive, leftFrontDrive, extendArm1, extendArm2, submersibleArm1, submersibleArm2), true);
+        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        submersibleArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        submersibleArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        submersibleArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        submersibleArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // misc
         gamepadColor(1, 0, 255, 0, Integer.MAX_VALUE);
         gamepadColor(2, 255, 0, 255, Integer.MAX_VALUE);
         // calibration
         imu.resetYaw();
-        // motorUtils.calibrateMotors(List.of(extendArm1, submersibleArm1, extendArm2, submersibleArm2), List.of(AutoVariables.eaMovements1, AutoVariables.saMovements1, AutoVariables.eaMovements2, AutoVariables.saMovements1), telemetry);
-        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        submersibleArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        submersibleArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extendArm1.setTargetPosition(-AutoVariables.eaMovements1);
         submersibleArm1.setTargetPosition(-AutoVariables.saMovements1);
         extendArm2.setTargetPosition(-AutoVariables.eaMovements2);
