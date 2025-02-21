@@ -18,8 +18,11 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.variables.AutoVariables;
 
+import java.util.List;
+
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import xyz.nin1275.Calibrate;
 
 /**
  * MetroBotics/Code Conductors auto using odometry.
@@ -35,7 +38,8 @@ import pedroPathing.constants.LConstants;
 public class AutoHookBETA extends OpMode {
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
-    private static double speed = 0.3;
+    public static double speed = 0.3;
+    public static Integer pauses = 1000;
     /** store the state of our auto. */
     private int pathState;
 
@@ -215,90 +219,107 @@ public class AutoHookBETA extends OpMode {
         - Robot Position: "if(follower.getPose().getX() > 36) {}"
     */
     public void autonomousPathUpdate() {
+        xyz.nin1275.Timer timer = new xyz.nin1275.Timer();
         switch (pathState) {
             case 0:
                 if(!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(preload,true);
                     setPathState(1);
                 }
                 break;
             case 1:
                 if(!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(grabSpecimen1,true);
                     setPathState(2);
                 }
                 break;
             case 2:
                 if (!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(hangSpecimen1, true);
                     setPathState(3);
                 }
             case 3:
                 if (!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(moveToPushLoc, true);
                     setPathState(4);
                 }
             case 4:
                 if(!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(rotate1,true);
                     setPathState(5);
                 }
                 break;
             case 5:
                 if (!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(rotateBack1, true);
                     setPathState(6);
                 }
             case 6:
                 if (!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(rotate2, true);
                     setPathState(7);
                 }
             case 7:
                 if(!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(moveRotate3,true);
                     setPathState(8);
                 }
                 break;
             case 8:
                 if (!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(rotate3, true);
                     setPathState(9);
                 }
             case 9:
                 if (!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(grabSpecimen2, true);
                     setPathState(10);
                 }
             case 10:
                 if(!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(hangSpecimen2, true);
                     setPathState(11);
                 }
                 break;
             case 11:
                 if (!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(grabSpecimen3, true);
                     setPathState(12);
                 }
             case 12:
                 if (!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(hangSpecimen3, true);
                     setPathState(13);
                 }
             case 13:
                 if(!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(grabSpecimen4,true);
                     setPathState(14);
                 }
                 break;
             case 14:
                 if (!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(hangSpecimen4, true);
                     setPathState(15);
                 }
             case 15:
                 if (!follower.isBusy()) {
+                    timer.wait(pauses);
                     follower.followPath(park, true);
                     setPathState(16);
                 }
@@ -450,6 +471,7 @@ public class AutoHookBETA extends OpMode {
     /** We do not use this because everything should automatically disable **/
     @Override
     public void stop() {
+        Calibrate.Auto.savePositions(List.of(AutoVariables.eaMovements1, AutoVariables.eaMovements2, AutoVariables.saMovements1, AutoVariables.saMovements2));
     }
 }
 
