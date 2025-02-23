@@ -193,6 +193,7 @@ public class MainV3 extends LinearOpMode {
                     follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
                     follower.startTeleopDrive();
                 } else {
+                    follower.breakFollowing();
                     // left wheels
                     leftBackDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
                     leftFrontDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
