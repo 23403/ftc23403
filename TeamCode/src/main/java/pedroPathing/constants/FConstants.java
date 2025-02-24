@@ -28,18 +28,31 @@ public class FConstants {
         FollowerConstants.forwardZeroPowerAcceleration = -17.7761877971;
         FollowerConstants.lateralZeroPowerAcceleration = -27.4690987267;
 
-        // pid for tanslational
+        /**
+         ** STEPS FOR BASIC PID TUNING **
+         *** HAVE SECONDARY TUNING OFF WHEN DOING THIS STEP ***
+         * P - For power which will overshoot. You want to have very little overshoot but still have power
+         * I - For overshooting. Only use this once in a lifetime if you can't get D working properly for some reason.
+         * D - For de-overshooting. When you increase this you remove the overshoot but too much D value will undershoot which is bad
+         ** STEPS FOR SECONDARY/ADVANCED PID TUNING **
+         *** USE THE GRAPH WHEN TUNING! ***
+         * P - For power which will overshoot. You want to get everything as close to the 0 value as possible on the graph
+         * I - For overshooting. Only use this once in a lifetime if you can't get D working properly for some reason.
+         * D - For de-overshooting. You want to get everything as close to the 0 value as possible on the graph
+        **/
+
+        // pid for translational
         FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.09,0,0.01,0);
-        FollowerConstants.useSecondaryTranslationalPID = true;
-        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0); // Not being used, @see useSecondaryTranslationalPID
+        FollowerConstants.useSecondaryTranslationalPID = false;
+        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0); // SECONDARY TUNING
         // pid for heading
         FollowerConstants.headingPIDFCoefficients.setCoefficients(0.7,0,0.03,0);
-        FollowerConstants.useSecondaryHeadingPID = true;
-        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(2,0,0.1,0); // Not being used, @see useSecondaryHeadingPID
+        FollowerConstants.useSecondaryHeadingPID = false;
+        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(2,0,0.1,0); // SECONDARY TUNING
         // pid for drive
         FollowerConstants.drivePIDFCoefficients.setCoefficients(0.02,0,0.002,0.6,0);
-        FollowerConstants.useSecondaryDrivePID = true;
-        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.1,0,0.0001,0.6,0); // Not being used, @see useSecondaryDrivePID
+        FollowerConstants.useSecondaryDrivePID = false;
+        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.1,0,0.0001,0.6,0); // SECONDARY TUNING
 
         FollowerConstants.zeroPowerAccelerationMultiplier = 4;
         FollowerConstants.centripetalScaling = 0.0005;

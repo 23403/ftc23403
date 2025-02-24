@@ -2,7 +2,9 @@ package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.GoBildaPinpointDriver;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.localization.constants.PinpointConstants;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
@@ -319,7 +321,8 @@ public class AutoBasketsBETA extends OpMode {
     @Override
     public void init() {
         // hardware
-        hardwareMap.get(IMU.class, "imu").resetYaw();
+        Constants.setConstants(FConstants.class, LConstants.class);
+        hardwareMap.get(GoBildaPinpointDriver.class, PinpointConstants.hardwareMapName).resetPosAndIMU();
         AutoVariables.eaMovements1 = 0;
         AutoVariables.eaMovements2 = 0;
         AutoVariables.saMovements1 = 0;
@@ -328,7 +331,6 @@ public class AutoBasketsBETA extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPos);
         buildPaths();

@@ -8,6 +8,8 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.GoBildaPinpointDriver;
+import com.pedropathing.localization.constants.PinpointConstants;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
@@ -49,8 +51,8 @@ public class AutoHookALPHA extends OpMode {
     @Override
     public void init() {
         // reset imu
-        hardwareMap.get(IMU.class, "imu").resetYaw();
         Constants.setConstants(FConstants.class, LConstants.class);
+        hardwareMap.get(GoBildaPinpointDriver.class, PinpointConstants.hardwareMapName).resetPosAndIMU();
         follower = new Follower(hardwareMap);
         // path
         specimen = follower.pathBuilder()

@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.GoBildaPinpointDriver;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.localization.constants.PinpointConstants;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
@@ -327,14 +329,14 @@ public class AutoHookOdometry extends OpMode {
     @Override
     public void init() {
         // hardware
-        IMU imu = hardwareMap.get(IMU.class, "imu");
+        Constants.setConstants(FConstants.class, LConstants.class);
+        hardwareMap.get(GoBildaPinpointDriver.class, PinpointConstants.hardwareMapName).resetPosAndIMU();
         // servos
         Servo wrist = hardwareMap.get(Servo.class, "wrist");
         Servo claw = hardwareMap.get(Servo.class, "claw");
         // formulas
         claw.setDirection(Servo.Direction.REVERSE);
         // positions
-        imu.resetYaw();
         wrist.setPosition(1);
         claw.setPosition(0.48);
         // arm goes from 180 to 992
@@ -343,7 +345,6 @@ public class AutoHookOdometry extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        Constants.setConstants(FConstants.class, LConstants.class);
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPos);
         buildPaths();
