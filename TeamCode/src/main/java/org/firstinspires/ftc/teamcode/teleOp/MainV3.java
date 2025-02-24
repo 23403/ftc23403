@@ -398,9 +398,8 @@ public class MainV3 extends LinearOpMode {
                     gamepad2.rumble(1000);
                 } else {
                     // none
-                    GamepadUtils.setGamepad1Color(gamepad1, GamepadUtils.getOldRgbValues(1).get(1), GamepadUtils.getOldRgbValues(1).get(2), GamepadUtils.getOldRgbValues(1).get(3), Integer.MAX_VALUE);
-                    GamepadUtils.setGamepad2Color(gamepad2, GamepadUtils.getOldRgbValues(2).get(1), GamepadUtils.getOldRgbValues(2).get(2), GamepadUtils.getOldRgbValues(2).get(3), Integer.MAX_VALUE);
-                }
+                    GamepadUtils.setGamepadColorOld(gamepad1, 1, Integer.MAX_VALUE);
+                    GamepadUtils.setGamepadColorOld(gamepad2, 2, Integer.MAX_VALUE);                }
                 // auto intake
                 if (redSide) { //                       red                                                              yellow                                         not picked up
                     if (((sensor.red() > 20 && sensor.green() > 10 && sensor.blue() > 10) || (sensor.red() > 30 && sensor.green() > 30 && sensor.blue() > 0)) && sensor.getDistance(DistanceUnit.MM) > 1) {
