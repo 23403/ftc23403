@@ -24,6 +24,9 @@ import java.util.List;
 
 import xyz.nin1275.Calibrate;
 import xyz.nin1275.GamepadUtils;
+import xyz.nin1275.MetroLib;
+import xyz.nin1275.Motors;
+import xyz.nin1275.Servos;
 
 @Config("MainV3")
 @TeleOp(name="Main v3", group=".ftc23403")
@@ -110,6 +113,7 @@ public class MainV3 extends LinearOpMode {
     public void runOpMode() {
         // hardware
         IMU imu = hardwareMap.get(IMU.class, "imu");
+        MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2);
         Follower follower = new Follower(hardwareMap);
         // Blinker control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
         // Blinker expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
@@ -138,33 +142,19 @@ public class MainV3 extends LinearOpMode {
         CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL");
         CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR");
         // reverse motors
-        rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);
-        rightBackDrive.setDirection(DcMotor.Direction.REVERSE);
-        extendArm2.setDirection(DcMotor.Direction.REVERSE);
-        submersibleArm2.setDirection(DcMotor.Direction.REVERSE);
-        // wrist.setDirection(Servo.Direction.REVERSE);
-        // claw.setDirection(Servo.Direction.REVERSE);
+        Motors.reverse(List.of(rightFrontDrive, rightBackDrive, extendArm2, submersibleArm2));
+        Servos.reverse(List.of(arm2, arm4, claw1, claw2));
         // positions
         // claw.scaleRange(0.3, 0.54);
         // breaks
-        leftFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightFrontDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        leftBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        rightBackDrive.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        submersibleArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        submersibleArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        submersibleArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        submersibleArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        Motors.setBrakes(List.of(leftFrontDrive, rightFrontDrive, leftBackDrive, rightBackDrive, extendArm1, extendArm2, submersibleArm1, submersibleArm2));
+        Motors.resetEncoders(List.of(extendArm1, submersibleArm1, extendArm2, submersibleArm2));
         // misc
-        GamepadUtils.setGamepad1Color(gamepad1, 0, 255, 0, Integer.MAX_VALUE);
-        GamepadUtils.setGamepad2Color(gamepad2, 255, 0, 255, Integer.MAX_VALUE);
+        GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
+        GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
         // calibration
         imu.resetYaw();
-        Calibrate.TeleOp.calibrateFromAuto(List.of(extendArm1, extendArm2, submersibleArm1, submersibleArm2), telemetry);
+        Calibrate.TeleOp.calibrateFromAuto(List.of(extendArm1, extendArm2, submersibleArm1, submersibleArm2));
         // starting pos
         eaCpos1 = extendArm1.getCurrentPosition();
         saCpos1 = submersibleArm1.getCurrentPosition();
@@ -376,30 +366,31 @@ public class MainV3 extends LinearOpMode {
                     // red
                     // control_Hub.setConstant(Color.argb(1, 255, 0, 0));
                     // expansion_Hub_2.setConstant(Color.argb(1, 255, 0, 0));
-                    GamepadUtils.setGamepad1Color(gamepad1, 255, 0, 0, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepad2Color(gamepad2, 255, 0, 0, Integer.MAX_VALUE);
+                    GamepadUtils.setGamepad1Color(255, 0, 0, Integer.MAX_VALUE);
+                    GamepadUtils.setGamepad2Color(255, 0, 0, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
                     gamepad2.rumble(1000);
                 } else if ((sensor.red() > 10 && sensor.green() > 10 && sensor.blue() > 20) && sensor.getDistance(DistanceUnit.MM) < 1) {
                     // blue
                     // control_Hub.setConstant(Color.argb(1, 0, 0, 255));
                     // expansion_Hub_2.setConstant(Color.argb(1, 0, 0, 255));
-                    GamepadUtils.setGamepad1Color(gamepad1, 0, 0, 255, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepad2Color(gamepad2, 0, 0, 255, Integer.MAX_VALUE);
+                    GamepadUtils.setGamepad1Color(0, 0, 255, Integer.MAX_VALUE);
+                    GamepadUtils.setGamepad2Color(0, 0, 255, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
                     gamepad2.rumble(1000);
                 } else if ((sensor.red() > 30 && sensor.green() > 30 && sensor.blue() > 0) && sensor.getDistance(DistanceUnit.MM) < 1) {
                     // yellow
                     // control_Hub.setConstant(Color.argb(1, 255, 255, 0));
                     // expansion_Hub_2.setConstant(Color.argb(1, 255, 255, 0));
-                    GamepadUtils.setGamepad1Color(gamepad1, 255, 255, 0, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepad2Color(gamepad2, 255, 255, 0, Integer.MAX_VALUE);
+                    GamepadUtils.setGamepad1Color(255, 255, 0, Integer.MAX_VALUE);
+                    GamepadUtils.setGamepad2Color(255, 255, 0, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
                     gamepad2.rumble(1000);
                 } else {
                     // none
-                    GamepadUtils.setGamepadColorOld(gamepad1, 1, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepadColorOld(gamepad2, 2, Integer.MAX_VALUE);                }
+                    GamepadUtils.setGamepadColorOld(1, Integer.MAX_VALUE);
+                    GamepadUtils.setGamepadColorOld(2, Integer.MAX_VALUE);
+                }
                 // auto intake
                 if (redSide) { //                       red                                                              yellow                                         not picked up
                     if (((sensor.red() > 20 && sensor.green() > 10 && sensor.blue() > 10) || (sensor.red() > 30 && sensor.green() > 30 && sensor.blue() > 0)) && sensor.getDistance(DistanceUnit.MM) > 1) {
