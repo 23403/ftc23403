@@ -141,7 +141,7 @@ public class MainV3 extends LinearOpMode {
         CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR");
         // reverse motors
         Motors.reverse(List.of(rightFrontDrive, rightBackDrive, extendArm2, submersibleArm2));
-        Servos.reverse(List.of(arm2, claw1, claw2));
+        Servos.reverse(List.of(arm2, claw1));
         // positions
         // claw.scaleRange(0.3, 0.54);
         // breaks

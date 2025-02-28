@@ -20,13 +20,13 @@ public class FConstants {
         FollowerConstants.rightFrontMotorDirection = DcMotorSimple.Direction.FORWARD;
         FollowerConstants.rightRearMotorDirection = DcMotorSimple.Direction.FORWARD;
 
-        FollowerConstants.mass = 10.8;
+        FollowerConstants.mass = 13.6;
 
-        FollowerConstants.xMovement = 78.5119220992;
-        FollowerConstants.yMovement = 68.5929007868;
+        FollowerConstants.xMovement = 68.8326051955;
+        FollowerConstants.yMovement = 50.9347102026;
 
-        FollowerConstants.forwardZeroPowerAcceleration = -17.7761877971;
-        FollowerConstants.lateralZeroPowerAcceleration = -27.4690987267;
+        FollowerConstants.forwardZeroPowerAcceleration = -28.2449452814;
+        FollowerConstants.lateralZeroPowerAcceleration = -70.0786776898;
 
         /**
          ** STEPS FOR BASIC PID TUNING **
