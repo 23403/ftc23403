@@ -88,6 +88,7 @@ public class MainV3 extends LinearOpMode {
     public static int eaLimitHigh2 = 2272;
     public static int eaLimitLow1 = 0;
     public static int eaLimitLow2 = 0;
+    public static int eaErrorCorr = 100;
     // submersible arm
     public static boolean saLimits = false;
     public static boolean saCorrection = true;
@@ -95,6 +96,7 @@ public class MainV3 extends LinearOpMode {
     public static int saLimitHigh2 = 2272;
     public static int saLimitLow1 = 0;
     public static int saLimitLow2 = 0;
+    public static int saErrorCorr = 100;
     // preset locations
     // humanPlayer
     public static int humanPlayerLoc1 = 200;
@@ -200,8 +202,8 @@ public class MainV3 extends LinearOpMode {
                         extendArm2.setPower(extendArmSpeed);
                         extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        eaCpos1 = extendArm1.getCurrentPosition();
-                        eaCpos2 = extendArm2.getCurrentPosition();
+                        eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
+                        eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
                     } else if (gamepad1.dpad_down) {
                         extendArm1.setTargetPosition(eaLimitLow1);
                         extendArm2.setTargetPosition(eaLimitLow2);
@@ -209,8 +211,8 @@ public class MainV3 extends LinearOpMode {
                         extendArm2.setPower(extendArmSpeed);
                         extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        eaCpos1 = extendArm1.getCurrentPosition();
-                        eaCpos2 = extendArm2.getCurrentPosition();
+                        eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
+                        eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
                     } else if (eaCorrection) {
                         extendArm1.setTargetPosition(eaCpos1);
                         extendArm2.setTargetPosition(eaCpos2);
@@ -230,15 +232,15 @@ public class MainV3 extends LinearOpMode {
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm1.setPower(extendArmSpeed);
                         extendArm2.setPower(extendArmSpeed);
-                        eaCpos1 = extendArm1.getCurrentPosition();
-                        eaCpos2 = extendArm2.getCurrentPosition();
+                        eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
+                        eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
                     } else if (gamepad1.dpad_down) {
                         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm1.setPower(-extendArmSpeed);
                         extendArm2.setPower(-extendArmSpeed);
-                        eaCpos1 = extendArm1.getCurrentPosition();
-                        eaCpos2 = extendArm2.getCurrentPosition();
+                        eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
+                        eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
                     } else if (eaCorrection) {
                         extendArm1.setTargetPosition(eaCpos1);
                         extendArm2.setTargetPosition(eaCpos2);
@@ -262,8 +264,8 @@ public class MainV3 extends LinearOpMode {
                         submersibleArm2.setPower(submersibleArmSpeed);
                         submersibleArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         submersibleArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        saCpos1 = submersibleArm1.getCurrentPosition();
-                        saCpos2 = submersibleArm2.getCurrentPosition();
+                        saCpos1 = submersibleArm1.getCurrentPosition() + saErrorCorr;
+                        saCpos2 = submersibleArm2.getCurrentPosition() + saErrorCorr;
                     } else if (gamepad1.dpad_left) {
                         submersibleArm1.setTargetPosition(saLimitLow1);
                         submersibleArm2.setTargetPosition(saLimitLow2);
@@ -271,8 +273,8 @@ public class MainV3 extends LinearOpMode {
                         submersibleArm2.setPower(submersibleArmSpeed);
                         submersibleArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                         submersibleArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        saCpos1 = submersibleArm1.getCurrentPosition();
-                        saCpos2 = submersibleArm2.getCurrentPosition();
+                        saCpos1 = submersibleArm1.getCurrentPosition() - saErrorCorr;
+                        saCpos2 = submersibleArm2.getCurrentPosition() - saErrorCorr;
                     } else if (saCorrection) {
                         submersibleArm1.setTargetPosition(saCpos1);
                         submersibleArm2.setTargetPosition(saCpos2);
@@ -290,17 +292,17 @@ public class MainV3 extends LinearOpMode {
                     if (gamepad1.dpad_right) {
                         submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        submersibleArm1.setPower(submersibleArmSpeed);
-                        submersibleArm2.setPower(submersibleArmSpeed);
-                        saCpos1 = submersibleArm1.getCurrentPosition();
-                        saCpos2 = submersibleArm2.getCurrentPosition();
+                        submersibleArm1.setPower(-submersibleArmSpeed);
+                        submersibleArm2.setPower(-submersibleArmSpeed);
+                        saCpos1 = submersibleArm1.getCurrentPosition() + saErrorCorr;
+                        saCpos2 = submersibleArm2.getCurrentPosition() + saErrorCorr;
                     } else if (gamepad1.dpad_left) {
                         submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        submersibleArm1.setPower(-submersibleArmSpeed);
-                        submersibleArm2.setPower(-submersibleArmSpeed);
-                        saCpos1 = submersibleArm1.getCurrentPosition();
-                        saCpos2 = submersibleArm2.getCurrentPosition();
+                        submersibleArm1.setPower(submersibleArmSpeed);
+                        submersibleArm2.setPower(submersibleArmSpeed);
+                        saCpos1 = submersibleArm1.getCurrentPosition() - saErrorCorr;
+                        saCpos2 = submersibleArm2.getCurrentPosition() - saErrorCorr;
                     } else if (eaCorrection) {
                         submersibleArm1.setTargetPosition(saCpos1);
                         submersibleArm2.setTargetPosition(saCpos2);
