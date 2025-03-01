@@ -3,7 +3,7 @@
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
  * coding from scratch for our robot, Beastkit v3
  * started recoding at 2/14/25  @  8:31 pm
- * robot v3 expected to be finished building by 2/20/25
+ * robot v3 expected to be finished building by 3/3/25
  */
 package org.firstinspires.ftc.teamcode.teleOp;
 
@@ -19,7 +19,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.variables.constants.AutoVariables;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
@@ -45,27 +44,29 @@ public class MainV3 extends LinearOpMode {
     // servos
     public static double wristCpos1 = 1;
     // 0.5 low pos
+    // 0.6 grab from sa
     // 1 high pos
     public static double clawCpos1 = 0.47;
-    // claw max pos 0.3 to 0.54
-    // 0.48 is the close/tight pos
-    // 0.54 is close
-    // 0.3 is open pos
-    // 0.47 is perfect pos
+    // 1 is close
+    // 0 is open
     public static double sweeperCpos = 1;
     // 0.5 low pos
     // 1 high pos
     public static double wristCpos2 = 1;
     // 0.5 low pos
+    // 0.6 give to ea
     // 1 high pos
     public static double clawCpos2 = 0.47;
-    // claw max pos 0.3 to 0.54
-    // 0.48 is the close/tight pos
-    // 0.54 is close
-    // 0.3 is open pos
-    // 0.47 is perfect pos
+    // 1 is close
+    // 0.47 is grab pos
+    // 0.48 is the tight pos
+    // 0 is open pos
     public static double armCpos1 = 1;
+    // 0 low pos
+    // 1 high pos
     public static double armCpos2 = 1;
+    // 0 low pos
+    // 1 high pos
     // corrections
     public static int eaCpos1 = 0;
     public static int eaCpos2 = 0;
@@ -118,9 +119,8 @@ public class MainV3 extends LinearOpMode {
         IMU imu = hardwareMap.get(IMU.class, "imu");
         MetroLib.setConstants(MConstants.class);
         Follower follower = new Follower(hardwareMap);
-        // Blinker control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
-        // Blinker expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
+        MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         // motors
         DcMotor leftBackDrive = hardwareMap.dcMotor.get("leftRear");
         DcMotor rightFrontDrive = hardwareMap.dcMotor.get("rightFront");
@@ -133,25 +133,24 @@ public class MainV3 extends LinearOpMode {
         // servos
         Servo sweeper = hardwareMap.get(Servo.class, "sweeper");
         // ea
-        Servo arm1 = hardwareMap.get(Servo.class, "arm1");
-        Servo arm2 = hardwareMap.get(Servo.class, "arm2");
-        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1");
-        Servo claw1 = hardwareMap.get(Servo.class, "claw1");
+        Servo arm1 = hardwareMap.get(Servo.class, "arm1"); // axon
+        Servo arm2 = hardwareMap.get(Servo.class, "arm2"); // axon
+        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 25kg
+        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // axon
         // sa
-        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2");
-        Servo claw2 = hardwareMap.get(Servo.class, "claw2");
-        CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL");
-        CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR");
+        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 20kg
+        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // axon
+        CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL"); // goBilda speed
+        CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR"); // goBilda speed
         // reverse motors
         Motors.reverse(List.of(rightFrontDrive, rightBackDrive, extendArm2, submersibleArm2));
-        Servos.reverse(List.of(arm2, claw1));
+        // Servos.reverse(List.of());
         // positions
         // claw.scaleRange(0.3, 0.54);
         // breaks
         Motors.setBrakes(List.of(leftFrontDrive, rightFrontDrive, leftBackDrive, rightBackDrive, extendArm1, extendArm2, submersibleArm1, submersibleArm2));
         Motors.resetEncoders(List.of(extendArm1, submersibleArm1, extendArm2, submersibleArm2));
         // misc
-        MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
         // calibration
