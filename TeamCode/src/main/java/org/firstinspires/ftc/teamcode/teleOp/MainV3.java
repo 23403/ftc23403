@@ -19,6 +19,8 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.variables.constants.AutoVariables;
+import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
 
@@ -26,6 +28,7 @@ import xyz.nin1275.Calibrate;
 import xyz.nin1275.GamepadUtils;
 import xyz.nin1275.MetroLib;
 import xyz.nin1275.Motors;
+import xyz.nin1275.Sensor;
 import xyz.nin1275.Servos;
 
 @Config("MainV3")
@@ -113,7 +116,7 @@ public class MainV3 extends LinearOpMode {
     public void runOpMode() {
         // hardware
         IMU imu = hardwareMap.get(IMU.class, "imu");
-        MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2);
+        MetroLib.setConstants(MConstants.class);
         Follower follower = new Follower(hardwareMap);
         // Blinker control_Hub = hardwareMap.get(Blinker.class, "control_Hub");
         // Blinker expansion_Hub_2 = hardwareMap.get(Blinker.class, "expansion_Hub_2");
@@ -148,6 +151,7 @@ public class MainV3 extends LinearOpMode {
         Motors.setBrakes(List.of(leftFrontDrive, rightFrontDrive, leftBackDrive, rightBackDrive, extendArm1, extendArm2, submersibleArm1, submersibleArm2));
         Motors.resetEncoders(List.of(extendArm1, submersibleArm1, extendArm2, submersibleArm2));
         // misc
+        MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
         // calibration
@@ -358,46 +362,36 @@ public class MainV3 extends LinearOpMode {
                     }
                 }
                 // color sensor code
-                if ((sensor.red() > 20 && sensor.green() > 10 && sensor.blue() > 10) && sensor.getDistance(DistanceUnit.MM) < 1) {
-                    // red
-                    // control_Hub.setConstant(Color.argb(1, 255, 0, 0));
-                    // expansion_Hub_2.setConstant(Color.argb(1, 255, 0, 0));
+                if (Sensor.isRedGrabbed()) {
                     GamepadUtils.setGamepad1Color(255, 0, 0, Integer.MAX_VALUE);
                     GamepadUtils.setGamepad2Color(255, 0, 0, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
                     gamepad2.rumble(1000);
-                } else if ((sensor.red() > 10 && sensor.green() > 10 && sensor.blue() > 20) && sensor.getDistance(DistanceUnit.MM) < 1) {
-                    // blue
-                    // control_Hub.setConstant(Color.argb(1, 0, 0, 255));
-                    // expansion_Hub_2.setConstant(Color.argb(1, 0, 0, 255));
+                } else if (Sensor.isBlueGrabbed()) {
                     GamepadUtils.setGamepad1Color(0, 0, 255, Integer.MAX_VALUE);
                     GamepadUtils.setGamepad2Color(0, 0, 255, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
                     gamepad2.rumble(1000);
-                } else if ((sensor.red() > 30 && sensor.green() > 30 && sensor.blue() > 0) && sensor.getDistance(DistanceUnit.MM) < 1) {
-                    // yellow
-                    // control_Hub.setConstant(Color.argb(1, 255, 255, 0));
-                    // expansion_Hub_2.setConstant(Color.argb(1, 255, 255, 0));
+                } else if (Sensor.isYellowGrabbed()) {
                     GamepadUtils.setGamepad1Color(255, 255, 0, Integer.MAX_VALUE);
                     GamepadUtils.setGamepad2Color(255, 255, 0, Integer.MAX_VALUE);
                     gamepad1.rumble(1000);
                     gamepad2.rumble(1000);
                 } else {
-                    // none
                     GamepadUtils.setGamepadColorOld(1, Integer.MAX_VALUE);
                     GamepadUtils.setGamepadColorOld(2, Integer.MAX_VALUE);
                 }
                 // auto intake
-                if (redSide) { //                       red                                                              yellow                                         not picked up
-                    if (((sensor.red() > 20 && sensor.green() > 10 && sensor.blue() > 10) || (sensor.red() > 30 && sensor.green() > 30 && sensor.blue() > 0)) && sensor.getDistance(DistanceUnit.MM) > 1) {
+                if (redSide) {
+                    if (Sensor.pickUpRed() || Sensor.pickUpYellow()) {
                         intake1.setPower(-1);
                         intake2.setPower(1);
                     } else {
                         intake1.setPower(0);
                         intake2.setPower(0);
                     }
-                } else { //                            blue                                                              yellow                                         not picked up
-                    if (((sensor.red() > 10 && sensor.green() > 10 && sensor.blue() > 20) || (sensor.red() > 30 && sensor.green() > 30 && sensor.blue() > 0)) && sensor.getDistance(DistanceUnit.MM) > 1) {
+                } else {
+                    if (Sensor.pickUpBlue() || Sensor.pickUpYellow()) {
                         intake1.setPower(-1);
                         intake2.setPower(1);
                     } else {

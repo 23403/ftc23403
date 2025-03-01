@@ -1,8 +1,6 @@
 package pedroPathing.constants;
 
-import com.pedropathing.follower.Follower;
 import com.pedropathing.follower.FollowerConstants;
-import com.pedropathing.localization.Localizer;
 import com.pedropathing.localization.Localizers;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 

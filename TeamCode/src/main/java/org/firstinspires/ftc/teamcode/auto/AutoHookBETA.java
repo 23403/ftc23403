@@ -15,16 +15,17 @@ import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.variables.AutoVariables;
+import org.firstinspires.ftc.teamcode.variables.constants.AutoVariables;
+import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.Calibrate;
+import xyz.nin1275.MetroLib;
 
 /**
  * MetroBotics/Code Conductors auto using odometry.
@@ -444,6 +445,8 @@ public class AutoHookBETA extends OpMode {
     public void init() {
         // hardware
         Constants.setConstants(FConstants.class, LConstants.class);
+        MetroLib.setConstants(MConstants.class);
+        Calibrate.Auto.clearEverything();
         hardwareMap.get(GoBildaPinpointDriver.class, PinpointConstants.hardwareMapName).resetPosAndIMU();
         AutoVariables.eaMovements1 = 0;
         AutoVariables.eaMovements2 = 0;
@@ -474,6 +477,7 @@ public class AutoHookBETA extends OpMode {
     @Override
     public void stop() {
         Calibrate.Auto.savePositions(List.of(AutoVariables.eaMovements1, AutoVariables.eaMovements2, AutoVariables.saMovements1, AutoVariables.saMovements2));
+        Calibrate.Auto.saveLastKnownPos(follower.getPose());
     }
 }
 

@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.variables;
+package org.firstinspires.ftc.teamcode.variables.constants;
 
 import com.acmerobotics.dashboard.config.Config;
 
