@@ -29,6 +29,7 @@ import xyz.nin1275.MetroLib;
 import xyz.nin1275.Motors;
 import xyz.nin1275.Sensor;
 import xyz.nin1275.Servos;
+import xyz.nin1275.Timer;
 
 @Config("MainV3")
 @TeleOp(name="Main v3", group=".ftc23403")
@@ -73,6 +74,7 @@ public class MainV3 extends LinearOpMode {
     public static int saCpos1 = 0;
     public static int saCpos2 = 0;
     // misc
+    private static boolean ran = false;
     public static boolean redSide = true;
     public static double extendArmSpeed = 1;
     public static double submersibleArmSpeed = 1;
@@ -350,11 +352,7 @@ public class MainV3 extends LinearOpMode {
                     if (!moving) {
                         // odometry self-correction code
                         follower.holdPoint(new Point(X, Y), HEADING);
-                        // control_Hub.setConstant(Color.argb(1, 0, 255, 0));
-                        // expansion_Hub_2.setConstant(Color.argb(1, 0, 255, 0));
                     } else {
-                        // control_Hub.setConstant(Color.argb(1, 255, 0, 255));
-                        // expansion_Hub_2.setConstant(Color.argb(1, 255, 0, 255));
                         X = follower.getPose().getX();
                         Y = follower.getPose().getY();
                         HEADING = follower.getPose().getHeading();
@@ -364,21 +362,31 @@ public class MainV3 extends LinearOpMode {
                 if (Sensor.isRedGrabbed()) {
                     GamepadUtils.setGamepad1Color(255, 0, 0, Integer.MAX_VALUE);
                     GamepadUtils.setGamepad2Color(255, 0, 0, Integer.MAX_VALUE);
-                    gamepad1.rumble(1000);
-                    gamepad2.rumble(1000);
+                    if (!ran) {
+                        GamepadUtils.viberate(gamepad1, 20, 1000);
+                        GamepadUtils.viberate(gamepad2, 20, 1000);
+                        ran = true;
+                    }
                 } else if (Sensor.isBlueGrabbed()) {
                     GamepadUtils.setGamepad1Color(0, 0, 255, Integer.MAX_VALUE);
                     GamepadUtils.setGamepad2Color(0, 0, 255, Integer.MAX_VALUE);
-                    gamepad1.rumble(1000);
-                    gamepad2.rumble(1000);
+                    if (!ran) {
+                        GamepadUtils.viberate(gamepad1, 20, 1000);
+                        GamepadUtils.viberate(gamepad2, 20, 1000);
+                        ran = true;
+                    }
                 } else if (Sensor.isYellowGrabbed()) {
                     GamepadUtils.setGamepad1Color(255, 255, 0, Integer.MAX_VALUE);
                     GamepadUtils.setGamepad2Color(255, 255, 0, Integer.MAX_VALUE);
-                    gamepad1.rumble(1000);
-                    gamepad2.rumble(1000);
+                    if (!ran) {
+                        GamepadUtils.viberate(gamepad1, 20, 1000);
+                        GamepadUtils.viberate(gamepad2, 20, 1000);
+                        ran = true;
+                    }
                 } else {
                     GamepadUtils.setGamepadColorOld(1, Integer.MAX_VALUE);
                     GamepadUtils.setGamepadColorOld(2, Integer.MAX_VALUE);
+                    ran = false;
                 }
                 // auto intake
                 if (redSide) {
@@ -398,8 +406,19 @@ public class MainV3 extends LinearOpMode {
                         intake2.setPower(0);
                     }
                 }
+                // alerts
+                // 15 seconds left
+                if (Timer.TeleOp.alert(15)) {
+                    GamepadUtils.viberate(gamepad1, 20, 1000);
+                    GamepadUtils.viberate(gamepad2, 20, 1000);
+                }
+                // start of match
+                if (Timer.TeleOp.alert(150)) {
+                    GamepadUtils.viberate(gamepad1, 20, 1000);
+                    GamepadUtils.viberate(gamepad2, 20, 1000);
+                }
                 // telemetry
-                telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
+                telemetry.addData("Sensor Distance IN:", sensor.getDistance(DistanceUnit.INCH));
                 telemetry.addData("Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
                 telemetry.addData("Extend Arm Position1:", extendArm1.getCurrentPosition());
                 telemetry.addData("Extend Arm Position2:", extendArm2.getCurrentPosition());
