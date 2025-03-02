@@ -36,8 +36,6 @@ import xyz.nin1275.Timer;
 public class MainV3 extends LinearOpMode {
     /**
      * @TODO finish preset positions
-     * @TODO have odometry working in teleOp
-     * @TODO make the slides correction more smooth
      * @TODO have wrist and claw for both arms working
      * MAIN V3 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
