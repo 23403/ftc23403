@@ -15,6 +15,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -42,7 +43,7 @@ public class MainV3 extends LinearOpMode {
     // servos
     public static double wristCpos1 = 0.5;
     // 0.5 low pos
-    // 0.6 grab from sa
+    // 0.7 grab from sa
     // 1 high pos
     public static double clawCpos1 = 0.9;
     // 0.4 is close
@@ -51,19 +52,21 @@ public class MainV3 extends LinearOpMode {
     // 0.5 low pos
     // 1 high pos
     public static double wristCpos2 = 0.6;
-    //    // 0 low pos
-    // 0.5 give to ea
+    // 0.1 low pos
+    // 0.45 give to ea
     // 0.6 high pos
     public static double clawCpos2 = 0.55;
     // 0.5 is close
     // 0.55 is grab pos
     // 1 is open pos
-    public static double armCpos1 = 1;
+    public static double armCpos1 = 0;
     // 0 low pos
-    // 1 high pos
-    public static double armCpos2 = 1;
+    // 0.75 grab from sa
+    // 0.88 high pos
+    public static double armCpos2 = 0;
     // 0 low pos
-    // 1 high pos
+    // 0.75 grab from sa
+    // 0.88 high pos
     // corrections
     public static int eaCpos1 = 0;
     public static int eaCpos2 = 0;
@@ -80,7 +83,7 @@ public class MainV3 extends LinearOpMode {
     public static double Y = 0;
     public static double HEADING;
     public static boolean selfCorrection = false;
-    public static boolean odoDrive = true;
+    public static boolean odoDrive = false;
     // extend arm
     public static boolean eaLimits = false;
     public static boolean eaCorrection = true;
@@ -141,7 +144,12 @@ public class MainV3 extends LinearOpMode {
         CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL"); // goBilda speed
         CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR"); // goBilda speed
         // reverse motors
-        Motors.reverse(List.of(rightFrontDrive, rightBackDrive, extendArm2, submersibleArm2));
+        rightFrontDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightBackDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFrontDrive.setDirection(DcMotorSimple.Direction.REVERSE);
+        extendArm2.setDirection(DcMotorSimple.Direction.REVERSE);
+        submersibleArm2.setDirection(DcMotorSimple.Direction.REVERSE);
+        // Motors.reverse(List.of(rightBackDrive, rightFrontDrive, extendArm2, submersibleArm2));
         // breaks
         Motors.setBrakes(List.of(leftFrontDrive, rightFrontDrive, leftBackDrive, rightBackDrive, extendArm1, extendArm2, submersibleArm1, submersibleArm2));
         Motors.resetEncoders(List.of(extendArm1, submersibleArm1, extendArm2, submersibleArm2));
@@ -173,18 +181,12 @@ public class MainV3 extends LinearOpMode {
                     redSide = redSide ? false : true;
                 }
                 // movements
-                if (odoDrive) {
-                    follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
-                    follower.startTeleopDrive();
-                } else {
-                    follower.breakFollowing();
-                    // left wheels
-                    leftBackDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
-                    leftFrontDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
-                    // right wheels
-                    rightFrontDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
-                    rightBackDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
-                }
+                // left wheels
+                leftBackDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
+                leftFrontDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y - gamepad1.right_stick_x)) * wheelSpeed);
+                // right wheels
+                rightFrontDrive.setPower((gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
+                rightBackDrive.setPower((-gamepad1.left_stick_x + (gamepad1.left_stick_y + gamepad1.right_stick_x)) * wheelSpeed);
                 // extendArm code
                 if (eaLimits) {
                     if (gamepad1.dpad_up) {
