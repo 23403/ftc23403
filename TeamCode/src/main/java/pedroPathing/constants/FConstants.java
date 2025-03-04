@@ -6,7 +6,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
 public class FConstants {
     static {
-        FollowerConstants.localizers = Localizers.PINPOINT;
+        FollowerConstants.localizers = Localizers.TWO_WHEEL;
 
         FollowerConstants.leftFrontMotorName = "leftFront";
         FollowerConstants.leftRearMotorName = "leftRear";
@@ -40,7 +40,7 @@ public class FConstants {
         **/
 
         // pid for translational
-        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.09,0,0.01,0);
+        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.0112,0,0.09,0);
         FollowerConstants.useSecondaryTranslationalPID = false;
         FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0); // SECONDARY TUNING
         // pid for heading
@@ -48,9 +48,9 @@ public class FConstants {
         FollowerConstants.useSecondaryHeadingPID = false;
         FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(2,0,0.1,0); // SECONDARY TUNING
         // pid for drive
-        FollowerConstants.drivePIDFCoefficients.setCoefficients(0.02,0,0.002,0.6,0);
-        FollowerConstants.useSecondaryDrivePID = false;
-        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.1,0,0.0001,0.6,0); // SECONDARY TUNING
+        FollowerConstants.drivePIDFCoefficients.setCoefficients(0.01324,0,0.00031,0.6,0);
+        FollowerConstants.useSecondaryDrivePID = true;
+        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.0055,0,0,0.6,0); // SECONDARY TUNING
 
         FollowerConstants.zeroPowerAccelerationMultiplier = 4;
         FollowerConstants.centripetalScaling = 0.0005;

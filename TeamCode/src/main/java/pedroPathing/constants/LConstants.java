@@ -1,23 +1,21 @@
 package pedroPathing.constants;
 
-import com.pedropathing.localization.GoBildaPinpointDriver;
-import com.pedropathing.localization.constants.PinpointConstants;
-
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import com.pedropathing.localization.Encoder;
+import com.pedropathing.localization.constants.TwoWheelConstants;
+import com.qualcomm.hardware.rev.RevHubOrientationOnRobot;
 
 public class LConstants {
     static {
-        PinpointConstants.forwardY = 1;
-        PinpointConstants.strafeX = -2.5;
-        PinpointConstants.distanceUnit = DistanceUnit.INCH;
-        PinpointConstants.hardwareMapName = "odometry";
-        PinpointConstants.useYawScalar = false;
-        PinpointConstants.yawScalar = 1.0;
-        PinpointConstants.useCustomEncoderResolution = false;
-        PinpointConstants.encoderResolution = GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD;
-        PinpointConstants.customEncoderResolution = 13.26291192;
-        PinpointConstants.forwardEncoderDirection = GoBildaPinpointDriver.EncoderDirection.REVERSED;
-        PinpointConstants.strafeEncoderDirection = GoBildaPinpointDriver.EncoderDirection.FORWARD;
+        TwoWheelConstants.forwardTicksToInches = .001989436789;
+        TwoWheelConstants.strafeTicksToInches = .001989436789;
+        TwoWheelConstants.forwardY = 1;
+        TwoWheelConstants.strafeX = -2.5;
+        TwoWheelConstants.forwardEncoder_HardwareMapName = "rightFront";
+        TwoWheelConstants.strafeEncoder_HardwareMapName = "leftRear";
+        TwoWheelConstants.forwardEncoderDirection = Encoder.REVERSE;
+        TwoWheelConstants.strafeEncoderDirection = Encoder.FORWARD;
+        TwoWheelConstants.IMU_HardwareMapName = "imu";
+        TwoWheelConstants.IMU_Orientation = new RevHubOrientationOnRobot(RevHubOrientationOnRobot.LogoFacingDirection.RIGHT, RevHubOrientationOnRobot.UsbFacingDirection.UP);
     }
 }
 

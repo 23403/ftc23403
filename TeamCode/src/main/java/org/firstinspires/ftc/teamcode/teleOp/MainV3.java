@@ -28,7 +28,6 @@ import xyz.nin1275.GamepadUtils;
 import xyz.nin1275.MetroLib;
 import xyz.nin1275.Motors;
 import xyz.nin1275.Sensor;
-import xyz.nin1275.Servos;
 import xyz.nin1275.Timer;
 
 @Config("MainV3")
@@ -41,25 +40,24 @@ public class MainV3 extends LinearOpMode {
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
     // servos
-    public static double wristCpos1 = 1;
+    public static double wristCpos1 = 0.5;
     // 0.5 low pos
     // 0.6 grab from sa
     // 1 high pos
-    public static double clawCpos1 = 0.47;
-    // 1 is close
-    // 0 is open
+    public static double clawCpos1 = 0.9;
+    // 0.4 is close
+    // 0.9 is open
     public static double sweeperCpos = 1;
     // 0.5 low pos
     // 1 high pos
-    public static double wristCpos2 = 1;
-    // 0.5 low pos
-    // 0.6 give to ea
-    // 1 high pos
-    public static double clawCpos2 = 0.47;
-    // 1 is close
-    // 0.47 is grab pos
-    // 0.48 is the tight pos
-    // 0 is open pos
+    public static double wristCpos2 = 0.6;
+    //    // 0 low pos
+    // 0.5 give to ea
+    // 0.6 high pos
+    public static double clawCpos2 = 0.55;
+    // 0.5 is close
+    // 0.55 is grab pos
+    // 1 is open pos
     public static double armCpos1 = 1;
     // 0 low pos
     // 1 high pos
@@ -144,9 +142,6 @@ public class MainV3 extends LinearOpMode {
         CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR"); // goBilda speed
         // reverse motors
         Motors.reverse(List.of(rightFrontDrive, rightBackDrive, extendArm2, submersibleArm2));
-        // Servos.reverse(List.of());
-        // positions
-        // claw.scaleRange(0.3, 0.54);
         // breaks
         Motors.setBrakes(List.of(leftFrontDrive, rightFrontDrive, leftBackDrive, rightBackDrive, extendArm1, extendArm2, submersibleArm1, submersibleArm2));
         Motors.resetEncoders(List.of(extendArm1, submersibleArm1, extendArm2, submersibleArm2));
