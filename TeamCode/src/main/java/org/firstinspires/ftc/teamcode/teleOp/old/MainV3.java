@@ -5,7 +5,7 @@
  * started recoding at 2/14/25  @  8:31 pm
  * robot v3 expected to be finished building by 3/3/25
  */
-package org.firstinspires.ftc.teamcode.teleOp;
+package org.firstinspires.ftc.teamcode.teleOp.old;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.follower.Follower;
@@ -32,7 +32,7 @@ import xyz.nin1275.Sensor;
 import xyz.nin1275.Timer;
 
 @Config("MainV3")
-@TeleOp(name="Main v3", group=".ftc23403")
+@TeleOp(name="Main v3", group="old_ftc23403")
 public class MainV3 extends LinearOpMode {
     /**
      * @TODO finish preset positions
