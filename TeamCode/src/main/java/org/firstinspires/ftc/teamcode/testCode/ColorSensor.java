@@ -43,8 +43,8 @@ public class ColorSensor extends OpMode {
             telemetryA.addData("Pick Up Red Sample", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
         }
         if (gamepad1.a) {
-            telemetry.addData("Pick Up Distance", sensor.getDistance(DistanceUnit.INCH));
-            telemetryA.addData("Pick Up Distance", sensor.getDistance(DistanceUnit.INCH));
+            telemetry.addData("Pick Up Distance", sensor.getDistance(DistanceUnit.MM));
+            telemetryA.addData("Pick Up Distance", sensor.getDistance(DistanceUnit.MM));
         }
         if (gamepad1.dpad_up) {
             telemetry.addData("Grabbed Yellow Sample", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
@@ -59,8 +59,8 @@ public class ColorSensor extends OpMode {
             telemetryA.addData("Grabbed Red Sample", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
         }
         if (gamepad1.dpad_left) {
-            telemetry.addData("Grabbed Distance", sensor.getDistance(DistanceUnit.INCH));
-            telemetryA.addData("Grabbed Distance", sensor.getDistance(DistanceUnit.INCH));
+            telemetry.addData("Grabbed Distance", sensor.getDistance(DistanceUnit.MM));
+            telemetryA.addData("Grabbed Distance", sensor.getDistance(DistanceUnit.MM));
         }
 
         telemetryA.addLine("/**\n" +
@@ -88,7 +88,7 @@ public class ColorSensor extends OpMode {
                 " *                \\.          .'              \n" +
                 " *                  \\________/\n" +
                 " */");
-        telemetryA.addData("Sensor Distance IN:", sensor.getDistance(DistanceUnit.INCH));
+        telemetryA.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
         telemetryA.addData("Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
         telemetryA.update();
         telemetry.update();

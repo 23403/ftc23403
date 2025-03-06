@@ -3,7 +3,7 @@
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
  * coding from scratch for our robot, Beastkit v4
  * started recoding at 3/4/25  @  5:34 pm
- * robot v4 finished building at 2/5/25
+ * robot v4 finished building at 3/7/25
  */
 package org.firstinspires.ftc.teamcode.teleOp;
 
@@ -35,6 +35,8 @@ import xyz.nin1275.Timer;
 public class MainV4 extends LinearOpMode {
     /**
      * @TODO have odometry driving working
+     * @TODO make the fucking slides smooth
+     * @TODO finish all the presets PROPERLY
      * MAIN V4 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
@@ -72,6 +74,7 @@ public class MainV4 extends LinearOpMode {
     public static int saCpos2 = 0;
     // misc
     private static boolean ran = false;
+    private static boolean pause = false;
     public static boolean redSide = true;
     public static double extendArmSpeed = 1;
     public static double submersibleArmSpeed = 1;
@@ -131,7 +134,7 @@ public class MainV4 extends LinearOpMode {
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftRear.setDirection(DcMotor.Direction.REVERSE);
         extendArm2.setDirection(DcMotorSimple.Direction.REVERSE);
-        submersibleArm2.setDirection(DcMotorSimple.Direction.REVERSE);
+        // submersibleArm2.setDirection(DcMotorSimple.Direction.REVERSE);
         // breaks
         Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear, extendArm1, extendArm2, submersibleArm1, submersibleArm2));
         Motors.resetEncoders(List.of(extendArm1, submersibleArm1, extendArm2, submersibleArm2));
@@ -164,8 +167,11 @@ public class MainV4 extends LinearOpMode {
                 arm1.setPosition(armCpos1);
                 arm2.setPosition(armCpos2);
                 sweeper.setPosition(sweeperCpos);
-                if (gamepad1.share || gamepad2.share) {
-                    redSide = redSide ? false : true;
+                if ((gamepad1.share || gamepad2.share) && !pause) {
+                    pause = true;
+                    redSide = !redSide;
+                    Timer.wait(1000);
+                    pause = false;
                 }
                 // movements
                 if (!odoDrive) {
@@ -289,6 +295,50 @@ public class MainV4 extends LinearOpMode {
                     submersibleArm2.setPower(0);
                 }
                 // preset code
+                /**
+                 * GAMEPAD 1
+                 *   X / ▢         - Score Specimen Preset
+                 *   Y / Δ         - EMPTY
+                 *   B / O         - Grab from Human Player Preset
+                 *   A / X         - Grab from Submersible Preset
+                 *
+                 *                    ________
+                 *                   / ______ \\
+                 *     ------------.-'   _  '-..+
+                 *              /   _  ( Y )  _  \\
+                 *             |  ( X )  _  ( B ) |
+                 *        ___  '.      ( A )     /|
+                 *      .'    '.    '-._____.-'  .'
+                 *     |       |                 |
+                 *      '.___.' '.               |
+                 *               '.             /
+                 *                \\.          .'
+                 *                  \\________/
+                */
+                // specimen pos
+                if (gamepad1.x) {
+                    // use correction code cuz its easier fr fr
+                    eaCpos1 = 850;
+                    eaCpos2 = 850;
+                    saCpos1 = 0;
+                    saCpos2 = 0;
+                    armCpos1 = 0.4;
+                    armCpos2 = 0.4;
+                    wristCpos1 = 0.8;
+                    clawCpos1 = 0.4;
+                }
+                // humanPlayer pos
+                if (gamepad1.b) {
+                    // use correction code cuz its easier fr fr
+                    eaCpos1 = 0;
+                    eaCpos2 = 0;
+                    saCpos1 = 0;
+                    saCpos2 = 0;
+                    armCpos1 = 0.01;
+                    armCpos2 = 0.01;
+                    wristCpos1 = 0.33;
+                    clawCpos1 = 0.9;
+                }
                 // submersible pos
                 if (gamepad1.a) {
                     // use correction code cuz its easier fr fr
@@ -303,18 +353,26 @@ public class MainV4 extends LinearOpMode {
                     wristCpos2 = 0.1;
                     clawCpos2 = 0.55;
                 }
-                // specimen pos
-                if (gamepad1.x) {
-                    // use correction code cuz its easier fr fr
-                    eaCpos1 = 850;
-                    eaCpos2 = 850;
-                    saCpos1 = 0;
-                    saCpos2 = 0;
-                    armCpos1 = 0.4;
-                    armCpos2 = 0.4;
-                    wristCpos1 = 0.8;
-                    clawCpos1 = 0.4;
-                }
+                /**
+                 * GAMEPAD 2
+                 *   X / ▢         - EMPTY
+                 *   Y / Δ         - EMPTY
+                 *   B / O         - Transition from Submersible arm to Extend arm
+                 *   A / X         - EMPTY
+                 *
+                 *                    ________
+                 *                   / ______ \\
+                 *     ------------.-'   _  '-..+
+                 *              /   _  ( Y )  _  \\
+                 *             |  ( X )  _  ( B ) |
+                 *        ___  '.      ( A )     /|
+                 *      .'    '.    '-._____.-'  .'
+                 *     |       |                 |
+                 *      '.___.' '.               |
+                 *               '.             /
+                 *                \\.          .'
+                 *                  \\________/
+                 */
                 // transition pos
                 if (gamepad2.b) {
                     // use correction code cuz its easier fr fr
@@ -322,33 +380,12 @@ public class MainV4 extends LinearOpMode {
                     eaCpos2 = 0;
                     saCpos1 = 0;
                     saCpos2 = 0;
-                    wristCpos2 = 0.45;
                     clawCpos2 = 0.5;
-                    armCpos1 = 0.72;
-                    armCpos2 = 0.72;
+                    wristCpos2 = 0.45;
                     wristCpos1 = 0.38;
                     clawCpos1 = 0.9;
-                    Timer.wait(100);
-                    clawCpos2 = 0.55;
-                    clawCpos1 = 0.4;
-                    armCpos1 = 0.7;
-                    armCpos2 = 0.7;
-                }
-                // humanPlayer pos
-                if (gamepad1.b) {
-                    // use correction code cuz its easier fr fr
-                    eaCpos1 = 0;
-                    eaCpos2 = 0;
-                    saCpos1 = 0;
-                    saCpos2 = 0;
-                    armCpos1 = 0.01;
-                    armCpos2 = 0.01;
-                    wristCpos1 = 0.33;
-                    clawCpos1 = 0.9;
-                }
-                // auto stuff
-                if (extendArm1.getCurrentPosition() > 3186 || extendArm2.getCurrentPosition() > 2280) {
-
+                    armCpos1 = 0.72;
+                    armCpos2 = 0.72;
                 }
                 // claws
                 if (gamepad2.left_trigger > 0) {
