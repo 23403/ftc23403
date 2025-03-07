@@ -88,8 +88,8 @@ public class MainV4 extends LinearOpMode {
     // extend arm
     public static boolean eaLimits = false;
     public static boolean eaCorrection = true;
-    public static int eaLimitHigh1 = 3781;
-    public static int eaLimitHigh2 = 2718;
+    public static int eaLimitHigh1 = 5283;
+    public static int eaLimitHigh2 = 5082;
     public static int eaLimitLow1 = 1;
     public static int eaLimitLow2 = 5;
     public static int eaErrorCorr = 0;
@@ -197,14 +197,14 @@ public class MainV4 extends LinearOpMode {
                 // extendArm code
                 if (gamepad2.dpad_up) {
                     if (eaLimits) {
-                        extendArm1.setTargetPosition(eaLimitHigh1);
-                        extendArm2.setTargetPosition(eaLimitHigh2);
-                        extendArm1.setPower(extendArmSpeed);
-                        extendArm2.setPower(extendArmSpeed);
-                        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
-                        eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
+                        if (eaCpos1 < eaLimitHigh1 || eaCpos2 < eaLimitHigh2) {
+                            extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            extendArm1.setPower(extendArmSpeed);
+                            extendArm2.setPower(extendArmSpeed);
+                            eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
+                            eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
+                        }
                     } else {
                         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -215,14 +215,14 @@ public class MainV4 extends LinearOpMode {
                     }
                 } else if (gamepad2.dpad_down) {
                     if (eaLimits) {
-                        extendArm1.setTargetPosition(eaLimitLow1);
-                        extendArm2.setTargetPosition(eaLimitLow2);
-                        extendArm1.setPower(extendArmSpeed);
-                        extendArm2.setPower(extendArmSpeed);
-                        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
-                        eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
+                        if (eaCpos1 > eaLimitLow1 || eaCpos2 > eaLimitLow2) {
+                            extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            extendArm1.setPower(-extendArmSpeed);
+                            extendArm2.setPower(-extendArmSpeed);
+                            eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
+                            eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
+                        }
                     } else {
                         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -320,8 +320,6 @@ public class MainV4 extends LinearOpMode {
                     // use correction code cuz its easier fr fr
                     eaCpos1 = 850;
                     eaCpos2 = 850;
-                    saCpos1 = 0;
-                    saCpos2 = 0;
                     armCpos1 = 0.4;
                     armCpos2 = 0.4;
                     wristCpos1 = 0.8;
@@ -342,8 +340,6 @@ public class MainV4 extends LinearOpMode {
                 // submersible pos
                 if (gamepad1.a) {
                     // use correction code cuz its easier fr fr
-                    eaCpos1 = 0;
-                    eaCpos2 = 0;
                     saCpos1 = 300;
                     saCpos2 = 300;
                     if (armCpos1 > 0.7 || armCpos2 > 0.7) {
@@ -355,9 +351,9 @@ public class MainV4 extends LinearOpMode {
                 }
                 /**
                  * GAMEPAD 2
-                 *   X / ▢         - EMPTY
-                 *   Y / Δ         - EMPTY
-                 *   B / O         - Transition from Submersible arm to Extend arm
+                 *   X / ▢         - Transition from Submersible arm to Extend arm
+                 *   Y / Δ         - Place in High Basket
+                 *   B / O         - Place in Low basket
                  *   A / X         - EMPTY
                  *
                  *                    ________
@@ -373,8 +369,28 @@ public class MainV4 extends LinearOpMode {
                  *                \\.          .'
                  *                  \\________/
                  */
-                // transition pos
+                // high basket pos
+                if (gamepad2.y) {
+                    // use correction code cuz its easier fr fr
+                    eaCpos1 = 5300;
+                    eaCpos2 = 5200;
+                    wristCpos1 = 0.8;
+                    clawCpos1 = 0.4;
+                    armCpos1 = 0.2;
+                    armCpos2 = 0.2;
+                }
+                // low basket pos
                 if (gamepad2.b) {
+                    // use correction code cuz its easier fr fr
+                    eaCpos1 = 2700;
+                    eaCpos2 = 2600;
+                    wristCpos1 = 0.8;
+                    clawCpos1 = 0.4;
+                    armCpos1 = 0.2;
+                    armCpos2 = 0.2;
+                }
+                // transition pos
+                if (gamepad2.x) {
                     // use correction code cuz its easier fr fr
                     eaCpos1 = 0;
                     eaCpos2 = 0;
