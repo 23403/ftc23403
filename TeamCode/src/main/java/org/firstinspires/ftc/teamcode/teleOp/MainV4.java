@@ -374,7 +374,7 @@ public class MainV4 extends LinearOpMode {
                     // use correction code cuz its easier fr fr
                     eaCpos1 = 5300;
                     eaCpos2 = 5200;
-                    wristCpos1 = 0.8;
+                    wristCpos1 = 1;
                     clawCpos1 = 0.4;
                     armCpos1 = 0.2;
                     armCpos2 = 0.2;
@@ -384,7 +384,7 @@ public class MainV4 extends LinearOpMode {
                     // use correction code cuz its easier fr fr
                     eaCpos1 = 2700;
                     eaCpos2 = 2600;
-                    wristCpos1 = 0.8;
+                    wristCpos1 = 1;
                     clawCpos1 = 0.4;
                     armCpos1 = 0.2;
                     armCpos2 = 0.2;
@@ -396,12 +396,12 @@ public class MainV4 extends LinearOpMode {
                     eaCpos2 = 0;
                     saCpos1 = 0;
                     saCpos2 = 0;
-                    clawCpos2 = 0.5;
-                    wristCpos2 = 0.45;
-                    wristCpos1 = 0.38;
+                    clawCpos2 = 0.55;
+                    wristCpos2 = 0.48;
+                    wristCpos1 = 0.7;
                     clawCpos1 = 0.9;
-                    armCpos1 = 0.72;
-                    armCpos2 = 0.72;
+                    armCpos1 = 0.74;
+                    armCpos2 = 0.74;
                 }
                 // claws
                 if (gamepad2.left_trigger > 0) {
