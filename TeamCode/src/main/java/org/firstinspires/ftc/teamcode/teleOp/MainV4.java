@@ -3,7 +3,7 @@
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
  * coding from scratch for our robot, Beastkit v4
  * started recoding at 3/4/25  @  5:34 pm
- * robot v4 finished building at 3/7/25
+ * robot v4 finished building at 3/13/25
  */
 package org.firstinspires.ftc.teamcode.teleOp;
 
@@ -23,12 +23,12 @@ import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
 
-import xyz.nin1275.Calibrate;
-import xyz.nin1275.GamepadUtils;
+import xyz.nin1275.utils.Calibrate;
+import xyz.nin1275.utils.GamepadUtils;
 import xyz.nin1275.MetroLib;
-import xyz.nin1275.Motors;
-import xyz.nin1275.Sensor;
-import xyz.nin1275.Timer;
+import xyz.nin1275.utils.Motors;
+import xyz.nin1275.utils.Sensor;
+import xyz.nin1275.utils.Timer;
 
 @Config("MainV4")
 @TeleOp(name="Main v4", group=".ftc23403")
@@ -143,7 +143,11 @@ public class MainV4 extends LinearOpMode {
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
         // calibration
         imu.resetYaw();
-        Calibrate.TeleOp.calibrateFromAuto(List.of(extendArm1, extendArm2, submersibleArm1, submersibleArm2));
+        if (MConstants.startUp) {
+            Calibrate.TeleOp.saveStartPositions(List.of(extendArm1, extendArm2, submersibleArm1, submersibleArm2));
+            MConstants.startUp = false;
+        }
+        Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2, submersibleArm1, submersibleArm2));
         follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
         Calibrate.Auto.clearEverything();
         // starting pos
@@ -247,14 +251,14 @@ public class MainV4 extends LinearOpMode {
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
                     if (saLimits) {
-                        submersibleArm1.setTargetPosition(saLimitHigh1);
-                        submersibleArm2.setTargetPosition(saLimitHigh2);
-                        submersibleArm1.setPower(submersibleArmSpeed);
-                        submersibleArm2.setPower(submersibleArmSpeed);
-                        submersibleArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        submersibleArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        saCpos1 = submersibleArm1.getCurrentPosition() + saErrorCorr;
-                        saCpos2 = submersibleArm2.getCurrentPosition() + saErrorCorr;
+                        if (saCpos1 < saLimitHigh1 || saCpos2 < saLimitHigh2) {
+                            submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            submersibleArm1.setPower(submersibleArmSpeed);
+                            submersibleArm2.setPower(submersibleArmSpeed);
+                            saCpos1 = submersibleArm1.getCurrentPosition() + saErrorCorr;
+                            saCpos2 = submersibleArm2.getCurrentPosition() + saErrorCorr;
+                        }
                     } else {
                         submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -265,14 +269,14 @@ public class MainV4 extends LinearOpMode {
                     }
                 } else if (gamepad1.dpad_down) {
                     if (saLimits) {
-                        submersibleArm1.setTargetPosition(saLimitLow1);
-                        submersibleArm2.setTargetPosition(saLimitLow2);
-                        submersibleArm1.setPower(submersibleArmSpeed);
-                        submersibleArm2.setPower(submersibleArmSpeed);
-                        submersibleArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        submersibleArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        saCpos1 = submersibleArm1.getCurrentPosition() - saErrorCorr;
-                        saCpos2 = submersibleArm2.getCurrentPosition() - saErrorCorr;
+                        if (saCpos1 > saLimitLow1 || saCpos2 > saLimitLow2) {
+                            submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                            submersibleArm1.setPower(-submersibleArmSpeed);
+                            submersibleArm2.setPower(-submersibleArmSpeed);
+                            saCpos1 = submersibleArm1.getCurrentPosition() - saErrorCorr;
+                            saCpos2 = submersibleArm2.getCurrentPosition() - saErrorCorr;
+                        }
                     } else {
                         submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -462,6 +466,8 @@ public class MainV4 extends LinearOpMode {
                     GamepadUtils.viberate(gamepad2, 20, 1000);
                 }
                 // telemetry
+                telemetry.addData("DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
+                telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
                 telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
                 telemetry.addData("Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
                 telemetry.addData("Extend Arm Position1:", extendArm1.getCurrentPosition());

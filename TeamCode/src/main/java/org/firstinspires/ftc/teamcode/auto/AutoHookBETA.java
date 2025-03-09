@@ -24,7 +24,7 @@ import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import xyz.nin1275.Calibrate;
+import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.MetroLib;
 
 /**
@@ -222,7 +222,7 @@ public class AutoHookBETA extends OpMode {
         - Robot Position: "if(follower.getPose().getX() > 36) {}"
     */
     public void autonomousPathUpdate() {
-        xyz.nin1275.Timer timer = new xyz.nin1275.Timer();
+        xyz.nin1275.utils.Timer timer = new xyz.nin1275.utils.Timer();
         switch (pathState) {
             case 0:
                 if(!follower.isBusy()) {

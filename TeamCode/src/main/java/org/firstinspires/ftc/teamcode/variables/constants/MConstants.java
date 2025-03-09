@@ -1,9 +1,13 @@
 package org.firstinspires.ftc.teamcode.variables.constants;
 
-import xyz.nin1275.Calibrate;
+import xyz.nin1275.enums.Calibrates;
+import xyz.nin1275.utils.Calibrate;
 
 public class MConstants {
+    public static boolean startUp = true;
     static {
+        // Calibration Settings
+        Calibrate.calibrates = Calibrates.CONTINUES;
         // Color Sensor Calibration
         // Pick Up
         Calibrate.ColorRangeSensor.PickUp.Distance = 62.769500290720664;

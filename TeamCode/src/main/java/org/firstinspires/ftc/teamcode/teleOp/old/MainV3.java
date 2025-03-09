@@ -24,12 +24,12 @@ import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
 
-import xyz.nin1275.Calibrate;
-import xyz.nin1275.GamepadUtils;
+import xyz.nin1275.utils.Calibrate;
+import xyz.nin1275.utils.GamepadUtils;
 import xyz.nin1275.MetroLib;
-import xyz.nin1275.Motors;
-import xyz.nin1275.Sensor;
-import xyz.nin1275.Timer;
+import xyz.nin1275.utils.Motors;
+import xyz.nin1275.utils.Sensor;
+import xyz.nin1275.utils.Timer;
 
 @Config("MainV3")
 @TeleOp(name="Main v3", group="old_ftc23403")
@@ -158,7 +158,7 @@ public class MainV3 extends LinearOpMode {
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
         // calibration
         imu.resetYaw();
-        Calibrate.TeleOp.calibrateFromAuto(List.of(extendArm1, extendArm2, submersibleArm1, submersibleArm2));
+        Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2, submersibleArm1, submersibleArm2));
         // starting pos
         eaCpos1 = extendArm1.getCurrentPosition();
         saCpos1 = submersibleArm1.getCurrentPosition();
