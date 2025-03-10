@@ -41,7 +41,7 @@ public class MainV4 extends LinearOpMode {
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
     // servos
-    public static double wristCpos1 = 0.5;
+    public static double wristCpos1 = 0.38;
     // 0.5 low pos
     // 0.38 grab from sa
     // 1 high pos
@@ -51,19 +51,19 @@ public class MainV4 extends LinearOpMode {
     public static double sweeperCpos = 1;
     // 0.5 low pos
     // 1 high pos
-    public static double wristCpos2 = 0.6;
+    public static double wristCpos2 = 0.45;
     // 0.1 low pos
     // 0.45 give to ea
     // 0.6 high pos
-    public static double clawCpos2 = 0.55;
+    public static double clawCpos2 = 0.5;
     // 0.5 is close
     // 0.55 is grab pos
     // 1 is open pos
-    public static double armCpos1 = 0;
+    public static double armCpos1 = 0.72;
     // 0.88 low pos
     // 0.72 grab from sa
     // 0 high pos
-    public static double armCpos2 = 0;
+    public static double armCpos2 = 0.72;
     // 0.88 low pos
     // 0.72 grab from sa
     // 0 high pos
