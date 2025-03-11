@@ -86,7 +86,7 @@ public class MainV4 extends LinearOpMode {
     private static boolean pause = false;
     public static boolean redSide = true;
     public static double extendArmSpeed = 1;
-    // public static double submersibleArmSpeed = 1;
+    public static double submersibleArmSpeed = 0.01;
     public static double wheelSpeed = 1;
     // odometry
     public static double X = 0;
@@ -269,9 +269,9 @@ public class MainV4 extends LinearOpMode {
                 }
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
-                    subArmCpos += subArmCpos < 0.45 ? 0.01 : 0;
+                    subArmCpos += subArmCpos < 0.45 ? submersibleArmSpeed : 0;
                 } else if (gamepad1.dpad_down) {
-                    subArmCpos -= subArmCpos > 0 ? 0.01 : 0;
+                    subArmCpos -= subArmCpos > 0 ? submersibleArmSpeed : 0;
                 }
                 /*
                 if (gamepad1.dpad_up) {
