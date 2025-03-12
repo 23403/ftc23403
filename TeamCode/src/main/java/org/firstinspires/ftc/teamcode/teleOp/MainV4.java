@@ -484,10 +484,12 @@ public class MainV4 extends LinearOpMode {
                     GamepadUtils.viberate(gamepad2, 20, 1000);
                 }
                 // stop pwm servos
-                arm.getController().pwmDisable();
-                wrist1.getController().pwmDisable();
-                wrist2.getController().pwmDisable();
-                submersibleArm.getController().pwmDisable();
+                if (isStopRequested()) {
+                    arm.getController().pwmDisable();
+                    wrist1.getController().pwmDisable();
+                    wrist2.getController().pwmDisable();
+                    submersibleArm.getController().pwmDisable();
+                }
                 // telemetry
                 telemetry.addData("DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
                 telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
