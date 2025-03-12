@@ -147,11 +147,12 @@ public class MainV4 extends LinearOpMode {
         Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // axon
         CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL"); // goBilda speed
         CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR"); // goBilda speed
-        // reverse motors
+        // reverse
         leftFront.setDirection(DcMotor.Direction.REVERSE);
         leftRear.setDirection(DcMotor.Direction.REVERSE);
         extendArm2.setDirection(DcMotorSimple.Direction.REVERSE);
         // submersibleArm2.setDirection(DcMotorSimple.Direction.REVERSE);
+        sweeper.setDirection(Servo.Direction.REVERSE);
         // breaks
         Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear));
         // Motors.resetEncoders(List.of(extendArm1, submersibleArm1, extendArm2, submersibleArm2));
@@ -482,6 +483,11 @@ public class MainV4 extends LinearOpMode {
                     GamepadUtils.viberate(gamepad1, 20, 1000);
                     GamepadUtils.viberate(gamepad2, 20, 1000);
                 }
+                // stop pwm servos
+                arm.getController().pwmDisable();
+                wrist1.getController().pwmDisable();
+                wrist2.getController().pwmDisable();
+                submersibleArm.getController().pwmDisable();
                 // telemetry
                 telemetry.addData("DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
                 telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
