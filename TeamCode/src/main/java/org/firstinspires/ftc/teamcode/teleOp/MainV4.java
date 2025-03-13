@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
 
+import xyz.nin1275.PID.PIDController;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.GamepadUtils;
 import xyz.nin1275.MetroLib;
@@ -159,6 +160,8 @@ public class MainV4 extends LinearOpMode {
         // misc
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
+        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         // calibration
         imu.resetYaw();
         if (MConstants.startUp) {
@@ -222,49 +225,35 @@ public class MainV4 extends LinearOpMode {
                 if (gamepad2.dpad_up) {
                     if (eaLimits) {
                         if (eaCpos1 < eaLimitHigh1 || eaCpos2 < eaLimitHigh2) {
-                            extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm1.setPower(extendArmSpeed);
-                            extendArm2.setPower(extendArmSpeed);
+                            extendArm1.setPower(PIDController.goTo(extendArmSpeed * 1000, extendArm1.getCurrentPosition()));
+                            extendArm2.setPower(PIDController.goTo(extendArmSpeed * 1000, extendArm2.getCurrentPosition()));
                             eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
                             eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
                         }
                     } else {
-                        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm1.setPower(extendArmSpeed);
-                        extendArm2.setPower(extendArmSpeed);
+                        extendArm1.setPower(PIDController.goTo(extendArmSpeed * 1000, extendArm1.getCurrentPosition()));
+                        extendArm2.setPower(PIDController.goTo(extendArmSpeed * 1000, extendArm2.getCurrentPosition()));
                         eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
                         eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
                     }
                 } else if (gamepad2.dpad_down) {
                     if (eaLimits) {
                         if (eaCpos1 > eaLimitLow1 || eaCpos2 > eaLimitLow2) {
-                            extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm1.setPower(-extendArmSpeed);
-                            extendArm2.setPower(-extendArmSpeed);
+                            extendArm1.setPower(PIDController.goTo(-extendArmSpeed * 1000, extendArm1.getCurrentPosition()));
+                            extendArm2.setPower(PIDController.goTo(-extendArmSpeed * 1000, extendArm2.getCurrentPosition()));
                             eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
                             eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
                         }
                     } else {
-                        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm1.setPower(-extendArmSpeed);
-                        extendArm2.setPower(-extendArmSpeed);
+                        extendArm1.setPower(PIDController.goTo(-extendArmSpeed * 1000, extendArm1.getCurrentPosition()));
+                        extendArm2.setPower(PIDController.goTo(-extendArmSpeed * 1000, extendArm2.getCurrentPosition()));
                         eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
                         eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
                     }
                 } else if (eaCorrection) {
-                    extendArm1.setTargetPosition(eaCpos1);
-                    extendArm2.setTargetPosition(eaCpos2);
-                    extendArm1.setPower(1);
-                    extendArm2.setPower(1);
-                    extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                    extendArm1.setPower(PIDController.goTo(eaCpos1 - extendArm1.getCurrentPosition(), extendArm1.getCurrentPosition()));
+                    extendArm2.setPower(PIDController.goTo(eaCpos2 - extendArm2.getCurrentPosition(), extendArm2.getCurrentPosition()));
                 } else {
-                    extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                     extendArm1.setPower(0);
                     extendArm2.setPower(0);
                 }
