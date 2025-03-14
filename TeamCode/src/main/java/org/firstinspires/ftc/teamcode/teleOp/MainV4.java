@@ -13,8 +13,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
@@ -23,7 +22,8 @@ import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
 
-import xyz.nin1275.PID.PIDController;
+import xyz.nin1275.constants.PIDConstants;
+import xyz.nin1275.controllers.PIDController;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.GamepadUtils;
 import xyz.nin1275.MetroLib;
@@ -37,7 +37,6 @@ public class MainV4 extends LinearOpMode {
     /**
      * @TODO have odometry driving working
      * @TODO make the fucking slides smooth
-     * @TODO finish all the presets PROPERLY
      * MAIN V4 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
@@ -84,6 +83,7 @@ public class MainV4 extends LinearOpMode {
     // public static int saCpos2 = 0;
     // misc
     private static boolean ran = false;
+    private static boolean ran1 = false;
     private static boolean pause = false;
     public static boolean redSide = true;
     public static double extendArmSpeed = 1;
@@ -113,6 +113,8 @@ public class MainV4 extends LinearOpMode {
     public static int saLimitLow2 = 0;
     public static int saErrorCorr = 0;
     */
+    // pid stuff
+    public static boolean testPID = false;
     @Override
     public void runOpMode()  {
         // hardware
@@ -121,16 +123,17 @@ public class MainV4 extends LinearOpMode {
         Follower follower = new Follower(hardwareMap);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
+        PIDController controller = new PIDController(0, 0);
         // motors
-        DcMotor leftFront = hardwareMap.get(DcMotor.class, "leftFront");
-        DcMotor leftRear = hardwareMap.get(DcMotor.class, "leftRear");
-        DcMotor rightFront = hardwareMap.get(DcMotor.class, "rightFront");
-        DcMotor rightRear = hardwareMap.get(DcMotor.class, "rightRear");
-        DcMotor extendArm1 = hardwareMap.dcMotor.get("ExtendArm1");
-        DcMotor extendArm2 = hardwareMap.dcMotor.get("ExtendArm2");
+        DcMotorEx leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        DcMotorEx leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
+        DcMotorEx rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        DcMotorEx rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
+        DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
+        DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         /*
-        DcMotor submersibleArm1 = hardwareMap.dcMotor.get("SubArm1");
-        DcMotor submersibleArm2 = hardwareMap.dcMotor.get("SubArm2");
+        DcMotorEx submersibleArm1 = hardwareMap.get(DcMotorEx.class, "SubArm1");
+        DcMotorEx submersibleArm2 = hardwareMap.get(DcMotorEx.class, "SubArm2");
         */
         // servos
         Servo sweeper = hardwareMap.get(Servo.class, "sweeper");
@@ -149,10 +152,9 @@ public class MainV4 extends LinearOpMode {
         CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL"); // goBilda speed
         CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR"); // goBilda speed
         // reverse
-        leftFront.setDirection(DcMotor.Direction.REVERSE);
-        leftRear.setDirection(DcMotor.Direction.REVERSE);
-        extendArm2.setDirection(DcMotorSimple.Direction.REVERSE);
-        // submersibleArm2.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorEx.Direction.REVERSE);
+        leftRear.setDirection(DcMotorEx.Direction.REVERSE);
+        extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
         sweeper.setDirection(Servo.Direction.REVERSE);
         // breaks
         Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear));
@@ -160,8 +162,8 @@ public class MainV4 extends LinearOpMode {
         // misc
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
-        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         // calibration
         imu.resetYaw();
         if (MConstants.startUp) {
@@ -222,98 +224,82 @@ public class MainV4 extends LinearOpMode {
                     follower.startTeleopDrive();
                 }
                 // extendArm code
+                /*
                 if (gamepad2.dpad_up) {
                     if (eaLimits) {
                         if (eaCpos1 < eaLimitHigh1 || eaCpos2 < eaLimitHigh2) {
-                            extendArm1.setPower(PIDController.goTo(extendArmSpeed * 1000, extendArm1.getCurrentPosition()));
-                            extendArm2.setPower(PIDController.goTo(extendArmSpeed * 1000, extendArm2.getCurrentPosition()));
+                            extendArm1.setPower(0);
+                            extendArm2.setPower(0);
                             eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
                             eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
                         }
                     } else {
-                        extendArm1.setPower(PIDController.goTo(extendArmSpeed * 1000, extendArm1.getCurrentPosition()));
-                        extendArm2.setPower(PIDController.goTo(extendArmSpeed * 1000, extendArm2.getCurrentPosition()));
+                        extendArm1.setPower(0);
+                        extendArm2.setPower(0);
                         eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
                         eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
                     }
                 } else if (gamepad2.dpad_down) {
                     if (eaLimits) {
                         if (eaCpos1 > eaLimitLow1 || eaCpos2 > eaLimitLow2) {
-                            extendArm1.setPower(PIDController.goTo(-extendArmSpeed * 1000, extendArm1.getCurrentPosition()));
-                            extendArm2.setPower(PIDController.goTo(-extendArmSpeed * 1000, extendArm2.getCurrentPosition()));
+                            extendArm1.setPower(0);
+                            extendArm2.setPower(0);
                             eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
                             eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
                         }
                     } else {
-                        extendArm1.setPower(PIDController.goTo(-extendArmSpeed * 1000, extendArm1.getCurrentPosition()));
-                        extendArm2.setPower(PIDController.goTo(-extendArmSpeed * 1000, extendArm2.getCurrentPosition()));
+                        extendArm1.setPower(0);
+                        extendArm2.setPower(0);
                         eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
                         eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
                     }
                 } else if (eaCorrection) {
-                    extendArm1.setPower(PIDController.goTo(eaCpos1 - extendArm1.getCurrentPosition(), extendArm1.getCurrentPosition()));
-                    extendArm2.setPower(PIDController.goTo(eaCpos2 - extendArm2.getCurrentPosition(), extendArm2.getCurrentPosition()));
+                    extendArm1.setPower(0);
+                    extendArm2.setPower(0);
                 } else {
                     extendArm1.setPower(0);
                     extendArm2.setPower(0);
                 }
+                */
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
                     subArmCpos += subArmCpos < 0.45 ? submersibleArmSpeed : 0;
                 } else if (gamepad1.dpad_down) {
                     subArmCpos -= subArmCpos > 0 ? submersibleArmSpeed : 0;
                 }
-                /*
-                if (gamepad1.dpad_up) {
-                    if (saLimits) {
-                        if (saCpos1 < saLimitHigh1 || saCpos2 < saLimitHigh2) {
-                            submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            submersibleArm1.setPower(submersibleArmSpeed);
-                            submersibleArm2.setPower(submersibleArmSpeed);
-                            saCpos1 = submersibleArm1.getCurrentPosition() + saErrorCorr;
-                            saCpos2 = submersibleArm2.getCurrentPosition() + saErrorCorr;
-                        }
-                    } else {
-                        submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        submersibleArm1.setPower(submersibleArmSpeed);
-                        submersibleArm2.setPower(submersibleArmSpeed);
-                        saCpos1 = submersibleArm1.getCurrentPosition() + saErrorCorr;
-                        saCpos2 = submersibleArm2.getCurrentPosition() + saErrorCorr;
+                // pid test
+                if (testPID) {
+                    eaCorrection = false;
+                    ran1 = true;
+                    extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                    extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                    int eaPos1 = extendArm1.getCurrentPosition();
+                    int eaPos2 = extendArm1.getCurrentPosition();
+                    double tickPerRevolution = 751.8 / 180;
+                    double ff1 = Math.cos(Math.toRadians(-eaPos1/ tickPerRevolution)) * PIDConstants.F;
+                    double ff2 = Math.cos(Math.toRadians(-eaPos2/ tickPerRevolution)) * PIDConstants.F;
+                    if (extendArm1.getCurrentPosition() > 2900 || extendArm2.getCurrentPosition() > 2900) {
+                        double pid1 = controller.calculate(eaPos1, -eaPos1);
+                        double pid2 = controller.calculate(eaPos2, -eaPos2);
+                        double power1 = pid1 + ff1;
+                        double power2 = pid2 + ff2;
+                        extendArm1.setPower(power1);
+                        extendArm1.setPower(power2);
+                    } else if (extendArm1.getCurrentPosition() < 100 || extendArm2.getCurrentPosition() < 100) {
+                        double pid1 = controller.calculate(eaPos1, 3000);
+                        double pid2 = controller.calculate(eaPos2, 3000);
+                        double power1 = pid1 + ff1;
+                        double power2 = pid2 + ff2;
+                        extendArm1.setPower(power1);
+                        extendArm1.setPower(power2);
                     }
-                } else if (gamepad1.dpad_down) {
-                    if (saLimits) {
-                        if (saCpos1 > saLimitLow1 || saCpos2 > saLimitLow2) {
-                            submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            submersibleArm1.setPower(-submersibleArmSpeed);
-                            submersibleArm2.setPower(-submersibleArmSpeed);
-                            saCpos1 = submersibleArm1.getCurrentPosition() - saErrorCorr;
-                            saCpos2 = submersibleArm2.getCurrentPosition() - saErrorCorr;
-                        }
-                    } else {
-                        submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        submersibleArm1.setPower(-submersibleArmSpeed);
-                        submersibleArm2.setPower(-submersibleArmSpeed);
-                        saCpos1 = submersibleArm1.getCurrentPosition() - saErrorCorr;
-                        saCpos2 = submersibleArm2.getCurrentPosition() - saErrorCorr;
-                    }
-                } else if (saCorrection) {
-                    submersibleArm1.setTargetPosition(saCpos1);
-                    submersibleArm2.setTargetPosition(saCpos2);
-                    submersibleArm1.setPower(1);
-                    submersibleArm2.setPower(1);
-                    submersibleArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    submersibleArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                } else {
-                    submersibleArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    submersibleArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    submersibleArm1.setPower(0);
-                    submersibleArm2.setPower(0);
+                    telemetry.addData("PID POS1", eaPos1);
+                    telemetry.addData("PID POS2", eaPos2);
+                    telemetry.update();
+                } else if (ran1) {
+                    eaCorrection = true;
+                    ran1 = false;
                 }
-                */
                 // preset code
                 /**
                  * GAMEPAD 1
@@ -487,15 +473,11 @@ public class MainV4 extends LinearOpMode {
                 telemetry.addData("Extend Arm Position1:", extendArm1.getCurrentPosition());
                 telemetry.addData("Extend Arm Position2:", extendArm2.getCurrentPosition());
                 telemetry.addData("Submersible Arm Position:", submersibleArm.getPosition());
-                // telemetry.addData("Submersible Arm Position1:", submersibleArm1.getCurrentPosition());
-                // telemetry.addData("Submersible Arm Position2:", submersibleArm2.getCurrentPosition());
                 telemetry.addData("Wrist Position1:", wrist1.getPosition());
                 telemetry.addData("Wrist Position2:", wrist2.getPosition());
                 telemetry.addData("Claw Position1:", claw1.getPosition());
                 telemetry.addData("Claw Position2:", claw2.getPosition());
                 telemetry.addData("Arm Position:", arm.getPosition());
-                // telemetry.addData("Arm Position1:", arm1.getPosition());
-                // telemetry.addData("Arm Position2:", arm2.getPosition());
                 telemetry.addData("Sweeper Position:", sweeper.getPosition());
                 telemetry.addData("triggersR?", gamepad1.right_trigger);
                 telemetry.addData("triggersL?", gamepad1.left_trigger);
