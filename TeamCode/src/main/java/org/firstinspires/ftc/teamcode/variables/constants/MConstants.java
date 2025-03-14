@@ -1,11 +1,16 @@
 package org.firstinspires.ftc.teamcode.variables.constants;
 
+import xyz.nin1275.constants.PIDConstants;
 import xyz.nin1275.enums.Calibrates;
 import xyz.nin1275.utils.Calibrate;
 
 public class MConstants {
     public static boolean startUp = true;
     static {
+        // PID Constants
+        PIDConstants.P = 0;
+        PIDConstants.I = 0;
+        PIDConstants.D = 0;
         // Calibration Settings
         Calibrate.calibrates = Calibrates.CONTINUES;
         // Color Sensor Calibration
