@@ -8,6 +8,8 @@
 package org.firstinspires.ftc.teamcode.teleOp;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.command.button.Trigger;
+import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -21,6 +23,8 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
+
+import com.arcrobotics.ftclib.gamepad.GamepadEx;
 
 import xyz.nin1275.constants.PIDConstants;
 import xyz.nin1275.controllers.PIDController;
@@ -73,7 +77,7 @@ public class MainV4 extends LinearOpMode {
     // 0.72 grab from sa
     // 0 high pos
     */
-    public static double subArmCpos = 0.5;
+    public static double subArmCpos = 0.45;
     // 0 low pos
     // 0.45 high pos
     // corrections
@@ -86,7 +90,7 @@ public class MainV4 extends LinearOpMode {
     private static boolean ran1 = false;
     private static boolean pause = false;
     public static boolean redSide = true;
-    public static double extendArmSpeed = 1;
+    public static int extendArmSpeed = 300;
     public static double submersibleArmSpeed = 0.01;
     public static double wheelSpeed = 1;
     // odometry
@@ -103,18 +107,14 @@ public class MainV4 extends LinearOpMode {
     public static int eaLimitLow1 = 1;
     public static int eaLimitLow2 = 5;
     public static int eaErrorCorr = 0;
-    /*
-    // submersible arm
-    public static boolean saLimits = false;
-    public static boolean saCorrection = true;
-    public static int saLimitHigh1 = 2272;
-    public static int saLimitHigh2 = 2272;
-    public static int saLimitLow1 = 0;
-    public static int saLimitLow2 = 0;
-    public static int saErrorCorr = 0;
-    */
     // pid stuff
-    public static boolean testPID = false;
+    @Config("PID Tuning")
+    public static class PID {
+        public static boolean tunePID = true;
+        public static boolean moveTestPID = false;
+        public static int target = 0;
+        public static double tickPerRevolution = 751.8 / 180;
+    }
     @Override
     public void runOpMode()  {
         // hardware
@@ -124,6 +124,8 @@ public class MainV4 extends LinearOpMode {
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         PIDController controller = new PIDController(0, 0);
+        GamepadEx gamepad1Ex = new GamepadEx(gamepad1);
+        GamepadEx gamepad2Ex = new GamepadEx(gamepad2);
         // motors
         DcMotorEx leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         DcMotorEx leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
@@ -196,12 +198,7 @@ public class MainV4 extends LinearOpMode {
                 // arm2.setPosition(armCpos2);
                 submersibleArm.setPosition(subArmCpos);
                 sweeper.setPosition(sweeperCpos);
-                if ((gamepad1.share || gamepad2.share) && !pause) {
-                    pause = true;
-                    redSide = !redSide;
-                    Timer.wait(1000);
-                    pause = false;
-                }
+                if (gamepad1Ex.wasJustPressed(GamepadKeys.Button.START) || gamepad2Ex.wasJustPressed(GamepadKeys.Button.START)) redSide = !redSide;
                 // movements
                 if (!odoDrive) {
                     follower.breakFollowing();
@@ -224,81 +221,85 @@ public class MainV4 extends LinearOpMode {
                     follower.startTeleopDrive();
                 }
                 // extendArm code
-                /*
+                int eaPos1 = extendArm1.getCurrentPosition();
+                int eaPos2 = extendArm2.getCurrentPosition();
+                double ff1 = Math.cos(Math.toRadians(-eaPos1/ PID.tickPerRevolution)) * PIDConstants.F;
+                double ff2 = Math.cos(Math.toRadians(-eaPos2/ PID.tickPerRevolution)) * PIDConstants.F;
+                // movement
+                double pid1 = controller.calculate(eaPos1, eaCpos1);
+                double pid2 = controller.calculate(eaPos2, eaCpos2);
+                double power1 = pid1 + ff1;
+                double power2 = pid2 + ff2;
+                extendArm1.setPower(power1);
+                extendArm2.setPower(power2);
                 if (gamepad2.dpad_up) {
                     if (eaLimits) {
                         if (eaCpos1 < eaLimitHigh1 || eaCpos2 < eaLimitHigh2) {
-                            extendArm1.setPower(0);
-                            extendArm2.setPower(0);
-                            eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
-                            eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
+                            eaCpos1 += extendArmSpeed;
+                            eaCpos2 += extendArmSpeed;
                         }
                     } else {
-                        extendArm1.setPower(0);
-                        extendArm2.setPower(0);
-                        eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
-                        eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
+                        eaCpos1 += extendArmSpeed;
+                        eaCpos2 += extendArmSpeed;
                     }
                 } else if (gamepad2.dpad_down) {
                     if (eaLimits) {
                         if (eaCpos1 > eaLimitLow1 || eaCpos2 > eaLimitLow2) {
-                            extendArm1.setPower(0);
-                            extendArm2.setPower(0);
-                            eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
-                            eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
+                            eaCpos1 -= extendArmSpeed;
+                            eaCpos2 -= extendArmSpeed;
                         }
                     } else {
-                        extendArm1.setPower(0);
-                        extendArm2.setPower(0);
-                        eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
-                        eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
+                        eaCpos1 -= extendArmSpeed;
+                        eaCpos2 -= extendArmSpeed;
                     }
-                } else if (eaCorrection) {
-                    extendArm1.setPower(0);
-                    extendArm2.setPower(0);
-                } else {
-                    extendArm1.setPower(0);
-                    extendArm2.setPower(0);
                 }
-                */
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
-                    subArmCpos += subArmCpos < 0.45 ? submersibleArmSpeed : 0;
+                    subArmCpos = subArmCpos < 0.45 ? 0.45 : subArmCpos - submersibleArmSpeed;
                 } else if (gamepad1.dpad_down) {
-                    subArmCpos -= subArmCpos > 0 ? submersibleArmSpeed : 0;
+                    subArmCpos = subArmCpos > 1 ? 1 : subArmCpos + submersibleArmSpeed;
                 }
                 // pid test
-                if (testPID) {
-                    eaCorrection = false;
-                    ran1 = true;
+                if (PID.tunePID) {
+                    // initialization
                     extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
                     extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-                    int eaPos1 = extendArm1.getCurrentPosition();
-                    int eaPos2 = extendArm1.getCurrentPosition();
-                    double tickPerRevolution = 751.8 / 180;
-                    double ff1 = Math.cos(Math.toRadians(-eaPos1/ tickPerRevolution)) * PIDConstants.F;
-                    double ff2 = Math.cos(Math.toRadians(-eaPos2/ tickPerRevolution)) * PIDConstants.F;
-                    if (extendArm1.getCurrentPosition() > 2900 || extendArm2.getCurrentPosition() > 2900) {
-                        double pid1 = controller.calculate(eaPos1, -eaPos1);
-                        double pid2 = controller.calculate(eaPos2, -eaPos2);
-                        double power1 = pid1 + ff1;
-                        double power2 = pid2 + ff2;
-                        extendArm1.setPower(power1);
-                        extendArm1.setPower(power2);
-                    } else if (extendArm1.getCurrentPosition() < 100 || extendArm2.getCurrentPosition() < 100) {
-                        double pid1 = controller.calculate(eaPos1, 3000);
-                        double pid2 = controller.calculate(eaPos2, 3000);
-                        double power1 = pid1 + ff1;
-                        double power2 = pid2 + ff2;
-                        extendArm1.setPower(power1);
-                        extendArm1.setPower(power2);
-                    }
+                    // movement
+                    pid1 = controller.calculate(eaPos1, PID.target);
+                    pid2 = controller.calculate(eaPos2, PID.target);
+                    power1 = pid1 + ff1;
+                    power2 = pid2 + ff2;
+                    extendArm1.setPower(power1);
+                    extendArm2.setPower(power2);
+                    // telemetry
+                    telemetry.addData("TARGET", PID.target);
                     telemetry.addData("PID POS1", eaPos1);
                     telemetry.addData("PID POS2", eaPos2);
                     telemetry.update();
-                } else if (ran1) {
-                    eaCorrection = true;
-                    ran1 = false;
+                } else if (PID.moveTestPID) {
+                    // initialization
+                    extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                    extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                    // movement
+                    if (extendArm1.getCurrentPosition() > 2900 || extendArm2.getCurrentPosition() > 2900) {
+                        pid1 = controller.calculate(eaPos1, 0);
+                        pid2 = controller.calculate(eaPos2, 0);
+                        power1 = pid1 + ff1;
+                        power2 = pid2 + ff2;
+                        extendArm1.setPower(power1);
+                        extendArm2.setPower(power2);
+                    } else if (extendArm1.getCurrentPosition() < 100 || extendArm2.getCurrentPosition() < 100) {
+                        pid1 = controller.calculate(eaPos1, 3000);
+                        pid2 = controller.calculate(eaPos2, 3000);
+                        power1 = pid1 + ff1;
+                        power2 = pid2 + ff2;
+                        extendArm1.setPower(power1);
+                        extendArm2.setPower(power2);
+                    }
+                    // telemetry
+                    telemetry.addData("PID POS1", eaPos1);
+                    telemetry.addData("PID POS2", eaPos2);
+                    telemetry.update();
                 }
                 // preset code
                 /**
