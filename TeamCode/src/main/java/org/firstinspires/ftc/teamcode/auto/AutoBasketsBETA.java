@@ -5,6 +5,7 @@ import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.GoBildaPinpointDriver;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.localization.constants.PinpointConstants;
+import com.pedropathing.localization.constants.TwoWheelConstants;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
@@ -14,8 +15,12 @@ import com.pedropathing.util.Constants;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.variables.constants.AutoVariables;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
@@ -24,6 +29,8 @@ import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
+import xyz.nin1275.constants.PIDConstants;
+import xyz.nin1275.controllers.PIDController;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.MetroLib;
 
@@ -211,88 +218,77 @@ public class AutoBasketsBETA extends OpMode {
      * Encoder movements for the arms and sliders,
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
-    private void extendArmMove(int dis1, int dis2, double power) {
-        DcMotor extendArm1 = hardwareMap.dcMotor.get("ExtendArm1");
-        DcMotor extendArm2 = hardwareMap.dcMotor.get("ExtendArm2");
+    private void extendArmMove(int dis1, int dis2) {
+        DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
+        DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // stuff
         AutoVariables.eaMovements1+=dis1;
         AutoVariables.eaMovements2+=dis2;
-        extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        // PID initialization
+        PIDController controller = new PIDController(0, 0);
+        double tickPerRevolution = 751.8 / 180;
+        int eaPos1 = extendArm1.getCurrentPosition();
+        int eaPos2 = extendArm2.getCurrentPosition();
+        double ff1 = Math.cos(Math.toRadians(-eaPos1/ tickPerRevolution)) * PIDConstants.F;
+        double ff2 = Math.cos(Math.toRadians(-eaPos2/ tickPerRevolution)) * PIDConstants.F;
         // formula
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
-        // reset pos
-        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        // target
-        extendArm1.setTargetPosition(dis1);
-        extendArm2.setTargetPosition(dis2);
-        // move moters
-        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        // power
-        extendArm1.setPower(power);
-        extendArm2.setPower(power);
-        int eaCpos1 = 0;
-        int eaCpos2 = 0;
+        double pid1 = controller.calculate(eaPos1, dis1);
+        double pid2 = controller.calculate(eaPos2, dis2);
+        double power1 = pid1 + ff1;
+        double power2 = pid2 + ff2;
+        // movement
+        extendArm1.setPower(power1);
+        extendArm2.setPower(power2);
         while (extendArm1.isBusy() || extendArm2.isBusy()) {
             telemetry.addData("ExtendArm1Pos:", extendArm1.getCurrentPosition());
             telemetry.addData("ExtendArm2Pos:", extendArm2.getCurrentPosition());
             telemetry.update();
-            eaCpos1 = extendArm1.getCurrentPosition();
-            eaCpos2 = extendArm2.getCurrentPosition();
         }
-        // stop
-        extendArm1.setTargetPosition(eaCpos1);
-        extendArm2.setTargetPosition(eaCpos2);
-        extendArm1.setPower(1);
-        extendArm2.setPower(1);
-        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
-    private void submersibleArmMove(int dis1, int dis2, double power) {
-        DcMotor submersibleArm1 = hardwareMap.dcMotor.get("SubArm1");
-        DcMotor submersibleArm2 = hardwareMap.dcMotor.get("SubArm2");
-        // stuff
-        AutoVariables.saMovements1+=dis1;
-        AutoVariables.saMovements1+=dis2;
-        submersibleArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        submersibleArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        // formula
-        submersibleArm2.setDirection(DcMotor.Direction.REVERSE);
-        // reset pos
-        submersibleArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        submersibleArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        // target
-        submersibleArm1.setTargetPosition(dis1);
-        submersibleArm2.setTargetPosition(dis2);
-        // move moters
-        submersibleArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        submersibleArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        // power
-        submersibleArm1.setPower(power);
-        submersibleArm2.setPower(power);
-        int saCpos1 = 0;
-        int saCpos2 = 0;
-        while (submersibleArm1.isBusy() || submersibleArm2.isBusy()) {
-            telemetry.addData("SubmersibleArm1Pos:", submersibleArm1.getCurrentPosition());
-            telemetry.addData("SubmersibleArm2Pos:", submersibleArm2.getCurrentPosition());
-            telemetry.update();
-            saCpos1 = submersibleArm1.getCurrentPosition();
-            saCpos2 = submersibleArm2.getCurrentPosition();
+    // servos
+    private void intake(double power, int time) {
+        ElapsedTime timer = new ElapsedTime();
+        CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL"); // goBilda speed
+        CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR"); // goBilda speed
+        intake2.setDirection(CRServo.Direction.REVERSE);
+        while (timer.milliseconds() < time) {
+            intake1.setPower(power);
+            intake2.setPower(power);
         }
-        // stop
-        submersibleArm1.setTargetPosition(saCpos1);
-        submersibleArm2.setTargetPosition(saCpos2);
-        submersibleArm1.setPower(1);
-        submersibleArm2.setPower(1);
-        submersibleArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        submersibleArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        intake1.setPower(0);
+        intake2.setPower(0);
     }
-    private void claw(double pos) {
-        Servo claw = hardwareMap.get(Servo.class, "claw");
-        claw.setDirection(Servo.Direction.REVERSE);
-        claw.setPosition(pos);
+    private void claw1(double pos) {
+        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // axon
+        claw1.setPosition(pos);
+    }
+    private void claw2(double pos) {
+        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // axon
+        claw2.setPosition(pos);
+    }
+    private void wrist1(double pos) {
+        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // axon
+        wrist1.setPosition(pos);
+    }
+    private void wrist2(double pos) {
+        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 20kg
+        wrist2.setPosition(pos);
+    }
+    private void sweeper(double pos) {
+        Servo sweeper = hardwareMap.get(Servo.class, "sweeper"); // goBilda torque
+        sweeper.setDirection(Servo.Direction.REVERSE);
+        sweeper.setPosition(pos);
+    }
+    private void arm(double pos) {
+        Servo arm1 = hardwareMap.get(Servo.class, "arm1"); // axon
+        Servo arm2 = hardwareMap.get(Servo.class, "arm2"); // axon
+        arm1.setPosition(pos);
+        arm2.setPosition(pos);
+    }
+    private void submersibleArm(double pos) {
+        Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // axon
+        submersibleArm.setPosition(pos);
     }
 
 
@@ -325,12 +321,11 @@ public class AutoBasketsBETA extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         MetroLib.setConstants(MConstants.class);
         Calibrate.Auto.clearEverything();
-        hardwareMap.get(GoBildaPinpointDriver.class, PinpointConstants.hardwareMapName).resetPosAndIMU();
+        hardwareMap.get(IMU.class, TwoWheelConstants.IMU_HardwareMapName).resetYaw();
         AutoVariables.eaMovements1 = 0;
         AutoVariables.eaMovements2 = 0;
-        AutoVariables.saMovements1 = 0;
-        AutoVariables.saMovements2 = 0;
         // movement
+        claw1(0.4);
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();

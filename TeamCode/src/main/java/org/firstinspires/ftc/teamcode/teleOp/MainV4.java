@@ -3,12 +3,11 @@
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
  * coding from scratch for our robot, Beastkit v4
  * started recoding at 3/4/25  @  5:34 pm
- * robot v4 finished building at 3/13/25
+ * robot v4 finished building at 3/14/25
  */
 package org.firstinspires.ftc.teamcode.teleOp;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.command.button.Trigger;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -138,14 +137,14 @@ public class MainV4 extends LinearOpMode {
         DcMotorEx submersibleArm2 = hardwareMap.get(DcMotorEx.class, "SubArm2");
         */
         // servos
-        Servo sweeper = hardwareMap.get(Servo.class, "sweeper");
+        Servo sweeper = hardwareMap.get(Servo.class, "sweeper"); // goBilda torque
         // ea
         Servo arm = hardwareMap.get(Servo.class, "arm"); // axon
         /*
         Servo arm1 = hardwareMap.get(Servo.class, "arm1"); // axon
         Servo arm2 = hardwareMap.get(Servo.class, "arm2"); // axon
         */
-        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 25kg
+        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // axon
         Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // axon
         // sa
         Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // axon
@@ -160,7 +159,6 @@ public class MainV4 extends LinearOpMode {
         sweeper.setDirection(Servo.Direction.REVERSE);
         // breaks
         Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear));
-        // Motors.resetEncoders(List.of(extendArm1, submersibleArm1, extendArm2, submersibleArm2));
         // misc
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
@@ -225,13 +223,15 @@ public class MainV4 extends LinearOpMode {
                 int eaPos2 = extendArm2.getCurrentPosition();
                 double ff1 = Math.cos(Math.toRadians(-eaPos1/ PID.tickPerRevolution)) * PIDConstants.F;
                 double ff2 = Math.cos(Math.toRadians(-eaPos2/ PID.tickPerRevolution)) * PIDConstants.F;
-                // movement
+                // formula
                 double pid1 = controller.calculate(eaPos1, eaCpos1);
                 double pid2 = controller.calculate(eaPos2, eaCpos2);
                 double power1 = pid1 + ff1;
                 double power2 = pid2 + ff2;
+                // movement
                 extendArm1.setPower(power1);
                 extendArm2.setPower(power2);
+                // controls
                 if (gamepad2.dpad_up) {
                     if (eaLimits) {
                         if (eaCpos1 < eaLimitHigh1 || eaCpos2 < eaLimitHigh2) {
@@ -264,11 +264,12 @@ public class MainV4 extends LinearOpMode {
                     // initialization
                     extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
                     extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-                    // movement
+                    // formula
                     pid1 = controller.calculate(eaPos1, PID.target);
                     pid2 = controller.calculate(eaPos2, PID.target);
                     power1 = pid1 + ff1;
                     power2 = pid2 + ff2;
+                    // movement
                     extendArm1.setPower(power1);
                     extendArm2.setPower(power2);
                     // telemetry
@@ -467,6 +468,7 @@ public class MainV4 extends LinearOpMode {
                     submersibleArm.getController().pwmDisable();
                 }
                 // telemetry
+                Calibrate.TeleOp.getStartPositions();
                 telemetry.addData("DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
                 telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
                 telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));

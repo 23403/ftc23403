@@ -41,7 +41,6 @@ public class MotorDirections extends OpMode {
     @Override
     public void init() {
         Constants.setConstants(FConstants.class, LConstants.class);
-        hardwareMap.get(GoBildaPinpointDriver.class, PinpointConstants.hardwareMapName).resetPosAndIMU();
 
         leftFront = hardwareMap.get(DcMotorEx.class, leftFrontMotorName);
         leftRear = hardwareMap.get(DcMotorEx.class, leftRearMotorName);
