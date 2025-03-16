@@ -66,46 +66,26 @@ public class MainV4 extends LinearOpMode {
     // 0.88 low pos
     // 0.72 grab from sa
     // 0 high pos
-    /*
-    public static double armCpos1 = 0.72;
-    // 0.88 low pos
-    // 0.72 grab from sa
-    // 0 high pos
-    public static double armCpos2 = 0.72;
-    // 0.88 low pos
-    // 0.72 grab from sa
-    // 0 high pos
-    */
     public static double subArmCpos = 0.45;
     // 0 low pos
     // 0.45 high pos
     // corrections
     public static int eaCpos1 = 0;
     public static int eaCpos2 = 0;
-    // public static int saCpos1 = 0;
-    // public static int saCpos2 = 0;
     // misc
     private static boolean ran = false;
-    private static boolean ran1 = false;
-    private static boolean pause = false;
     public static boolean redSide = true;
     public static int extendArmSpeed = 300;
     public static double submersibleArmSpeed = 0.01;
     public static double wheelSpeed = 1;
     // odometry
-    public static double X = 0;
-    public static double Y = 0;
-    public static double HEADING;
-    public static boolean selfCorrection = false;
     public static boolean odoDrive = false;
     // extend arm
     public static boolean eaLimits = false;
-    public static boolean eaCorrection = true;
     public static int eaLimitHigh1 = 5283;
     public static int eaLimitHigh2 = 5082;
     public static int eaLimitLow1 = 1;
     public static int eaLimitLow2 = 5;
-    public static int eaErrorCorr = 0;
     // pid stuff
     @Config("PID Tuning")
     public static class PID {
