@@ -349,7 +349,7 @@ public class AutoBasketsBETA extends OpMode {
     /** We do not use this because everything should automatically disable **/
     @Override
     public void stop() {
-        Calibrate.Auto.savePositions(List.of(AutoVariables.eaMovements1, AutoVariables.eaMovements2, AutoVariables.saMovements1, AutoVariables.saMovements2));
+        Calibrate.Auto.savePositions(List.of(AutoVariables.eaMovements1, AutoVariables.eaMovements2));
         Calibrate.Auto.saveLastKnownPos(follower.getPose());
     }
 }
