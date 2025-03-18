@@ -20,11 +20,11 @@ public class FConstants {
 
         FollowerConstants.mass = 11.3398093;
 
-        FollowerConstants.xMovement = 68.8326051955;
-        FollowerConstants.yMovement = 50.9347102026;
+        FollowerConstants.xMovement = 75.5008649894;
+        FollowerConstants.yMovement = 50.3827456243;
 
-        FollowerConstants.forwardZeroPowerAcceleration = -28.2449452814;
-        FollowerConstants.lateralZeroPowerAcceleration = -70.0786776898;
+        FollowerConstants.forwardZeroPowerAcceleration = -29.1248100917;
+        FollowerConstants.lateralZeroPowerAcceleration = -73.2947524699;
 
         /**
          ** STEPS FOR BASIC PID TUNING **
@@ -40,17 +40,17 @@ public class FConstants {
         **/
 
         // pid for translational
-        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.0112,0,0.09,0);
+        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0,0,0,0);
         FollowerConstants.useSecondaryTranslationalPID = false;
-        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0.1,0,0.01,0); // SECONDARY TUNING
+        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0,0,0,0); // SECONDARY TUNING
         // pid for heading
-        FollowerConstants.headingPIDFCoefficients.setCoefficients(0.7,0,0.03,0);
+        FollowerConstants.headingPIDFCoefficients.setCoefficients(0,0,0,0);
         FollowerConstants.useSecondaryHeadingPID = false;
-        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(2,0,0.1,0); // SECONDARY TUNING
+        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(0,0,0,0); // SECONDARY TUNING
         // pid for drive
-        FollowerConstants.drivePIDFCoefficients.setCoefficients(0.01324,0,0.00031,0.6,0);
+        FollowerConstants.drivePIDFCoefficients.setCoefficients(0,0,0,0.6,0);
         FollowerConstants.useSecondaryDrivePID = false;
-        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0.0055,0,0,0.6,0); // SECONDARY TUNING
+        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0,0,0,0.6,0); // SECONDARY TUNING
 
         FollowerConstants.zeroPowerAccelerationMultiplier = 4;
         FollowerConstants.centripetalScaling = 0.0005;
