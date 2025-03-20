@@ -6,6 +6,8 @@ import xyz.nin1275.utils.Calibrate;
 
 public class MConstants {
     public static boolean startUp = true;
+    public static int eaStartPos1 = 0;
+    public static int eaStartPos2 = 0;
     static {
         // PID Constants
         PIDConstants.P = 0;

@@ -81,6 +81,7 @@ public class MainV4 extends LinearOpMode {
     public static double extendArmSpeed = 1;
     public static double submersibleArmSpeed = 0.1;
     public static double wheelSpeed = 1;
+    int stages = 0;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
@@ -153,10 +154,18 @@ public class MainV4 extends LinearOpMode {
         // calibration
         imu.resetYaw();
         if (MConstants.startUp) {
-            Calibrate.TeleOp.saveStartPositions(List.of(extendArm1, extendArm2));
+            MConstants.eaStartPos1 = extendArm1.getCurrentPosition();
+            MConstants.eaStartPos2 = extendArm2.getCurrentPosition();
+            // Calibrate.TeleOp.saveStartPositions(List.of(extendArm1, extendArm2));
             MConstants.startUp = false;
         }
-        Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2));
+        extendArm1.setTargetPosition(MConstants.eaStartPos1);
+        extendArm2.setTargetPosition(MConstants.eaStartPos2);
+        extendArm1.setPower(1);
+        extendArm2.setPower(1);
+        extendArm1.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        extendArm2.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        // Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2));
         follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
         Calibrate.Auto.clearEverything();
         // starting pos
@@ -266,10 +275,22 @@ public class MainV4 extends LinearOpMode {
                     extendArm2.setPower(0);
                 }
                 // submersibleArm code
-                if (gamepad1.dpad_up) {
-                    subArmCpos = subArmCpos < 0.45 ? 0.45 : subArmCpos - submersibleArmSpeed;
-                } else if (gamepad1.dpad_down) {
-                    subArmCpos = subArmCpos > 1 ? 1 : subArmCpos + submersibleArmSpeed;
+                if (gamepad1Ex.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
+                    if (stages == 0) {
+                        subArmCpos = 0.725;
+                        stages = 1;
+                    } else if (stages == 1) {
+                        subArmCpos = 0.45;
+                        stages = 2;
+                    }
+                } else if (gamepad1Ex.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
+                    if (stages == 2) {
+                        subArmCpos = 0.725;
+                        stages = 1;
+                    } else if (stages == 1) {
+                        subArmCpos = 1;
+                        stages = 0;
+                    }
                 }
                 // preset code
                 /**
@@ -373,15 +394,21 @@ public class MainV4 extends LinearOpMode {
                     armCpos = 0.23;
                 }
                 // claws
-                if (gamepad2.left_trigger > 0) {
+                if (gamepad2.right_trigger > 0) {
                     clawCpos1 = 0.9;
-                } else if (gamepad2.right_trigger > 0) {
+                } else if (gamepad2.left_trigger > 0) {
                     clawCpos1 = 0.4;
                 }
                 if (gamepad1.left_trigger > 0) {
                     clawCpos2 = 0.55;
                 } else if (gamepad1.right_trigger > 0) {
                     clawCpos2 = 0.5;
+                }
+                // wrist
+                if (gamepad1.dpad_right) {
+                    wristCpos1 = 0.07;
+                } else if (gamepad1.dpad_left) {
+                    wristCpos1 = 0.5;
                 }
                 // color sensor code
                 if (Sensor.isRedGrabbed()) {
