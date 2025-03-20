@@ -20,7 +20,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.teleOp.MainV4;
 import org.firstinspires.ftc.teamcode.variables.constants.AutoVariables;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
@@ -36,7 +35,7 @@ import xyz.nin1275.MetroLib;
 /**
  * MetroBotics/Code Conductors auto using odometry.
  * Started code  @  2/16/25  @  10:18 am
- * Expected to finish code  @  2/26/25
+ * Expected to finish code  @  3/21/25
  * It is a 1+4 specimen auto with park. It hangs a preloaded specimen and then hang another specimen then push the 3 samples from the ground and hang them.
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
  * @version 3.0, 2/16/25
@@ -51,6 +50,43 @@ public class AutoHookBETA extends OpMode {
     public static Integer pauses = 1000;
     /** store the state of our auto. */
     private int pathState;
+    // servos
+    public Servo claw1; // axon
+    public Servo claw2; // axon
+    public Servo wrist1; // axon
+    public Servo wrist2; // 20kg
+    public Servo sweeper; // goBilda torque
+    public Servo submersibleArm; // axon
+    public Servo arm; // axon
+    public CRServo intake1; // goBilda speed
+    public CRServo intake2; // goBilda speed
+    // servo positions
+    public static double wristCpos1 = 0.38;
+    // 0.5 low pos
+    // 0.38 grab from sa
+    // 1 high pos
+    public static double clawCpos1 = 0.9;
+    // 0.4 is close
+    // 0.9 is open
+    public static double sweeperCpos = 1;
+    // 0.5 low pos
+    // 1 high pos
+    public static double wristCpos2 = 0.45;
+    // 0.07 low pos
+    // 0.45 give to ea
+    // 0.5 high pos
+    public static double clawCpos2 = 0.5;
+    // 0.5 is close
+    // 0.55 is grab pos
+    // 1 is open pos
+    public static double armCpos = 0.72;
+    // 0.88 low pos
+    // 0.72 grab from sa
+    // 0 high pos
+    public static double subArmCpos = 1;
+    // 0 low pos
+    // 0.45 high pos
+    // corrections
 
     /* Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
@@ -339,7 +375,7 @@ public class AutoHookBETA extends OpMode {
      * Encoder movements for the arms and sliders,
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
-    private void extendArmMove(int dis1, int dis2) {
+    private void extendArmMovePID(int dis1, int dis2) {
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // stuff
@@ -367,6 +403,43 @@ public class AutoHookBETA extends OpMode {
             telemetry.update();
         }
     }
+    private void extendArmMove(int dis1, int dis2, double power) {
+        DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
+        DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
+        // stuff
+        AutoVariables.eaMovements1+=dis1;
+        AutoVariables.eaMovements2+=dis2;
+        // formula
+        extendArm2.setDirection(DcMotor.Direction.REVERSE);
+        // reset pos
+        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // target
+        extendArm1.setTargetPosition(dis1);
+        extendArm2.setTargetPosition(dis2);
+        // move moters
+        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // power
+        extendArm1.setPower(power);
+        extendArm2.setPower(power);
+        int eaCpos1 = 0;
+        int eaCpos2 = 0;
+        while (extendArm1.isBusy() || extendArm2.isBusy()) {
+            telemetry.addData("ExtendArm1Pos:", extendArm1.getCurrentPosition());
+            telemetry.addData("ExtendArm2Pos:", extendArm2.getCurrentPosition());
+            telemetry.update();
+            eaCpos1 = extendArm1.getCurrentPosition();
+            eaCpos2 = extendArm2.getCurrentPosition();
+        }
+        // stop
+        extendArm1.setTargetPosition(eaCpos1);
+        extendArm2.setTargetPosition(eaCpos2);
+        extendArm1.setPower(1);
+        extendArm2.setPower(1);
+        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }
     // servos
     private void intake(double power, int time) {
         ElapsedTime timer = new ElapsedTime();
@@ -381,35 +454,25 @@ public class AutoHookBETA extends OpMode {
         intake2.setPower(0);
     }
     private void claw1(double pos) {
-        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // axon
-        claw1.setPosition(pos);
+        clawCpos1 = pos;
     }
     private void claw2(double pos) {
-        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // axon
-        claw2.setPosition(pos);
+        clawCpos2 = pos;
     }
     private void wrist1(double pos) {
-        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // axon
-        wrist1.setPosition(pos);
+        wristCpos1 = pos;
     }
     private void wrist2(double pos) {
-        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 20kg
-        wrist2.setPosition(pos);
+        wristCpos2 = pos;
     }
     private void sweeper(double pos) {
-        Servo sweeper = hardwareMap.get(Servo.class, "sweeper"); // goBilda torque
-        sweeper.setDirection(Servo.Direction.REVERSE);
-        sweeper.setPosition(pos);
+        sweeperCpos = pos;
     }
     private void arm(double pos) {
-        Servo arm1 = hardwareMap.get(Servo.class, "arm1"); // axon
-        Servo arm2 = hardwareMap.get(Servo.class, "arm2"); // axon
-        arm1.setPosition(pos);
-        arm2.setPosition(pos);
+        armCpos = pos;
     }
     private void submersibleArm(double pos) {
-        Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // axon
-        submersibleArm.setPosition(pos);
+        subArmCpos = pos;
     }
 
     /** These change the states of the paths and actions
@@ -426,6 +489,14 @@ public class AutoHookBETA extends OpMode {
         follower.update();
         follower.setMaxPower(speed);
         autonomousPathUpdate();
+        // servos
+        claw1.setPosition(clawCpos1);
+        claw2.setPosition(clawCpos2);
+        wrist1.setPosition(wristCpos1);
+        wrist2.setPosition(wristCpos2);
+        sweeper.setPosition(sweeperCpos);
+        submersibleArm.setPosition(subArmCpos);
+        arm.setPosition(armCpos);
         // Feedback to Driver Hub
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
@@ -444,6 +515,19 @@ public class AutoHookBETA extends OpMode {
         hardwareMap.get(IMU.class, TwoWheelConstants.IMU_HardwareMapName).resetYaw();
         AutoVariables.eaMovements1 = 0;
         AutoVariables.eaMovements2 = 0;
+        // servos
+        claw1 = hardwareMap.get(Servo.class, "claw1"); // axon
+        claw2 = hardwareMap.get(Servo.class, "claw2"); // axon
+        wrist1 = hardwareMap.get(Servo.class, "wrist1"); // axon
+        wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 20kg
+        sweeper = hardwareMap.get(Servo.class, "sweeper"); // goBilda torque
+        submersibleArm = hardwareMap.get(Servo.class, "subArm"); // axon
+        arm = hardwareMap.get(Servo.class, "arm"); // axon
+        intake1 = hardwareMap.get(CRServo.class, "intakeL"); // goBilda speed
+        intake2 = hardwareMap.get(CRServo.class, "intakeR"); // goBilda speed
+        // directions
+        intake2.setDirection(CRServo.Direction.REVERSE);
+        sweeper.setDirection(Servo.Direction.REVERSE);
         // movement
         claw1(0.4);
         pathTimer = new Timer();

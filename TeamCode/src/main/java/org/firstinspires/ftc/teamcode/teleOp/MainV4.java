@@ -91,7 +91,6 @@ public class MainV4 extends LinearOpMode {
     public static int eaLimitLow2 = 5;
     public static boolean eaCorrection = true;
     public static int eaErrorCorr = 0;
-
     // pid stuff
     @Config("PID Tuning")
     public static class PID {
