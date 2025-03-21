@@ -20,6 +20,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.teleOp.MainV4;
 import org.firstinspires.ftc.teamcode.variables.constants.AutoVariables;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
@@ -46,7 +47,7 @@ import xyz.nin1275.MetroLib;
 public class AutoHookBETA extends OpMode {
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
-    public static double speed = 0.3;
+    public static double speed = 0.8;
     public static Integer pauses = 1000;
     /** store the state of our auto. */
     private int pathState;
@@ -88,6 +89,7 @@ public class AutoHookBETA extends OpMode {
     // 0.45 high pos
     // corrections
 
+
     /* Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
      * Pedro uses 0 - 144 for x and y, with 0, 0 being on the bottom left.
@@ -97,7 +99,7 @@ public class AutoHookBETA extends OpMode {
      */
 
     /** line positions */
-    private final Pose startPos = new Pose(8.9, 56.6, Math.toRadians(0)); // start Pos
+    private final Pose startPos = new Pose(8.9, 63.3, Math.toRadians(180)); // start Pos
     /** different modes */
     private Path preload;
     /** path name */
@@ -122,11 +124,11 @@ public class AutoHookBETA extends OpMode {
 
         /* line1 */
         preload = new Path(new BezierCurve(
-                new Point(8.900, 56.600, Point.CARTESIAN),
+                new Point(7.800, 56.600, Point.CARTESIAN),
                 new Point(16.700, 56.500, Point.CARTESIAN),
-                new Point(38.000, 76.000, Point.CARTESIAN)
+                new Point(39.000, 76.000, Point.CARTESIAN)
         ));
-        preload.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0));
+        preload.setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(180));
         /* line2 */
         grabSpecimen1 = follower.pathBuilder()
                 .addPath(new BezierCurve(
@@ -134,7 +136,7 @@ public class AutoHookBETA extends OpMode {
                         new Point(23.000, 28.000, Point.CARTESIAN),
                         new Point(16.500, 31.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
         /* line3 */
         hangSpecimen1 = follower.pathBuilder()
@@ -143,16 +145,16 @@ public class AutoHookBETA extends OpMode {
                         new Point(21.000, 28.000, Point.CARTESIAN),
                         new Point(38.000, 75.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         /* line4 */
         moveToPushLoc = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         new Point(38.000, 75.000, Point.CARTESIAN),
-                        new Point(33.000, 49.000, Point.CARTESIAN),
+                        new Point(30.600, 49.000, Point.CARTESIAN),
                         new Point(38.000, 40.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(138))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(318))
                 .build();
         /* line5 */
         rotate1 = follower.pathBuilder()
@@ -160,7 +162,7 @@ public class AutoHookBETA extends OpMode {
                         new Point(38.000, 40.000, Point.CARTESIAN),
                         new Point(38.000, 40.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(138), Math.toRadians(58))
+                .setLinearHeadingInterpolation(Math.toRadians(318), Math.toRadians(240))
                 .build();
         /* line6 */
         rotateBack1 = follower.pathBuilder()
@@ -168,7 +170,7 @@ public class AutoHookBETA extends OpMode {
                         new Point(38.000, 40.000, Point.CARTESIAN),
                         new Point(38.000, 40.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(58), Math.toRadians(138))
+                .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(318))
                 .build();
         /* line7 */
         rotate2 = follower.pathBuilder()
@@ -176,7 +178,7 @@ public class AutoHookBETA extends OpMode {
                         new Point(38.000, 40.000, Point.CARTESIAN),
                         new Point(38.000, 40.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(138), Math.toRadians(58))
+                .setLinearHeadingInterpolation(Math.toRadians(318), Math.toRadians(240))
                 .build();
         /* line8 */
         moveRotate3 = follower.pathBuilder()
@@ -184,7 +186,7 @@ public class AutoHookBETA extends OpMode {
                         new Point(38.000, 40.000, Point.CARTESIAN),
                         new Point(38.000, 32.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(58), Math.toRadians(138))
+                .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(318))
                 .build();
         /* line9 */
         rotate3 = follower.pathBuilder()
@@ -192,7 +194,7 @@ public class AutoHookBETA extends OpMode {
                         new Point(38.000, 32.000, Point.CARTESIAN),
                         new Point(38.000, 32.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(138), Math.toRadians(58))
+                .setLinearHeadingInterpolation(Math.toRadians(318), Math.toRadians(240))
                 .build();
         /* line10 */
         grabSpecimen2 = follower.pathBuilder()
@@ -200,7 +202,7 @@ public class AutoHookBETA extends OpMode {
                         new Point(38.000, 32.000, Point.CARTESIAN),
                         new Point(16.500, 31.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(58), Math.toRadians(-180))
+                .setLinearHeadingInterpolation(Math.toRadians(240), Math.toRadians(0))
                 .build();
         /* line11 */
         hangSpecimen2 = follower.pathBuilder()
@@ -209,25 +211,25 @@ public class AutoHookBETA extends OpMode {
                         new Point(21.000, 29.000, Point.CARTESIAN),
                         new Point(38.000, 75.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-180), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         /* line12 */
         grabSpecimen3 = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath( new BezierCurve(
                         new Point(38.000, 75.000, Point.CARTESIAN),
                         new Point(22.000, 28.000, Point.CARTESIAN),
                         new Point(16.500, 31.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-180))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
         /* line13 */
         hangSpecimen3 = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath( new BezierCurve(
                         new Point(16.500, 31.000, Point.CARTESIAN),
                         new Point(22.000, 28.000, Point.CARTESIAN),
                         new Point(38.000, 75.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-180), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         /* line14 */
         grabSpecimen4 = follower.pathBuilder()
@@ -236,7 +238,7 @@ public class AutoHookBETA extends OpMode {
                         new Point(21.000, 29.000, Point.CARTESIAN),
                         new Point(16.500, 31.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-180))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
                 .build();
         /* line15 */
         hangSpecimen4 = follower.pathBuilder()
@@ -245,7 +247,7 @@ public class AutoHookBETA extends OpMode {
                         new Point(22.000, 28.000, Point.CARTESIAN),
                         new Point(38.000, 75.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-180), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
                 .build();
         /* line16 */
         park = follower.pathBuilder()
@@ -254,7 +256,7 @@ public class AutoHookBETA extends OpMode {
                         new Point(26.000, 58.000, Point.CARTESIAN),
                         new Point(23.000, 42.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
+                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(225))
                 .build();
     }
 
@@ -267,8 +269,12 @@ public class AutoHookBETA extends OpMode {
         xyz.nin1275.utils.Timer timer = new xyz.nin1275.utils.Timer();
         switch (pathState) {
             case 0:
+                extendArmMove(1590, 1590, 0.8);
+                arm(0.88);
+                wrist1(0.15);
                 if(!follower.isBusy()) {
                     timer.wait(pauses);
+                    claw1(0.9);
                     follower.followPath(preload,true);
                     setPathState(1);
                 }
@@ -375,35 +381,45 @@ public class AutoHookBETA extends OpMode {
      * Encoder movements for the arms and sliders,
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
-    private void extendArmMovePID(int dis1, int dis2) {
-        DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
-        DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
+    private void extendArmMovePID(int dis1, int dis2, double power) {
+        DcMotor extendArm1 = hardwareMap.dcMotor.get("ExtendArm1");
+        DcMotor extendArm2 = hardwareMap.dcMotor.get("ExtendArm2");
         // stuff
         AutoVariables.eaMovements1+=dis1;
         AutoVariables.eaMovements2+=dis2;
-        // PID initialization
-        PIDController controller = new PIDController(0, 0);
-        double tickPerRevolution = 751.8 / 180;
-        int eaPos1 = extendArm1.getCurrentPosition();
-        int eaPos2 = extendArm2.getCurrentPosition();
-        double ff1 = Math.cos(Math.toRadians(-eaPos1/ tickPerRevolution)) * PIDConstants.F;
-        double ff2 = Math.cos(Math.toRadians(-eaPos2/ tickPerRevolution)) * PIDConstants.F;
+        extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // formula
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
-        double pid1 = controller.calculate(eaPos1, dis1);
-        double pid2 = controller.calculate(eaPos2, dis2);
-        double power1 = pid1 + ff1;
-        double power2 = pid2 + ff2;
-        // movement
-        extendArm1.setPower(power1);
-        extendArm2.setPower(power2);
+        // reset pos
+        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // target
+        extendArm1.setTargetPosition(dis1);
+        extendArm2.setTargetPosition(dis2);
+        // move moters
+        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        // power
+        extendArm1.setPower(power);
+        extendArm2.setPower(power);
+        int eaCpos1 = 0;
+        int eaCpos2 = 0;
         while (extendArm1.isBusy() || extendArm2.isBusy()) {
             telemetry.addData("ExtendArm1Pos:", extendArm1.getCurrentPosition());
             telemetry.addData("ExtendArm2Pos:", extendArm2.getCurrentPosition());
             telemetry.update();
+            eaCpos1 = extendArm1.getCurrentPosition();
+            eaCpos2 = extendArm2.getCurrentPosition();
         }
-    }
-    private void extendArmMove(int dis1, int dis2, double power) {
+        // stop
+        extendArm1.setTargetPosition(eaCpos1);
+        extendArm2.setTargetPosition(eaCpos2);
+        extendArm1.setPower(1);
+        extendArm2.setPower(1);
+        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    }private void extendArmMove(int dis1, int dis2, double power) {
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // stuff
@@ -443,14 +459,6 @@ public class AutoHookBETA extends OpMode {
     // servos
     private void intake(double power, int time) {
         ElapsedTime timer = new ElapsedTime();
-        CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL"); // goBilda speed
-        CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR"); // goBilda speed
-        intake2.setDirection(CRServo.Direction.REVERSE);
-        while (timer.milliseconds() < time) {
-            intake1.setPower(power);
-            intake2.setPower(power);
-        }
-        intake1.setPower(0);
         intake2.setPower(0);
     }
     private void claw1(double pos) {
