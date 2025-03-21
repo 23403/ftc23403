@@ -64,7 +64,7 @@ public class MainV4 extends LinearOpMode {
     // 0.5 is close
     // 0.55 is grab pos
     // 1 is open pos
-    public static double armCpos = 0.72;
+    public static double armCpos = 0.3;
     // 0.88 low pos
     // 0.72 grab from sa
     // 0 high pos
@@ -76,7 +76,7 @@ public class MainV4 extends LinearOpMode {
     public static int eaCpos2 = 0;
     // misc
     private static boolean ran = false;
-    private static boolean ran1 = false;
+    private static boolean ran1 = true;
     public static boolean redSide = true;
     public static double extendArmSpeed = 1;
     public static double submersibleArmSpeed = 0.1;
@@ -140,6 +140,8 @@ public class MainV4 extends LinearOpMode {
         // misc
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
+        extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         // calibration
@@ -150,12 +152,14 @@ public class MainV4 extends LinearOpMode {
             // Calibrate.TeleOp.saveStartPositions(List.of(extendArm1, extendArm2));
             MConstants.startUp = false;
         }
+        /*
         extendArm1.setTargetPosition(MConstants.eaStartPos1);
         extendArm2.setTargetPosition(MConstants.eaStartPos2);
         extendArm1.setPower(1);
         extendArm2.setPower(1);
         extendArm1.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         extendArm2.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        */
         // Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2));
         follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
         Calibrate.Auto.clearEverything();
@@ -265,30 +269,20 @@ public class MainV4 extends LinearOpMode {
                     extendArm2.setPower(0);
                 }
                 // submersibleArm code
-                if (gamepad1Ex.wasJustPressed(GamepadKeys.Button.DPAD_UP)) {
-                    if (stages == 0) {
-                        subArmCpos = 0.725;
-                        stages = 1;
-                    } else if (stages == 1) {
-                        subArmCpos = 0.45;
-                        stages = 2;
-                    }
-                } else if (gamepad1Ex.wasJustPressed(GamepadKeys.Button.DPAD_DOWN)) {
-                    if (stages == 2) {
-                        subArmCpos = 0.725;
-                        stages = 1;
-                    } else if (stages == 1) {
-                        subArmCpos = 1;
-                        stages = 0;
-                    }
+                if (gamepad1.dpad_up) {
+                    subArmCpos = 0.45;
+                    wristCpos2 = 0.1;
+                } else if (gamepad1.dpad_down) {
+                    subArmCpos = 1;
+                    wristCpos2 = 0.08;
                 }
                 // preset code
                 /**
                  * GAMEPAD 1
-                 *   X / ▢         - Score Specimen Preset
+                 *   X / ▢         - EMPTY
                  *   Y / Δ         - EMPTY
                  *   B / O         - Grab from Human Player Preset
-                 *   A / X         - Grab from Submersible Preset
+                 *   A / X         - EMPTY
                  *
                  *                    ________
                  *                   / ______ \\
@@ -303,16 +297,6 @@ public class MainV4 extends LinearOpMode {
                  *                \\.          .'
                  *                  \\________/
                  */
-                // specimen pos
-                if (gamepad1.x) {
-                    // use correction code cuz its easier fr fr
-                    eaCpos1 = 1590;
-                    eaCpos2 = 1590;
-                    armCpos = 0.88;
-                    subArmCpos = 1;
-                    wristCpos1 = 0.15;
-                    clawCpos1 = 0.4;
-                }
                 // humanPlayer pos
                 if (gamepad1.b) {
                     // use correction code cuz its easier fr fr
@@ -320,25 +304,15 @@ public class MainV4 extends LinearOpMode {
                     eaCpos2 = 0;
                     subArmCpos = 1;
                     armCpos = 0.96;
-                    wristCpos1 = 0.48;
+                    wristCpos1 = 0.65;
                     clawCpos1 = 0.9;
-                }
-                // submersible pos
-                if (gamepad1.a) {
-                    // use correction code cuz its easier fr fr
-                    subArmCpos = 0.45;
-                    if (armCpos > 0.7) {
-                        armCpos = 0.7;
-                    }
-                    wristCpos2 = 0.07;
-                    clawCpos2 = 0.55;
                 }
                 /**
                  * GAMEPAD 2
                  *   X / ▢         - Transition from Submersible arm to Extend arm
                  *   Y / Δ         - Place in High Basket
-                 *   B / O         - Place in Low basket
-                 *   A / X         - EMPTY
+                 *   B / O         - Score Specimen Preset
+                 *   A / X         - Place in Low basket
                  *
                  *                    ________
                  *                   / ______ \\
@@ -356,20 +330,20 @@ public class MainV4 extends LinearOpMode {
                 // high basket pos
                 if (gamepad2.y) {
                     // use correction code cuz its easier fr fr
-                    eaCpos1 = 5300;
-                    eaCpos2 = 5200;
+                    eaCpos1 = 4500;
+                    eaCpos2 = 4500;
                     wristCpos1 = 1;
                     clawCpos1 = 0.4;
-                    armCpos = 0.2;
+                    armCpos = 0.7;
                 }
                 // low basket pos
-                if (gamepad2.b) {
+                if (gamepad2.a) {
                     // use correction code cuz its easier fr fr
-                    eaCpos1 = 2700;
-                    eaCpos2 = 2600;
+                    eaCpos1 = 2500;
+                    eaCpos2 = 2500;
                     wristCpos1 = 1;
                     clawCpos1 = 0.4;
-                    armCpos = 0.2;
+                    armCpos = 0.8;
                 }
                 // transition pos
                 if (gamepad2.x) {
@@ -383,10 +357,20 @@ public class MainV4 extends LinearOpMode {
                     clawCpos1 = 0.9;
                     armCpos = 0.23;
                 }
+                // specimen pos
+                if (gamepad2.b) {
+                    // use correction code cuz its easier fr fr
+                    eaCpos1 = 2700;
+                    eaCpos2 = 2700;
+                    armCpos = 0.35;
+                    subArmCpos = 1;
+                    wristCpos1 = 0.7;
+                    clawCpos1 = 0.4;
+                }
                 // claws
-                if (gamepad2.right_trigger > 0) {
+                if (gamepad2.left_trigger > 0) {
                     clawCpos1 = 0.9;
-                } else if (gamepad2.left_trigger > 0) {
+                } else if (gamepad2.right_trigger > 0) {
                     clawCpos1 = 0.4;
                 }
                 if (gamepad1.left_trigger > 0) {
@@ -396,11 +380,25 @@ public class MainV4 extends LinearOpMode {
                 }
                 // wrist
                 if (gamepad1.dpad_right) {
-                    wristCpos1 = 0.07;
+                    wristCpos2 = 0.5;
                 } else if (gamepad1.dpad_left) {
-                    wristCpos1 = 0.5;
+                    wristCpos2 = 0.08;
+                }
+                if (gamepad2.dpad_left) {
+                    wristCpos1 = 0.2;
+                } else if(gamepad2.dpad_right) {
+                    wristCpos1 = 0.65;
+                }
+                // arm
+                if (gamepad2.right_stick_y > 0.3) {
+                    armCpos = 0.9;
+                    wristCpos1 = 0.7;
+                } else if (gamepad2.right_stick_y < -0.3) {
+                    armCpos = 0.3;
+                    wristCpos1 = 0.45;
                 }
                 // color sensor code
+                /*
                 if (Sensor.isRedGrabbed()) {
                     GamepadUtils.setGamepad1Color(255, 0, 0, Integer.MAX_VALUE);
                     GamepadUtils.setGamepad2Color(255, 0, 0, Integer.MAX_VALUE);
@@ -432,6 +430,17 @@ public class MainV4 extends LinearOpMode {
                 }
                 // auto intake
                 if ((redSide ? Sensor.pickUpRed() : Sensor.pickUpBlue() || Sensor.pickUpYellow()) || gamepad1.right_bumper) {
+                    intake1.setPower(-1);
+                    intake2.setPower(1);
+                } else if (gamepad1.left_bumper) {
+                    intake1.setPower(1);
+                    intake2.setPower(-1);
+                } else {
+                    intake1.setPower(0);
+                    intake2.setPower(0);
+                }
+                */
+                if (gamepad1.right_bumper) {
                     intake1.setPower(-1);
                     intake2.setPower(1);
                 } else if (gamepad1.left_bumper) {
