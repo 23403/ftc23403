@@ -118,19 +118,10 @@ public class MainV4 extends LinearOpMode {
         DcMotorEx rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
-        /*
-        DcMotorEx submersibleArm1 = hardwareMap.get(DcMotorEx.class, "SubArm1");
-        DcMotorEx submersibleArm2 = hardwareMap.get(DcMotorEx.class, "SubArm2");
-        */
         // servos
         Servo sweeper = hardwareMap.get(Servo.class, "sweeper"); // goBilda torque
         // ea
-        Servo arm1 = hardwareMap.get(Servo.class, "arm1"); // axon
-        Servo arm2 = hardwareMap.get(Servo.class, "arm2"); // axon
-        /*
-        Servo arm1 = hardwareMap.get(Servo.class, "arm1"); // axon
-        Servo arm2 = hardwareMap.get(Servo.class, "arm2"); // axon
-        */
+        Servo arm = hardwareMap.get(Servo.class, "arm"); // axon
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // axon
         Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // axon
         // sa
@@ -186,8 +177,7 @@ public class MainV4 extends LinearOpMode {
                 wrist2.setPosition(wristCpos2);
                 claw1.setPosition(clawCpos1);
                 claw2.setPosition(clawCpos2);
-                arm1.setPosition(armCpos);
-                arm2.setPosition(armCpos);
+                arm.setPosition(armCpos);
                 submersibleArm.setPosition(subArmCpos);
                 sweeper.setPosition(sweeperCpos);
                 if (gamepad1Ex.wasJustPressed(GamepadKeys.Button.START) || gamepad2Ex.wasJustPressed(GamepadKeys.Button.START)) redSide = !redSide;
@@ -470,8 +460,7 @@ public class MainV4 extends LinearOpMode {
                 telemetry.addData("Wrist Position2:", wrist2.getPosition());
                 telemetry.addData("Claw Position1:", claw1.getPosition());
                 telemetry.addData("Claw Position2:", claw2.getPosition());
-                telemetry.addData("Arm1 Position:", arm1.getPosition());
-                telemetry.addData("Arm2 Position:", arm2.getPosition());
+                telemetry.addData("Arm Position:", arm.getPosition());
                 telemetry.addData("Sweeper Position:", sweeper.getPosition());
                 telemetry.addData("triggersR?", gamepad1.right_trigger);
                 telemetry.addData("triggersL?", gamepad1.left_trigger);

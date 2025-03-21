@@ -49,7 +49,7 @@ public class AutoBasketsBETA extends OpMode {
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
 
-    public static double speed = 0.3;
+    public static double speed = 0.8;
     public static Integer pauses = 1000;
     /** store the state of our auto. */
     private int pathState;
@@ -281,10 +281,8 @@ public class AutoBasketsBETA extends OpMode {
         sweeper.setPosition(pos);
     }
     private void arm(double pos) {
-        Servo arm1 = hardwareMap.get(Servo.class, "arm1"); // axon
-        Servo arm2 = hardwareMap.get(Servo.class, "arm2"); // axon
-        arm1.setPosition(pos);
-        arm2.setPosition(pos);
+        Servo arm = hardwareMap.get(Servo.class, "arm1"); // axon
+        arm.setPosition(pos);
     }
     private void submersibleArm(double pos) {
         Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // axon
