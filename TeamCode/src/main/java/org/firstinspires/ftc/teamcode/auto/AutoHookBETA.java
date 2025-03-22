@@ -269,9 +269,9 @@ public class AutoHookBETA extends OpMode {
         switch (pathState) {
             case 0:
                 if(follower.getPose().getX() > 38) {
-                    extendArmMove(2700, 2700, 1);
                     arm(0.35);
                     wrist1(0.7);
+                    extendArmMove(2700, 2700, 1);
                 }
                 if(!follower.isBusy()) {
                     follower.followPath(preload,true);
@@ -281,9 +281,9 @@ public class AutoHookBETA extends OpMode {
                 }
                 break;
             case 1:
+                extendArmMove(-2700, -2700, 1);
                 arm(0.96);
                 wrist1(0.65);
-                extendArmMove(-2700, -2700, 1);
                 if(!follower.isBusy()) {
                     follower.followPath(grabSpecimen1,true);
                     timer.wait(pauses);
@@ -293,14 +293,15 @@ public class AutoHookBETA extends OpMode {
                 break;
             case 2:
                 if(follower.getPose().getX() > 38) {
-                    arm(0.96);
-                    wrist1(0.65);
-                    extendArmMove(-2700, -2700, 1);
+                    arm(0.35);
+                    wrist1(0.7);
+                    extendArmMove(2700, 2700, 1);
                 }
                 if (!follower.isBusy()) {
                     follower.followPath(hangSpecimen1, true);
                     timer.wait(pauses);
                     claw1(0.9);
+                    extendArmMove(-2700, -2700, 1);
                     // setPathState(3);
                     setPathState(15);
                 }

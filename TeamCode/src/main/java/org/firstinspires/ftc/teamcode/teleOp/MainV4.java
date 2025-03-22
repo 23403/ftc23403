@@ -11,6 +11,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -28,6 +29,8 @@ import java.util.List;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.GamepadUtils;
 import xyz.nin1275.MetroLib;
@@ -102,6 +105,7 @@ public class MainV4 extends LinearOpMode {
         IMU imu = hardwareMap.get(IMU.class, "imu");
         MetroLib.setConstants(MConstants.class);
         Follower follower = new Follower(hardwareMap);
+        Constants.setConstants(FConstants.class, LConstants.class);
         PIDFController controller = new PIDFController(extendArmPID.P, extendArmPID.I, extendArmPID.D, extendArmPID.F);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
@@ -138,6 +142,7 @@ public class MainV4 extends LinearOpMode {
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
         extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        follower.startTeleopDrive();
         // calibration
         imu.resetYaw();
         Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2));
@@ -185,7 +190,7 @@ public class MainV4 extends LinearOpMode {
                     rightRear.setPower(rightBackPower);
                 } else {
                     follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
-                    follower.startTeleopDrive();
+                    follower.update();
                 }
                 // extendArm code
                 if (!extendArmPIDMovements) {
