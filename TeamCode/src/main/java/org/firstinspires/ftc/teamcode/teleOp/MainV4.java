@@ -7,7 +7,10 @@
  */
 package org.firstinspires.ftc.teamcode.teleOp;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
@@ -22,6 +25,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides;
 import org.firstinspires.ftc.teamcode.testCode.PID_SquID.CustomPIDFTCoefficients;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
@@ -53,7 +57,7 @@ public class MainV4 extends LinearOpMode {
     // 0.5 low pos
     // 0.38 grab from sa
     // 1 high pos
-    public static double clawCpos1 = 0.9;
+    public static double clawCpos1 = 0.4;
     // 0.4 is close
     // 0.9 is open
     public static double sweeperCpos = 1;
@@ -65,7 +69,7 @@ public class MainV4 extends LinearOpMode {
     // 0.5 high pos
     public static double clawCpos2 = 0.5;
     // 0.5 is close
-    // 0.55 is grab pos
+    // 0.6 is grab pos
     // 1 is open pos
     public static double armCpos = 0.3;
     // 0.88 low pos
@@ -74,9 +78,6 @@ public class MainV4 extends LinearOpMode {
     public static double subArmCpos = 1;
     // 0 low pos
     // 0.45 high pos
-    // corrections
-    public static int eaCpos1 = 0;
-    public static int eaCpos2 = 0;
     // misc
     private static boolean ran = false;
     public static boolean redSide = true;
@@ -85,20 +86,7 @@ public class MainV4 extends LinearOpMode {
     // odometry
     public static boolean odoDrive = false;
     // extend arm
-    public static boolean eaLimits = false;
-    public static int eaLimitHigh1 = 5283;
-    public static int eaLimitHigh2 = 5082;
-    public static int eaLimitLow1 = 1;
-    public static int eaLimitLow2 = 5;
-    public static boolean eaCorrection = true;
-    public static int eaErrorCorr = 0;
-    // pid stuff
-    public static CustomPIDFTCoefficients extendArmPID = new CustomPIDFTCoefficients(
-            0,
-            0,
-            0,
-            0);
-    public static boolean extendArmPIDMovements = false;
+    public static int slidesTARGET = 0;
     @Override
     public void runOpMode()  {
         // hardware
@@ -106,9 +94,10 @@ public class MainV4 extends LinearOpMode {
         MetroLib.setConstants(MConstants.class);
         Follower follower = new Follower(hardwareMap);
         Constants.setConstants(FConstants.class, LConstants.class);
-        PIDFController controller = new PIDFController(extendArmPID.P, extendArmPID.I, extendArmPID.D, extendArmPID.F);
+        PIDController controller = new PIDController(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
+        telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         GamepadEx gamepad1Ex = new GamepadEx(gamepad1);
         GamepadEx gamepad2Ex = new GamepadEx(gamepad2);
         // motors
@@ -137,6 +126,9 @@ public class MainV4 extends LinearOpMode {
         sweeper.setDirection(Servo.Direction.REVERSE);
         // breaks
         Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear));
+        // reset encoders
+        extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         // misc
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
@@ -148,12 +140,6 @@ public class MainV4 extends LinearOpMode {
         Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2));
         follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
         Calibrate.Auto.clearEverything();
-        // reset encoders
-        extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        // starting pos
-        eaCpos1 = extendArm1.getCurrentPosition();
-        eaCpos2 = extendArm2.getCurrentPosition();
         // telemetry
         telemetry.addData("RESETTING", "DONE!");
         telemetry.update();
@@ -193,69 +179,22 @@ public class MainV4 extends LinearOpMode {
                     follower.update();
                 }
                 // extendArm code
-                if (!extendArmPIDMovements) {
-                    extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                    extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-                    if (gamepad2.dpad_up) {
-                        if (eaLimits) {
-                            if (eaCpos1 < eaLimitHigh1 || eaCpos2 < eaLimitHigh2) {
-                                extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                                extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                                extendArm1.setPower(extendArmSpeed);
-                                extendArm2.setPower(extendArmSpeed);
-                                eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
-                                eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
-                            }
-                        } else {
-                            extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm1.setPower(extendArmSpeed);
-                            extendArm2.setPower(extendArmSpeed);
-                            eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
-                            eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
-                        }
-                    } else if (gamepad2.dpad_down) {
-                        if (eaLimits) {
-                            if (eaCpos1 > eaLimitLow1 || eaCpos2 > eaLimitLow2) {
-                                extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                                extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                                extendArm1.setPower(-extendArmSpeed);
-                                extendArm2.setPower(-extendArmSpeed);
-                                eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
-                                eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
-                            }
-                        } else {
-                            extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                            extendArm1.setPower(-extendArmSpeed);
-                            extendArm2.setPower(-extendArmSpeed);
-                            eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
-                            eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
-                        }
-                    } else if (eaCorrection) {
-                        extendArm1.setTargetPosition(eaCpos1);
-                        extendArm2.setTargetPosition(eaCpos2);
-                        extendArm1.setPower(1);
-                        extendArm2.setPower(1);
-                        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    } else {
-                        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm1.setPower(0);
-                        extendArm2.setPower(0);
-                    }
-                } else {
-                    extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-                    controller.setPIDF(extendArmPID.P, extendArmPID.I, extendArmPID.D, extendArmPID.F);
-                    int eaPos1 = extendArm1.getCurrentPosition();
-                    int eaPos2 = extendArm2.getCurrentPosition();
-                    double power1 = controller.calculate(eaPos1, eaCpos1);
-                    double power2 = controller.calculate(eaPos2, eaCpos2);
-                    extendArm1.setPower(power1);
-                    extendArm2.setPower(power2);
-                }
+                controller.setPID(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
+                int eaCpos1 = extendArm1.getCurrentPosition();
+                int eaCpos2 = extendArm2.getCurrentPosition();
+                double pid = controller.calculate(eaCpos1, slidesTARGET);
+                double ff = PIDTuneSlides.F;
+                double power = pid + ff;
+                extendArm1.setPower(power);
+                extendArm2.setPower(power);
+                telemetry.addData("PIDF", "P: " + PIDTuneSlides.P + " I: " + PIDTuneSlides.I + " D: " + PIDTuneSlides.D + " F: " + PIDTuneSlides.F);
+                telemetry.addData("target", slidesTARGET);
+                telemetry.addData("eaCpos1", eaCpos1);
+                telemetry.addData("eaCpos2", eaCpos2);
+                telemetry.addData("eaPower", power);
+                telemetry.addData("error1", Math.abs(slidesTARGET - eaCpos1));
+                telemetry.addData("error2", Math.abs(slidesTARGET - eaCpos2));
+                telemetry.addData("errorAvg", (Math.abs(slidesTARGET - eaCpos1) + Math.abs(slidesTARGET - eaCpos2)) / 2);
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
                     subArmCpos = 0.45;
@@ -288,8 +227,7 @@ public class MainV4 extends LinearOpMode {
                 // humanPlayer pos
                 if (gamepad1.b) {
                     // use correction code cuz its easier fr fr
-                    eaCpos1 = 0;
-                    eaCpos2 = 0;
+                    slidesTARGET = 0;
                     subArmCpos = 1;
                     armCpos = 0.96;
                     wristCpos1 = 0.65;
@@ -318,8 +256,7 @@ public class MainV4 extends LinearOpMode {
                 // high basket pos
                 if (gamepad2.y) {
                     // use correction code cuz its easier fr fr
-                    eaCpos1 = 4500;
-                    eaCpos2 = 4500;
+                    slidesTARGET = 4500;
                     wristCpos1 = 1;
                     clawCpos1 = 0.4;
                     armCpos = 0.7;
@@ -327,8 +264,7 @@ public class MainV4 extends LinearOpMode {
                 // low basket pos
                 if (gamepad2.a) {
                     // use correction code cuz its easier fr fr
-                    eaCpos1 = 2500;
-                    eaCpos2 = 2500;
+                    slidesTARGET = 2500;
                     wristCpos1 = 1;
                     clawCpos1 = 0.4;
                     armCpos = 0.8;
@@ -336,20 +272,18 @@ public class MainV4 extends LinearOpMode {
                 // transition pos
                 if (gamepad2.x) {
                     // use correction code cuz its easier fr fr
-                    eaCpos1 = 0;
-                    eaCpos2 = 0;
+                    slidesTARGET = 0;
                     subArmCpos = 1;
-                    clawCpos2 = 0.55;
-                    wristCpos2 = 0.45;
-                    wristCpos1 = 0.55;
+                    clawCpos2 = 0.5;
+                    wristCpos2 = 0.47;
+                    wristCpos1 = 0.8;
                     clawCpos1 = 0.9;
-                    armCpos = 0.23;
+                    armCpos = 0.235;
                 }
                 // specimen pos
                 if (gamepad2.b) {
                     // use correction code cuz its easier fr fr
-                    eaCpos1 = 2700;
-                    eaCpos2 = 2700;
+                    slidesTARGET = 2700;
                     armCpos = 0.35;
                     subArmCpos = 1;
                     wristCpos1 = 0.7;
@@ -362,7 +296,7 @@ public class MainV4 extends LinearOpMode {
                     clawCpos1 = 0.4;
                 }
                 if (gamepad1.left_trigger > 0) {
-                    clawCpos2 = 0.55;
+                    clawCpos2 = 0.6;
                 } else if (gamepad1.right_trigger > 0) {
                     clawCpos2 = 0.5;
                 }
@@ -438,8 +372,6 @@ public class MainV4 extends LinearOpMode {
                 telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
                 telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
                 telemetry.addData("Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
-                telemetry.addData("Extend Arm Position1:", extendArm1.getCurrentPosition());
-                telemetry.addData("Extend Arm Position2:", extendArm2.getCurrentPosition());
                 telemetry.addData("Submersible Arm Position:", submersibleArm.getPosition());
                 telemetry.addData("Wrist Position1:", wrist1.getPosition());
                 telemetry.addData("Wrist Position2:", wrist2.getPosition());
