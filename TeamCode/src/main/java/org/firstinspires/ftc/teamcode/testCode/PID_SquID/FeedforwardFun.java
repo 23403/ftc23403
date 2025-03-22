@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.testCode;
+package org.firstinspires.ftc.teamcode.testCode.PID_SquID;
 
 /**
  * FeedforwardFun is a functional interface for computing feedforward.

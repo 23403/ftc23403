@@ -8,6 +8,7 @@
 package org.firstinspires.ftc.teamcode.teleOp;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -20,14 +21,13 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.testCode.PID_SquID.CustomPIDFTCoefficients;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
 
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
 
-import xyz.nin1275.constants.PIDConstants;
-import xyz.nin1275.controllers.PIDController;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.GamepadUtils;
 import xyz.nin1275.MetroLib;
@@ -46,7 +46,7 @@ public class MainV4 extends LinearOpMode {
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
     // servos
-    public static double wristCpos1 = 0.38;
+    public static double wristCpos1 = 0.45;
     // 0.5 low pos
     // 0.38 grab from sa
     // 1 high pos
@@ -76,12 +76,9 @@ public class MainV4 extends LinearOpMode {
     public static int eaCpos2 = 0;
     // misc
     private static boolean ran = false;
-    private static boolean ran1 = true;
     public static boolean redSide = true;
     public static double extendArmSpeed = 1;
-    public static double submersibleArmSpeed = 0.1;
     public static double wheelSpeed = 1;
-    int stages = 0;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
@@ -93,22 +90,21 @@ public class MainV4 extends LinearOpMode {
     public static boolean eaCorrection = true;
     public static int eaErrorCorr = 0;
     // pid stuff
-    @Config("PID Tuning")
-    public static class PID {
-        public static boolean tunePID = true;
-        public static boolean moveTestPID = false;
-        public static int target = 0;
-        public static double tickPerRevolution = 751.8 / 180;
-    }
+    public static CustomPIDFTCoefficients extendArmPID = new CustomPIDFTCoefficients(
+            0,
+            0,
+            0,
+            0);
+    public static boolean extendArmPIDMovements = false;
     @Override
     public void runOpMode()  {
         // hardware
         IMU imu = hardwareMap.get(IMU.class, "imu");
         MetroLib.setConstants(MConstants.class);
         Follower follower = new Follower(hardwareMap);
+        PIDFController controller = new PIDFController(extendArmPID.P, extendArmPID.I, extendArmPID.D, extendArmPID.F);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
-        PIDController controller = new PIDController(0, 0);
         GamepadEx gamepad1Ex = new GamepadEx(gamepad1);
         GamepadEx gamepad2Ex = new GamepadEx(gamepad2);
         // motors
@@ -140,34 +136,19 @@ public class MainV4 extends LinearOpMode {
         // misc
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
-        extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         // calibration
         imu.resetYaw();
-        if (MConstants.startUp) {
-            MConstants.eaStartPos1 = extendArm1.getCurrentPosition();
-            MConstants.eaStartPos2 = extendArm2.getCurrentPosition();
-            // Calibrate.TeleOp.saveStartPositions(List.of(extendArm1, extendArm2));
-            MConstants.startUp = false;
-        }
-        /*
-        extendArm1.setTargetPosition(MConstants.eaStartPos1);
-        extendArm2.setTargetPosition(MConstants.eaStartPos2);
-        extendArm1.setPower(1);
-        extendArm2.setPower(1);
-        extendArm1.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        extendArm2.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        */
-        // Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2));
+        Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2));
         follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
         Calibrate.Auto.clearEverything();
+        // reset encoders
+        extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         // starting pos
         eaCpos1 = extendArm1.getCurrentPosition();
-        // saCpos1 = submersibleArm1.getCurrentPosition();
         eaCpos2 = extendArm2.getCurrentPosition();
-        // saCpos2 = submersibleArm2.getCurrentPosition();
         // telemetry
         telemetry.addData("RESETTING", "DONE!");
         telemetry.update();
@@ -206,22 +187,21 @@ public class MainV4 extends LinearOpMode {
                     follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
                     follower.startTeleopDrive();
                 }
-                if (!ran1) {
-                    extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    extendArm1.setPower(-0.4);
-                    extendArm2.setPower(-0.4);
-                    Timer.wait(300);
-                    extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                    extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    ran1 = true;
-                }
                 // extendArm code
-                if (gamepad2.dpad_up) {
-                    if (eaLimits) {
-                        if (eaCpos1 < eaLimitHigh1 || eaCpos2 < eaLimitHigh2) {
+                if (!extendArmPIDMovements) {
+                    extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+                    if (gamepad2.dpad_up) {
+                        if (eaLimits) {
+                            if (eaCpos1 < eaLimitHigh1 || eaCpos2 < eaLimitHigh2) {
+                                extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                                extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                                extendArm1.setPower(extendArmSpeed);
+                                extendArm2.setPower(extendArmSpeed);
+                                eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
+                                eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
+                            }
+                        } else {
                             extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                             extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                             extendArm1.setPower(extendArmSpeed);
@@ -229,17 +209,17 @@ public class MainV4 extends LinearOpMode {
                             eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
                             eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
                         }
-                    } else {
-                        extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm1.setPower(extendArmSpeed);
-                        extendArm2.setPower(extendArmSpeed);
-                        eaCpos1 = extendArm1.getCurrentPosition() + eaErrorCorr;
-                        eaCpos2 = extendArm2.getCurrentPosition() + eaErrorCorr;
-                    }
-                } else if (gamepad2.dpad_down) {
-                    if (eaLimits) {
-                        if (eaCpos1 > eaLimitLow1 || eaCpos2 > eaLimitLow2) {
+                    } else if (gamepad2.dpad_down) {
+                        if (eaLimits) {
+                            if (eaCpos1 > eaLimitLow1 || eaCpos2 > eaLimitLow2) {
+                                extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                                extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                                extendArm1.setPower(-extendArmSpeed);
+                                extendArm2.setPower(-extendArmSpeed);
+                                eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
+                                eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
+                            }
+                        } else {
                             extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                             extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                             extendArm1.setPower(-extendArmSpeed);
@@ -247,26 +227,29 @@ public class MainV4 extends LinearOpMode {
                             eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
                             eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
                         }
+                    } else if (eaCorrection) {
+                        extendArm1.setTargetPosition(eaCpos1);
+                        extendArm2.setTargetPosition(eaCpos2);
+                        extendArm1.setPower(1);
+                        extendArm2.setPower(1);
+                        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+                        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                     } else {
                         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
                         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArm1.setPower(-extendArmSpeed);
-                        extendArm2.setPower(-extendArmSpeed);
-                        eaCpos1 = extendArm1.getCurrentPosition() - eaErrorCorr;
-                        eaCpos2 = extendArm2.getCurrentPosition() - eaErrorCorr;
+                        extendArm1.setPower(0);
+                        extendArm2.setPower(0);
                     }
-                } else if (eaCorrection) {
-                    extendArm1.setTargetPosition(eaCpos1);
-                    extendArm2.setTargetPosition(eaCpos2);
-                    extendArm1.setPower(1);
-                    extendArm2.setPower(1);
-                    extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                    extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
                 } else {
-                    extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-                    extendArm1.setPower(0);
-                    extendArm2.setPower(0);
+                    extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
+                    controller.setPIDF(extendArmPID.P, extendArmPID.I, extendArmPID.D, extendArmPID.F);
+                    int eaPos1 = extendArm1.getCurrentPosition();
+                    int eaPos2 = extendArm2.getCurrentPosition();
+                    double power1 = controller.calculate(eaPos1, eaCpos1);
+                    double power2 = controller.calculate(eaPos2, eaCpos2);
+                    extendArm1.setPower(power1);
+                    extendArm2.setPower(power2);
                 }
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
@@ -398,7 +381,6 @@ public class MainV4 extends LinearOpMode {
                     wristCpos1 = 0.45;
                 }
                 // color sensor code
-                /*
                 if (Sensor.isRedGrabbed()) {
                     GamepadUtils.setGamepad1Color(255, 0, 0, Integer.MAX_VALUE);
                     GamepadUtils.setGamepad2Color(255, 0, 0, Integer.MAX_VALUE);
@@ -430,17 +412,6 @@ public class MainV4 extends LinearOpMode {
                 }
                 // auto intake
                 if ((redSide ? Sensor.pickUpRed() : Sensor.pickUpBlue() || Sensor.pickUpYellow()) || gamepad1.right_bumper) {
-                    intake1.setPower(-1);
-                    intake2.setPower(1);
-                } else if (gamepad1.left_bumper) {
-                    intake1.setPower(1);
-                    intake2.setPower(-1);
-                } else {
-                    intake1.setPower(0);
-                    intake2.setPower(0);
-                }
-                */
-                if (gamepad1.right_bumper) {
                     intake1.setPower(-1);
                     intake2.setPower(1);
                 } else if (gamepad1.left_bumper) {

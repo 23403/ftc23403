@@ -1,6 +1,5 @@
 package org.firstinspires.ftc.teamcode.variables.constants;
 
-import xyz.nin1275.constants.PIDConstants;
 import xyz.nin1275.enums.Calibrates;
 import xyz.nin1275.utils.Calibrate;
 
@@ -9,12 +8,8 @@ public class MConstants {
     public static int eaStartPos1 = 0;
     public static int eaStartPos2 = 0;
     static {
-        // PID Constants
-        PIDConstants.P = 0;
-        PIDConstants.I = 0;
-        PIDConstants.D = 0;
         // Calibration Settings
-        Calibrate.calibrates = Calibrates.CONTINUES;
+        Calibrate.calibrates = Calibrates.ONLY_AUTO;
         // Color Sensor Calibration
         // Pick Up
         Calibrate.ColorRangeSensor.PickUp.Distance = 62.769500290720664;
