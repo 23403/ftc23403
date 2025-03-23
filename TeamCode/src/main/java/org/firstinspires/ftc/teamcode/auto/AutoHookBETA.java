@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.localization.constants.TwoWheelConstants;
@@ -20,7 +21,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.teleOp.MainV4;
+import org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides;
 import org.firstinspires.ftc.teamcode.variables.constants.AutoVariables;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
@@ -28,8 +29,6 @@ import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import xyz.nin1275.constants.PIDConstants;
-import xyz.nin1275.controllers.PIDController;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.MetroLib;
 
@@ -87,8 +86,11 @@ public class AutoHookBETA extends OpMode {
     public static double subArmCpos = 1;
     // 0 low pos
     // 0.45 high pos
-    // corrections
-
+    // pid
+    private PIDController controller;
+    private DcMotorEx extendArm1;
+    private DcMotorEx extendArm2;
+    private int slidesTARGET = 0;
 
     /* Create and Define Poses + Paths
      * Poses are built with three constructors: x, y, and heading (in Radians).
@@ -99,11 +101,11 @@ public class AutoHookBETA extends OpMode {
      */
 
     /** line positions */
-    private final Pose startPos = new Pose(8.9, 63.3, Math.toRadians(0)); // start Pos
+    private final Pose startPos = new Pose(9, 81, Math.toRadians(0)); // start Pos
     /** different modes */
     private Path preload;
     /** path name */
-    private PathChain grabSpecimen1, hangSpecimen1, moveToPushLoc, rotate1, rotateBack1, rotate2, moveRotate3, rotate3, grabSpecimen2, hangSpecimen2, grabSpecimen3, hangSpecimen3, grabSpecimen4, hangSpecimen4, park;
+    private PathChain grabSpecimen2, hangSpecimen2, moveToPushLoc, pushSample1, goToPushSample2, pushSample2, goToPushSample3, pushLastSampleAndGrabSpecimen, hangSpecimen3, grabSpecimen4, hangSpecimen4, grabSpecimen5, hangSpecimen5, park;
 
     /** create paths */
     public void buildPaths() {
@@ -124,138 +126,136 @@ public class AutoHookBETA extends OpMode {
 
         /* line1 */
         preload = new Path(new BezierCurve(
-                new Point(7.800, 56.600, Point.CARTESIAN),
-                new Point(16.700, 56.500, Point.CARTESIAN),
-                new Point(39.000, 76.000, Point.CARTESIAN)
+                new Point(9.000, 81.000, Point.CARTESIAN),
+                new Point(32.000, 70.000, Point.CARTESIAN),
+                new Point(40.500, 76.000, Point.CARTESIAN)
         ));
         preload.setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0));
         /* line2 */
-        grabSpecimen1 = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Point(38.000, 76.000, Point.CARTESIAN),
-                        new Point(23.000, 28.000, Point.CARTESIAN),
-                        new Point(16.500, 31.000, Point.CARTESIAN)
+        grabSpecimen2 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(40.500, 76.000, Point.CARTESIAN),
+                        new Point(20.000, 22.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(180))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         /* line3 */
-        hangSpecimen1 = follower.pathBuilder()
+        hangSpecimen2 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(16.500, 31.000, Point.CARTESIAN),
-                        new Point(21.000, 28.000, Point.CARTESIAN),
-                        new Point(38.000, 75.000, Point.CARTESIAN)
+                        new Point(20.000, 22.000, Point.CARTESIAN),
+                        new Point(26.000, 60.000, Point.CARTESIAN),
+                        new Point(40.500, 75.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(180), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         /* line4 */
         moveToPushLoc = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(38.000, 75.000, Point.CARTESIAN),
-                        new Point(30.600, 49.000, Point.CARTESIAN),
-                        new Point(38.000, 40.000, Point.CARTESIAN)
+                        new Point(40.500, 75.000, Point.CARTESIAN),
+                        new Point(22.100, 50.900, Point.CARTESIAN),
+                        new Point(31.000, 41.000, Point.CARTESIAN),
+                        new Point(69.000, 37.000, Point.CARTESIAN),
+                        new Point(56.000, 34.000, Point.CARTESIAN),
+                        new Point(60.000, 25.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(138))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         /* line5 */
-        rotate1 = follower.pathBuilder()
+        pushSample1 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(38.000, 40.000, Point.CARTESIAN),
-                        new Point(38.000, 40.000, Point.CARTESIAN)
+                        new Point(60.000, 25.000, Point.CARTESIAN),
+                        new Point(20.000, 25.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(138), Math.toRadians(58))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         /* line6 */
-        rotateBack1 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(38.000, 40.000, Point.CARTESIAN),
-                        new Point(38.000, 40.000, Point.CARTESIAN)
+        goToPushSample2 = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        new Point(20.000, 25.000, Point.CARTESIAN),
+                        new Point(71.000, 30.000, Point.CARTESIAN),
+                        new Point(60.000, 14.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(58), Math.toRadians(138))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         /* line7 */
-        rotate2 = follower.pathBuilder()
+        pushSample2 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        new Point(38.000, 40.000, Point.CARTESIAN),
-                        new Point(38.000, 40.000, Point.CARTESIAN)
+                        new Point(60.000, 14.000, Point.CARTESIAN),
+                        new Point(20.000, 14.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(138), Math.toRadians(58))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         /* line8 */
-        moveRotate3 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(38.000, 40.000, Point.CARTESIAN),
-                        new Point(38.000, 32.000, Point.CARTESIAN)
+        goToPushSample3 = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        new Point(20.000, 14.000, Point.CARTESIAN),
+                        new Point(59.284, 16.496, Point.CARTESIAN),
+                        new Point(60.000, 9.500, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(58), Math.toRadians(138))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         /* line9 */
-        rotate3 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(38.000, 32.000, Point.CARTESIAN),
-                        new Point(38.000, 32.000, Point.CARTESIAN)
+        pushLastSampleAndGrabSpecimen = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        new Point(60.000, 9.500, Point.CARTESIAN),
+                        new Point(3.000, 9.000, Point.CARTESIAN),
+                        new Point(1.000, 8.000, Point.CARTESIAN),
+                        new Point(22.000, 26.000, Point.CARTESIAN),
+                        new Point(20.000, 22.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(138), Math.toRadians(58))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         /* line10 */
-        grabSpecimen2 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        new Point(38.000, 32.000, Point.CARTESIAN),
-                        new Point(16.500, 31.000, Point.CARTESIAN)
+        hangSpecimen3 = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        new Point(20.000, 22.000, Point.CARTESIAN),
+                        new Point(26.000, 60.000, Point.CARTESIAN),
+                        new Point(40.500, 74.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(58), Math.toRadians(-180))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         /* line11 */
-        hangSpecimen2 = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Point(16.500, 31.000, Point.CARTESIAN),
-                        new Point(21.000, 29.000, Point.CARTESIAN),
-                        new Point(38.000, 75.000, Point.CARTESIAN)
+        grabSpecimen4 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(40.500, 74.000, Point.CARTESIAN),
+                        new Point(20.000, 22.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-180), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
         /* line12 */
-        grabSpecimen3 = follower.pathBuilder()
-                .addPath( new BezierCurve(
-                        new Point(38.000, 75.000, Point.CARTESIAN),
-                        new Point(22.000, 28.000, Point.CARTESIAN),
-                        new Point(16.500, 31.000, Point.CARTESIAN)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-180))
-                .build();
-        /* line13 */
-        hangSpecimen3 = follower.pathBuilder()
-                .addPath( new BezierCurve(
-                        new Point(16.500, 31.000, Point.CARTESIAN),
-                        new Point(22.000, 28.000, Point.CARTESIAN),
-                        new Point(38.000, 75.000, Point.CARTESIAN)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-180), Math.toRadians(0))
-                .build();
-        /* line14 */
-        grabSpecimen4 = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Point(38.000, 75.000, Point.CARTESIAN),
-                        new Point(21.000, 29.000, Point.CARTESIAN),
-                        new Point(16.500, 31.000, Point.CARTESIAN)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(-180))
-                .build();
-        /* line15 */
         hangSpecimen4 = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(16.500, 31.000, Point.CARTESIAN),
-                        new Point(22.000, 28.000, Point.CARTESIAN),
-                        new Point(38.000, 75.000, Point.CARTESIAN)
+                        new Point(20.000, 22.000, Point.CARTESIAN),
+                        new Point(26.000, 60.000, Point.CARTESIAN),
+                        new Point(40.500, 73.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-180), Math.toRadians(0))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
                 .build();
-        /* line16 */
+        /* line13 */
+        grabSpecimen5 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        new Point(40.500, 73.000, Point.CARTESIAN),
+                        new Point(20.000, 22.000, Point.CARTESIAN)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .build();
+        /* line14 */
+        hangSpecimen5 = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        new Point(20.000, 22.000, Point.CARTESIAN),
+                        new Point(26.000, 60.000, Point.CARTESIAN),
+                        new Point(40.500, 72.000, Point.CARTESIAN)
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(0))
+                .build();
+        /* line15 */
         park = follower.pathBuilder()
                 .addPath(new BezierCurve(
-                        new Point(follower.getPose().getX(), follower.getPose().getY(), Point.CARTESIAN),
-                        new Point(23.000, 42.000, Point.CARTESIAN)
+                        new Point(40.500, 72.000, Point.CARTESIAN),
+                        new Point(24.000, 64.000, Point.CARTESIAN),
+                        new Point(25.000, 56.000, Point.CARTESIAN)
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(45))
+                .setLinearHeadingInterpolation(Math.toRadians(0), Math.toRadians(235))
                 .build();
     }
 
@@ -267,11 +267,11 @@ public class AutoHookBETA extends OpMode {
     public void autonomousPathUpdate() {
         xyz.nin1275.utils.Timer timer = new xyz.nin1275.utils.Timer();
         switch (pathState) {
-            case 0:
-                if(follower.getPose().getX() > 38) {
+            case 0: /* line1 */
+                if(follower.getPose().getX() > 39) {
                     arm(0.35);
                     wrist1(0.7);
-                    extendArmMove(2700, 2700, 1);
+                    extendArmMove(2700);
                 }
                 if(!follower.isBusy()) {
                     follower.followPath(preload,true);
@@ -280,113 +280,159 @@ public class AutoHookBETA extends OpMode {
                     setPathState(1);
                 }
                 break;
-            case 1:
-                extendArmMove(-2700, -2700, 1);
+            case 1: /* line2 */
+                extendArmMove(0);
                 arm(0.96);
                 wrist1(0.65);
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen1,true);
+                    follower.followPath(grabSpecimen2,true);
                     timer.wait(pauses);
                     claw1(0.4);
+                    arm(0.8);
                     setPathState(2);
                 }
                 break;
-            case 2:
-                if(follower.getPose().getX() > 38) {
+            case 2: /* line3 */
+                if(follower.getPose().getX() > 39) {
                     arm(0.35);
                     wrist1(0.7);
-                    extendArmMove(2700, 2700, 1);
+                    extendArmMove(2700);
                 }
                 if (!follower.isBusy()) {
-                    follower.followPath(hangSpecimen1, true);
+                    follower.followPath(hangSpecimen2, true);
                     timer.wait(pauses);
                     claw1(0.9);
-                    extendArmMove(-2700, -2700, 1);
-                    // setPathState(3);
-                    setPathState(15);
+                    extendArmMove(0);
+                    setPathState(3);
+                    // setPathState(15);
                 }
-            case 3:
+                break;
+            case 3: /* line4 */
+                extendArmMove(0);
+                arm(0.3);
+                wrist1(0.45);
                 if (!follower.isBusy()) {
                     follower.followPath(moveToPushLoc, true);
                     timer.wait(pauses);
                     setPathState(4);
                 }
-            case 4:
+                break;
+            case 4: /* line5 */
                 if(!follower.isBusy()) {
-                    follower.followPath(rotate1,true);
+                    follower.followPath(pushSample1,true);
                     timer.wait(pauses);
                     setPathState(5);
                 }
                 break;
-            case 5:
+            case 5: /* line6 */
                 if (!follower.isBusy()) {
-                    follower.followPath(rotateBack1, true);
+                    follower.followPath(goToPushSample2, true);
                     timer.wait(pauses);
                     setPathState(6);
                 }
-            case 6:
+            case 6: /* line7 */
                 if (!follower.isBusy()) {
-                    follower.followPath(rotate2, true);
+                    follower.followPath(pushSample2, true);
                     timer.wait(pauses);
                     setPathState(7);
                 }
-            case 7:
+                break;
+            case 7: /* line8 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveRotate3,true);
+                    follower.followPath(goToPushSample3,true);
                     timer.wait(pauses);
                     setPathState(8);
                 }
                 break;
-            case 8:
+            case 8: /* line9 */
                 if (!follower.isBusy()) {
-                    follower.followPath(rotate3, true);
+                    follower.followPath(pushLastSampleAndGrabSpecimen, true);
+                    timer.wait(300);
+                    extendArmMove(0);
+                    arm(0.96);
+                    wrist1(0.65);
+                    claw1(0.9);
                     timer.wait(pauses);
+                    arm(0.8);
+                    claw1(0.4);
                     setPathState(9);
                 }
-            case 9:
-                if (!follower.isBusy()) {
-                    follower.followPath(grabSpecimen2, true);
-                    timer.wait(pauses);
-                    setPathState(10);
-                }
-            case 10:
-                if(!follower.isBusy()) {
-                    follower.followPath(hangSpecimen2, true);
-                    timer.wait(pauses);
-                    setPathState(11);
-                }
                 break;
-            case 11:
-                if (!follower.isBusy()) {
-                    follower.followPath(grabSpecimen3, true);
-                    timer.wait(pauses);
-                    setPathState(12);
+            case 9: /* line10 */
+                if(follower.getPose().getX() > 39) {
+                    arm(0.35);
+                    wrist1(0.7);
+                    extendArmMove(2700);
                 }
-            case 12:
                 if (!follower.isBusy()) {
                     follower.followPath(hangSpecimen3, true);
                     timer.wait(pauses);
-                    setPathState(13);
-                }
-            case 13:
-                if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen4,true);
-                    timer.wait(pauses);
-                    setPathState(14);
+                    claw1(0.9);
+                    setPathState(10);
                 }
                 break;
-            case 14:
+            case 10: /* line11 */
+                extendArmMove(0);
+                arm(0.96);
+                wrist1(0.65);
+                if(!follower.isBusy()) {
+                    follower.followPath(grabSpecimen4, true);
+                    timer.wait(pauses);
+                    arm(0.8);
+                    claw1(0.4);
+                    setPathState(11);
+                }
+                break;
+            case 11: /* line12 */
+                if(follower.getPose().getX() > 39) {
+                    arm(0.35);
+                    wrist1(0.7);
+                    extendArmMove(2700);
+                }
                 if (!follower.isBusy()) {
                     follower.followPath(hangSpecimen4, true);
                     timer.wait(pauses);
-                    setPathState(15);
+                    claw1(0.9);
+                    setPathState(12);
                 }
-            case 15:
-                subArmCpos = 0.45;
+                break;
+            case 12: /* line13 */
+                extendArmMove(0);
+                arm(0.96);
+                wrist1(0.65);
+                if (!follower.isBusy()) {
+                    follower.followPath(grabSpecimen5, true);
+                    timer.wait(pauses);
+                    arm(0.8);
+                    claw1(0.4);
+                    setPathState(13);
+                }
+                break;
+            case 13: /* line14 */
+                if(follower.getPose().getX() > 39) {
+                    arm(0.35);
+                    wrist1(0.7);
+                    extendArmMove(2700);
+                }
+                if(!follower.isBusy()) {
+                    follower.followPath(hangSpecimen5,true);
+                    timer.wait(pauses);
+                    claw1(0.9);
+                    setPathState(14);
+                }
+                break;
+            case 14: /* line15 */
+                extendArmMove(0);
+                arm(0.3);
+                wrist1(0.45);
+                if(follower.getPose().getX() < 28) {
+                    submersibleArm(0.45);
+                }
                 if (!follower.isBusy()) {
                     follower.followPath(park, true);
-                    setPathState(16);
+                    timer.wait(pauses);
                 }
+                break;
         }
     }
 
@@ -394,46 +440,10 @@ public class AutoHookBETA extends OpMode {
      * Encoder movements for the arms and sliders,
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
-    private void extendArmMovePID(int dis1, int dis2, double power) {
-        DcMotor extendArm1 = hardwareMap.dcMotor.get("ExtendArm1");
-        DcMotor extendArm2 = hardwareMap.dcMotor.get("ExtendArm2");
-        // stuff
-        AutoVariables.eaMovements1+=dis1;
-        AutoVariables.eaMovements2+=dis2;
-        extendArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        extendArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        // formula
-        extendArm2.setDirection(DcMotor.Direction.REVERSE);
-        // reset pos
-        extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        // target
-        extendArm1.setTargetPosition(dis1);
-        extendArm2.setTargetPosition(dis2);
-        // move moters
-        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        // power
-        extendArm1.setPower(power);
-        extendArm2.setPower(power);
-        int eaCpos1 = 0;
-        int eaCpos2 = 0;
-        while (extendArm1.isBusy() || extendArm2.isBusy()) {
-            telemetry.addData("ExtendArm1Pos:", extendArm1.getCurrentPosition());
-            telemetry.addData("ExtendArm2Pos:", extendArm2.getCurrentPosition());
-            telemetry.update();
-            eaCpos1 = extendArm1.getCurrentPosition();
-            eaCpos2 = extendArm2.getCurrentPosition();
-        }
-        // stop
-        extendArm1.setTargetPosition(eaCpos1);
-        extendArm2.setTargetPosition(eaCpos2);
-        extendArm1.setPower(1);
-        extendArm2.setPower(1);
-        extendArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    private void extendArmMove(int pos) {
+        slidesTARGET = pos;
     }
-    private void extendArmMove(int dis1, int dis2, double power) {
+    private void extendArmMoveOLD(int dis1, int dis2, double power) {
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // stuff
@@ -519,7 +529,24 @@ public class AutoHookBETA extends OpMode {
         sweeper.setPosition(sweeperCpos);
         submersibleArm.setPosition(subArmCpos);
         arm.setPosition(armCpos);
+        // extendArm code
+        controller.setPID(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
+        int eaCpos1 = extendArm1.getCurrentPosition();
+        int eaCpos2 = extendArm2.getCurrentPosition();
+        double pid = controller.calculate(eaCpos1, slidesTARGET);
+        double ff = PIDTuneSlides.F;
+        double power = pid + ff;
+        extendArm1.setPower(power);
+        extendArm2.setPower(power);
         // Feedback to Driver Hub
+        telemetry.addData("PIDF", "P: " + PIDTuneSlides.P + " I: " + PIDTuneSlides.I + " D: " + PIDTuneSlides.D + " F: " + PIDTuneSlides.F);
+        telemetry.addData("target", slidesTARGET);
+        telemetry.addData("eaCpos1", eaCpos1);
+        telemetry.addData("eaCpos2", eaCpos2);
+        telemetry.addData("eaPower", power);
+        telemetry.addData("error1", Math.abs(slidesTARGET - eaCpos1));
+        telemetry.addData("error2", Math.abs(slidesTARGET - eaCpos2));
+        telemetry.addData("errorAvg", (Math.abs(slidesTARGET - eaCpos1) + Math.abs(slidesTARGET - eaCpos2)) / 2);
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());
@@ -537,6 +564,10 @@ public class AutoHookBETA extends OpMode {
         hardwareMap.get(IMU.class, TwoWheelConstants.IMU_HardwareMapName).resetYaw();
         AutoVariables.eaMovements1 = 0;
         AutoVariables.eaMovements2 = 0;
+        controller = new PIDController(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
+        // motors
+        extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
+        extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // servos
         claw1 = hardwareMap.get(Servo.class, "claw1"); // axon
         claw2 = hardwareMap.get(Servo.class, "claw2"); // axon
@@ -550,6 +581,7 @@ public class AutoHookBETA extends OpMode {
         // directions
         intake2.setDirection(CRServo.Direction.REVERSE);
         sweeper.setDirection(Servo.Direction.REVERSE);
+        extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
         // starting pos
         claw1(0.4);
         // movement

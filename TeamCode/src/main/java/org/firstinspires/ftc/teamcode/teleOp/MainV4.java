@@ -11,7 +11,6 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.util.Constants;
@@ -19,14 +18,12 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides;
-import org.firstinspires.ftc.teamcode.testCode.PID_SquID.CustomPIDFTCoefficients;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
@@ -81,12 +78,14 @@ public class MainV4 extends LinearOpMode {
     // misc
     private static boolean ran = false;
     public static boolean redSide = true;
-    public static double extendArmSpeed = 1;
+    public static int extendArmSpeed = 100;
     public static double wheelSpeed = 1;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
     public static int slidesTARGET = 0;
+    public static int eaLimitHigh = 4500;
+    public static int eaLimitLow = 0;
     @Override
     public void runOpMode()  {
         // hardware
@@ -108,17 +107,17 @@ public class MainV4 extends LinearOpMode {
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // servos
-        Servo sweeper = hardwareMap.get(Servo.class, "sweeper"); // goBilda torque
+        Servo sweeper = hardwareMap.get(Servo.class, "sweeper"); // 1x goBilda torque
         // ea
-        Servo arm = hardwareMap.get(Servo.class, "arm"); // axon
-        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // axon
-        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // axon
+        Servo arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
+        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
+        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x axon
         // sa
-        Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // axon
-        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 20kg
-        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // axon
-        CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL"); // goBilda speed
-        CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR"); // goBilda speed
+        Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 1x axon
+        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 20kg
+        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x axon
+        CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL"); // 1x goBilda speed
+        CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR"); // 1x goBilda speed
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -134,6 +133,7 @@ public class MainV4 extends LinearOpMode {
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
         extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        claw1.setPosition(clawCpos1);
         follower.startTeleopDrive();
         // calibration
         imu.resetYaw();
@@ -175,7 +175,7 @@ public class MainV4 extends LinearOpMode {
                     rightFront.setPower(rightFrontPower);
                     rightRear.setPower(rightBackPower);
                 } else {
-                    follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, false);
+                    follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
                     follower.update();
                 }
                 // extendArm code
@@ -187,14 +187,14 @@ public class MainV4 extends LinearOpMode {
                 double power = pid + ff;
                 extendArm1.setPower(power);
                 extendArm2.setPower(power);
-                telemetry.addData("PIDF", "P: " + PIDTuneSlides.P + " I: " + PIDTuneSlides.I + " D: " + PIDTuneSlides.D + " F: " + PIDTuneSlides.F);
-                telemetry.addData("target", slidesTARGET);
-                telemetry.addData("eaCpos1", eaCpos1);
-                telemetry.addData("eaCpos2", eaCpos2);
-                telemetry.addData("eaPower", power);
-                telemetry.addData("error1", Math.abs(slidesTARGET - eaCpos1));
-                telemetry.addData("error2", Math.abs(slidesTARGET - eaCpos2));
-                telemetry.addData("errorAvg", (Math.abs(slidesTARGET - eaCpos1) + Math.abs(slidesTARGET - eaCpos2)) / 2);
+                // controls
+                if (gamepad2.dpad_up && eaCpos1 < eaLimitHigh) {
+                    slidesTARGET += extendArmSpeed;
+                    if (slidesTARGET > eaLimitHigh) slidesTARGET = eaLimitHigh;
+                } else if (gamepad2.dpad_down && eaCpos1 > eaLimitLow) {
+                    slidesTARGET -= extendArmSpeed;
+                    if (slidesTARGET < eaLimitLow) slidesTARGET = eaLimitLow;
+                }
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
                     subArmCpos = 0.45;
@@ -368,6 +368,14 @@ public class MainV4 extends LinearOpMode {
                 }
                 // telemetry
                 Calibrate.TeleOp.getStartPositions();
+                telemetry.addData("PIDF", "P: " + PIDTuneSlides.P + " I: " + PIDTuneSlides.I + " D: " + PIDTuneSlides.D + " F: " + PIDTuneSlides.F);
+                telemetry.addData("target", slidesTARGET);
+                telemetry.addData("eaCpos1", eaCpos1);
+                telemetry.addData("eaCpos2", eaCpos2);
+                telemetry.addData("eaPower", power);
+                telemetry.addData("error1", Math.abs(slidesTARGET - eaCpos1));
+                telemetry.addData("error2", Math.abs(slidesTARGET - eaCpos2));
+                telemetry.addData("errorAvg", (Math.abs(slidesTARGET - eaCpos1) + Math.abs(slidesTARGET - eaCpos2)) / 2);
                 telemetry.addData("DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
                 telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
                 telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));

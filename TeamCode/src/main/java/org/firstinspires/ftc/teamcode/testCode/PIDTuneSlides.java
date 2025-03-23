@@ -4,14 +4,11 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.controller.PIDFController;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
-
-import org.firstinspires.ftc.teamcode.testCode.PID_SquID.CustomPIDFTCoefficients;
 
 @Config("PID Tune Slides")
 @Autonomous(name="PID Tune Slides", group="test_ftc23403")
@@ -24,39 +21,52 @@ public class PIDTuneSlides extends OpMode {
     public static double D = 0;
     public static double F = 0.1;
     public static double TARGET = 0;
+
     /**
      * Initialization code.
      */
     @Override
     public void init() {
+        // set the PID values
         controller = new PIDController(P, I, D);
+        // hardware
         extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
+        // reverse
         extendArm2.setDirection(DcMotorSimple.Direction.REVERSE);
+        // reset encoders
         extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        // turn on the motors without the built in controller
         extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        // combine both FTCDashboard and the regular telemetry
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+        // telemetry
         telemetry.addLine("Use this to tune the extend arm.");
         telemetry.update();
     }
 
     /**
-     * This updates the FTC Dashboard telemetry with the sensor distance in IN and the sensor RGBA values.
+     * This updates the FTC Dashboard telemetry with the ERROR values and target pos and current pos for easy tuning and debugging!
      */
     @Override
     public void loop() {
-        controller.setPID(P, I, D);
+        // update the values so we can change them mid match
+        controller.setPID(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
+        // grab current pos
         int eaCpos1 = extendArm1.getCurrentPosition();
         int eaCpos2 = extendArm2.getCurrentPosition();
+        // calculate the power
         double pid = controller.calculate(eaCpos1, TARGET);
-       //  double pid2 = controller.calculate(eaCpos2, TARGET);
-//        double ff = Math.cos(Math.toRadians(TARGET/tickPerRevolution)) * F;
-        double ff = F;
+        // save the Force Feedback value
+        double ff = PIDTuneSlides.F;
+        // the final power value
         double power = pid + ff;
+        // send the power to the motors
         extendArm1.setPower(power);
         extendArm2.setPower(power);
+        // telemetry for debugging
         telemetry.addData("PIDF", "P: " + P + " I: " + I + " D: " + D + " F: " + F);
         telemetry.addData("target", TARGET);
         telemetry.addData("eaCpos1", eaCpos1);
