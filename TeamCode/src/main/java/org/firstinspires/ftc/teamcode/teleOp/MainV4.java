@@ -11,9 +11,9 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.util.Constants;
+import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.CRServo;
@@ -23,12 +23,12 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
+import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
 import org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
-
-import com.arcrobotics.ftclib.gamepad.GamepadEx;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -46,6 +46,10 @@ public class MainV4 extends LinearOpMode {
      * @TODO have odometry driving working
      * @TODO make the fucking slides smooth
      * @TODO finish all the presets PROPERLY
+     * @TODO get limelight in here
+     * @TODO tune slides again
+     * @TODO fix color sensor shit
+     * @TODO get the drive train working again
      * MAIN V4 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
@@ -97,8 +101,7 @@ public class MainV4 extends LinearOpMode {
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
-        GamepadEx gamepad1Ex = new GamepadEx(gamepad1);
-        GamepadEx gamepad2Ex = new GamepadEx(gamepad2);
+        Limelight3A limelightMap = hardwareMap.get(Limelight3A.class, "limelight");
         // motors
         DcMotorEx leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         DcMotorEx leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
@@ -129,6 +132,9 @@ public class MainV4 extends LinearOpMode {
         extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         // misc
+        Limelight limelight = new Limelight(limelightMap, wrist2, submersibleArm, telemetry);
+        limelightMap.setPollRateHz(100); // update 100 times a second
+        limelightMap.start();
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
         GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
         extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
@@ -149,6 +155,8 @@ public class MainV4 extends LinearOpMode {
                 // variables
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 // misc
+                limelight.updateTelemetry(telemetry);
+                // servos
                 wrist1.setPosition(wristCpos1);
                 wrist2.setPosition(wristCpos2);
                 claw1.setPosition(clawCpos1);
@@ -156,7 +164,7 @@ public class MainV4 extends LinearOpMode {
                 arm.setPosition(armCpos);
                 submersibleArm.setPosition(subArmCpos);
                 sweeper.setPosition(sweeperCpos);
-                if (gamepad1Ex.wasJustPressed(GamepadKeys.Button.START) || gamepad2Ex.wasJustPressed(GamepadKeys.Button.START)) redSide = !redSide;
+                if (buttonClick(gamepad1.share) || buttonClick(gamepad2.share)) redSide = !redSide;
                 // movements
                 if (!odoDrive) {
                     follower.breakFollowing();
@@ -167,7 +175,7 @@ public class MainV4 extends LinearOpMode {
                     // formula
                     double leftFrontPower = (forward + strafe + turn) * wheelSpeed;
                     double leftBackPower = (forward - strafe + turn) * wheelSpeed;
-                    double rightFrontPower = -(forward - strafe - turn) * wheelSpeed;
+                    double rightFrontPower = (forward - strafe - turn) * wheelSpeed;
                     double rightBackPower = (forward + strafe - turn) * wheelSpeed;
                     // power
                     leftFront.setPower(leftFrontPower);
@@ -206,7 +214,7 @@ public class MainV4 extends LinearOpMode {
                 // preset code
                 /**
                  * GAMEPAD 1
-                 *   X / ▢         - EMPTY
+                 *   X / ▢         - Grab sample using limelight
                  *   Y / Δ         - EMPTY
                  *   B / O         - Grab from Human Player Preset
                  *   A / X         - EMPTY
@@ -232,6 +240,17 @@ public class MainV4 extends LinearOpMode {
                     armCpos = 0.96;
                     wristCpos1 = 0.65;
                     clawCpos1 = 0.9;
+                }
+                // limelight grabbing
+                if (gamepad1.x) {
+                    // use correction code cuz its easier fr fr
+                    slidesTARGET = 0;
+                    subArmCpos = 1;
+                    if (limelight.search() == LimelightState.SAMPLE_REACHED) {
+                        wristCpos2 = 0.1;
+                        Timer.wait(300);
+                        claw2.setPosition(0.55);
+                    }
                 }
                 /**
                  * GAMEPAD 2
@@ -394,5 +413,12 @@ public class MainV4 extends LinearOpMode {
                 telemetry.update();
             }
         }
+    }
+    private boolean buttonPreviousState = false;
+    public boolean buttonClick (boolean button) {
+        boolean returnVal;
+        returnVal = button && !buttonPreviousState;
+        buttonPreviousState = button;
+        return returnVal;
     }
 }

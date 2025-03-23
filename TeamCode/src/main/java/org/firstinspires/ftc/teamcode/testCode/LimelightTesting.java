@@ -1,34 +1,35 @@
 package org.firstinspires.ftc.teamcode.testCode;
 
 import com.acmerobotics.dashboard.FtcDashboard;
-import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.json.JSONObject;
+import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
+import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-@Config("Limelight Testing")
 @Autonomous(name="Limelight Testing", group="test_ftc23403")
 public class LimelightTesting extends OpMode {
+    private Limelight3A limelight;
     private Servo wristServo;
-    public static double kRotationFactor = 0.5 / 27.0;
+    private Servo submersibleArm;
+    private LimelightState currentState = LimelightState.NO_SAMPLE_FOUND; // Start state
     /**
      * Initialization code.
      */
     @Override
     public void init() {
-        Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight = hardwareMap.get(Limelight3A.class, "limelight");
         wristServo = hardwareMap.get(Servo.class, "wrist2");
+        submersibleArm = hardwareMap.get(Servo.class, "subArm");
         // combine both FTCDashboard and the regular telemetry
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+        // limelight stuff
+        limelight.setPollRateHz(100); // Ask for data 100 times per second
+        limelight.start(); // Start tracking
         // telemetry
         telemetry.addLine("Use this to config limelight.");
         telemetry.update();
@@ -39,42 +40,63 @@ public class LimelightTesting extends OpMode {
      */
     @Override
     public void loop() {
-        try {
-            // Get Limelight data from HTTP
-            JSONObject limelightData = getLimelightData("http://10.0.0.11:5801/limelight-data");
-            double tx = limelightData.getDouble("tx");
+        LLResult result = limelight.getLatestResult();
 
-            // Convert tx to servo position (scale from -27 to 27 degrees into 0-1 range)
-            double servoPosition = 0.5 + (tx * kRotationFactor);
+        switch (currentState) {
+            case NO_SAMPLE_FOUND:
+                if (result != null && result.isValid()) {
+                    currentState = LimelightState.LOOKING_FOR_SAMPLE;
+                }
+                break;
 
-            // Clamp servo position to valid range
-            servoPosition = Math.max(0, Math.min(1, servoPosition));
+            case LOOKING_FOR_SAMPLE:
+                if (result.isValid()) {
+                    double ta = result.getTa();
+                    if (ta > 0.02) { // If we see a sample
+                        currentState = LimelightState.MOVING_TO_SAMPLE;
+                    }
+                } else {
+                    currentState = LimelightState.NO_SAMPLE_FOUND;
+                }
+                break;
 
-            // Move the wrist servo
-            wristServo.setPosition(servoPosition);
+            case MOVING_TO_SAMPLE:
+                if (result.isValid()) {
+                    double tx = result.getTx(); // Left/Right offset
+                    double ta = result.getTa(); // Target area (size)
 
-            // Telemetry for debugging
-            telemetry.addData("tx", tx);
-            telemetry.addData("Servo Position", servoPosition);
-            telemetry.update();
-        } catch (Exception e) {
-            telemetry.addData("Error", e.getMessage());
-            telemetry.update();
+                    // ---- Wrist Rotation (tx to servo position) ----
+                    double wristPosition = 0.5 + (tx * Limelight.config.kRotationFactor);
+                    wristPosition = Math.max(0, Math.min(1, wristPosition));
+                    wristServo.setPosition(wristPosition);
+
+                    // ---- Slide Extension (ta to servo position) ----
+                    double slidePosition = 1.0 - ((ta - Limelight.config.minTargetArea) / (Limelight.config.maxTargetArea - Limelight.config.minTargetArea)) * (1.0 - 0.45);
+                    slidePosition = Math.max(0.45, Math.min(1.0, slidePosition));
+                    submersibleArm.setPosition(slidePosition);
+
+                    if (ta > 0.2) { // If close enough to grab
+                        currentState = LimelightState.SAMPLE_REACHED;
+                    }
+                } else {
+                    currentState = LimelightState.LOOKING_FOR_SAMPLE;
+                }
+                break;
+
+            case SAMPLE_REACHED:
+                // Keep wrist and slides in place, wait for grab command
+                break;
         }
-    }
 
-    // Function to get Limelight data via HTTP request
-    private JSONObject getLimelightData(String urlString) throws Exception {
-        URL url = new URL(urlString);
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("GET");
-        BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String inputLine;
-        StringBuilder response = new StringBuilder();
-        while ((inputLine = in.readLine()) != null) {
-            response.append(inputLine);
+        // ---- Debugging Telemetry ----
+        telemetry.addData("State", currentState);
+        telemetry.addData("Valid Target", result != null && result.isValid());
+        if (result != null && result.isValid()) {
+            telemetry.addData("tx (Target X)", result.getTx());
+            telemetry.addData("ta (Target Area)", result.getTa());
         }
-        in.close();
-        return new JSONObject(response.toString());
+        telemetry.addData("Wrist Servo", wristServo.getPosition());
+        telemetry.addData("Slide Servo", submersibleArm.getPosition());
+        telemetry.update();
     }
 }
