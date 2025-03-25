@@ -28,7 +28,7 @@ public class PIDTuneSlides extends OpMode {
     @Override
     public void init() {
         // set the PID values
-        controller = new PIDController(P, I, D);
+        controller = new PIDController(Math.sqrt(P), I, D);
         // hardware
         extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
@@ -53,7 +53,7 @@ public class PIDTuneSlides extends OpMode {
     @Override
     public void loop() {
         // update the values so we can change them mid match
-        controller.setPID(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
+        controller.setPID(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
         // grab current pos
         int eaCpos1 = extendArm1.getCurrentPosition();
         int eaCpos2 = extendArm2.getCurrentPosition();

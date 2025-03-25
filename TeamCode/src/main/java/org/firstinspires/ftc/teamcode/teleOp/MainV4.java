@@ -97,7 +97,7 @@ public class MainV4 extends LinearOpMode {
         MetroLib.setConstants(MConstants.class);
         Follower follower = new Follower(hardwareMap);
         Constants.setConstants(FConstants.class, LConstants.class);
-        PIDController controller = new PIDController(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
+        PIDController controller = new PIDController(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -187,7 +187,7 @@ public class MainV4 extends LinearOpMode {
                     follower.update();
                 }
                 // extendArm code
-                controller.setPID(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
+                controller.setPID(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
                 int eaCpos1 = extendArm1.getCurrentPosition();
                 int eaCpos2 = extendArm2.getCurrentPosition();
                 double pid = controller.calculate(eaCpos1, slidesTARGET);

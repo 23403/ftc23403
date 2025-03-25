@@ -17,7 +17,12 @@ public class Limelight {
     public static LimelightConfig config = new LimelightConfig(
             0.5 / 27.0,
             0.05,
-            1.0);
+            1.0,
+            40,
+            20,
+            60);
+    public static double minDistance = 10.0;  // Closest distance
+    public static double maxDistance = 40.0;  // Farthest distance
 
     public Limelight(Limelight3A limelight, Servo wristServo, Servo submersibleArm) {
         this.limelight = limelight;
@@ -52,8 +57,8 @@ public class Limelight {
 
             case LOOKING_FOR_SAMPLE:
                 if (result.isValid()) {
-                    double ta = result.getTa();
-                    if (ta > 0.02) { // If we see a sample
+                    double ty = result.getTy();
+                    if (ty > -20) { // If we see a sample
                         currentState = LimelightState.MOVING_TO_SAMPLE;
                     }
                 } else {
@@ -64,19 +69,26 @@ public class Limelight {
             case MOVING_TO_SAMPLE:
                 if (result.isValid()) {
                     double tx = result.getTx(); // Left/Right offset
-                    double ta = result.getTa(); // Target area (size)
+                    double ty = result.getTy(); // Vertical angle
+
+                    // ---- Calculate Distance ----
+                    double angleToGoalDegrees = Limelight.config.LIMELIGHT_MOUNT_ANGLE_DEGREES + ty;
+                    double angleToGoalRadians = Math.toRadians(angleToGoalDegrees);
+                    double distanceFromLimelightToGoalInches =
+                            (Limelight.config.TARGET_HEIGHT_INCHES - Limelight.config.LIMELIGHT_LENS_HEIGHT_INCHES) / Math.tan(angleToGoalRadians);
 
                     // ---- Wrist Rotation (tx to servo position) ----
-                    double wristPosition = 0.5 + (tx * config.kRotationFactor);
+                    double kRotationFactor = 0.5 / 27.0;
+                    double wristPosition = 0.5 + (tx * kRotationFactor);
                     wristPosition = Math.max(0, Math.min(1, wristPosition));
                     wristServo.setPosition(wristPosition);
 
-                    // ---- Slide Extension (ta to servo position) ----
-                    double slidePosition = 1.0 - ((ta - config.minTargetArea) / (config.maxTargetArea - config.minTargetArea)) * (1.0 - 0.45);
+                    // ---- Slide Extension (using distance) ----
+                    double slidePosition = 1.0 - ((distanceFromLimelightToGoalInches - minDistance) / (maxDistance - minDistance)) * (1.0 - 0.45);
                     slidePosition = Math.max(0.45, Math.min(1.0, slidePosition));
                     submersibleArm.setPosition(slidePosition);
 
-                    if (ta > 0.2) { // If close enough to grab
+                    if (distanceFromLimelightToGoalInches < 12.0) { // Close enough to grab
                         currentState = LimelightState.SAMPLE_REACHED;
                     }
                 } else {

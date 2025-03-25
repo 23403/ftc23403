@@ -51,8 +51,8 @@ public class LimelightTesting extends OpMode {
 
             case LOOKING_FOR_SAMPLE:
                 if (result.isValid()) {
-                    double ta = result.getTa();
-                    if (ta > 0.02) { // If we see a sample
+                    double ty = result.getTy();
+                    if (ty > -20) { // If we see a sample
                         currentState = LimelightState.MOVING_TO_SAMPLE;
                     }
                 } else {
@@ -63,19 +63,28 @@ public class LimelightTesting extends OpMode {
             case MOVING_TO_SAMPLE:
                 if (result.isValid()) {
                     double tx = result.getTx(); // Left/Right offset
-                    double ta = result.getTa(); // Target area (size)
+                    double ty = result.getTy(); // Vertical angle
+
+                    // ---- Calculate Distance ----
+                    double angleToGoalDegrees = Limelight.config.LIMELIGHT_MOUNT_ANGLE_DEGREES + ty;
+                    double angleToGoalRadians = Math.toRadians(angleToGoalDegrees);
+                    double distanceFromLimelightToGoalInches =
+                            (Limelight.config.TARGET_HEIGHT_INCHES - Limelight.config.LIMELIGHT_LENS_HEIGHT_INCHES) / Math.tan(angleToGoalRadians);
 
                     // ---- Wrist Rotation (tx to servo position) ----
-                    double wristPosition = 0.5 + (tx * Limelight.config.kRotationFactor);
+                    double kRotationFactor = 0.5 / 27.0;
+                    double wristPosition = 0.5 + (tx * kRotationFactor);
                     wristPosition = Math.max(0, Math.min(1, wristPosition));
                     wristServo.setPosition(wristPosition);
 
-                    // ---- Slide Extension (ta to servo position) ----
-                    double slidePosition = 1.0 - ((ta - Limelight.config.minTargetArea) / (Limelight.config.maxTargetArea - Limelight.config.minTargetArea)) * (1.0 - 0.45);
+                    // ---- Slide Extension (using distance) ----
+                    double minDistance = 10.0;  // Closest distance
+                    double maxDistance = 40.0;  // Farthest distance
+                    double slidePosition = 1.0 - ((distanceFromLimelightToGoalInches - minDistance) / (maxDistance - minDistance)) * (1.0 - 0.45);
                     slidePosition = Math.max(0.45, Math.min(1.0, slidePosition));
                     submersibleArm.setPosition(slidePosition);
 
-                    if (ta > 0.2) { // If close enough to grab
+                    if (distanceFromLimelightToGoalInches < 12.0) { // Close enough to grab
                         currentState = LimelightState.SAMPLE_REACHED;
                     }
                 } else {
@@ -84,7 +93,7 @@ public class LimelightTesting extends OpMode {
                 break;
 
             case SAMPLE_REACHED:
-                // Keep wrist and slides in place, wait for grab command
+                telemetry.addData("Status", "Sample Reached!");
                 break;
         }
 
@@ -93,7 +102,8 @@ public class LimelightTesting extends OpMode {
         telemetry.addData("Valid Target", result != null && result.isValid());
         if (result != null && result.isValid()) {
             telemetry.addData("tx (Target X)", result.getTx());
-            telemetry.addData("ta (Target Area)", result.getTa());
+            telemetry.addData("ty (Target Y)", result.getTy());
+            telemetry.addData("Distance (inches)", (Limelight.config.TARGET_HEIGHT_INCHES - Limelight.config.LIMELIGHT_LENS_HEIGHT_INCHES) / Math.tan(Math.toRadians(Limelight.config.LIMELIGHT_MOUNT_ANGLE_DEGREES + result.getTy())));
         }
         telemetry.addData("Wrist Servo", wristServo.getPosition());
         telemetry.addData("Slide Servo", submersibleArm.getPosition());
