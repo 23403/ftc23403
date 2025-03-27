@@ -16,10 +16,10 @@ public class PIDTuneSlides extends OpMode {
     private DcMotorEx extendArm1;
     private DcMotorEx extendArm2;
     private PIDController controller;
-    public static double P = 0;
+    public static double P = 0.000025;
     public static double I = 0;
-    public static double D = 0;
-    public static double F = 0;
+    public static double D = 0.0005;
+    public static double F = 0.1;
     public static double TARGET = 0;
 
     /**

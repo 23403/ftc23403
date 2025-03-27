@@ -56,10 +56,8 @@ public class AutoHookBETA extends OpMode {
     public Servo wrist1; // axon
     public Servo wrist2; // 20kg
     public Servo sweeper; // goBilda torque
-    public Servo submersibleArm; // axon
+    public Servo submersibleArm1; // axon
     public Servo arm; // axon
-    public CRServo intake1; // goBilda speed
-    public CRServo intake2; // goBilda speed
     // servo positions
     public static double wristCpos1 = 0.38;
     // 0.5 low pos
@@ -481,10 +479,6 @@ public class AutoHookBETA extends OpMode {
         extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
     // servos
-    private void intake(double power, int time) {
-        ElapsedTime timer = new ElapsedTime();
-        intake2.setPower(0);
-    }
     private void claw1(double pos) {
         clawCpos1 = pos;
     }
@@ -527,7 +521,7 @@ public class AutoHookBETA extends OpMode {
         wrist1.setPosition(wristCpos1);
         wrist2.setPosition(wristCpos2);
         sweeper.setPosition(sweeperCpos);
-        submersibleArm.setPosition(subArmCpos);
+        submersibleArm1.setPosition(subArmCpos);
         arm.setPosition(armCpos);
         // extendArm code
         controller.setPID(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
@@ -574,12 +568,9 @@ public class AutoHookBETA extends OpMode {
         wrist1 = hardwareMap.get(Servo.class, "wrist1"); // axon
         wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 20kg
         sweeper = hardwareMap.get(Servo.class, "sweeper"); // goBilda torque
-        submersibleArm = hardwareMap.get(Servo.class, "subArm"); // axon
+        submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // axon
         arm = hardwareMap.get(Servo.class, "arm"); // axon
-        intake1 = hardwareMap.get(CRServo.class, "intakeL"); // goBilda speed
-        intake2 = hardwareMap.get(CRServo.class, "intakeR"); // goBilda speed
         // directions
-        intake2.setDirection(CRServo.Direction.REVERSE);
         sweeper.setDirection(Servo.Direction.REVERSE);
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
         // starting pos

@@ -16,7 +16,6 @@ import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -44,27 +43,25 @@ import xyz.nin1275.utils.Timer;
 public class MainV4 extends LinearOpMode {
     /**
      * @TODO have odometry driving working
-     * @TODO make the fucking slides smooth
      * @TODO finish all the presets PROPERLY
      * @TODO get limelight in here
-     * @TODO tune slides again
      * @TODO fix color sensor shit
      * @TODO get the drive train working again
      * MAIN V4 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
     // servos
-    public static double wristCpos1 = 0.45;
+    public static double wristCpos1 = 0;
     // 0.5 low pos
     // 0.38 grab from sa
     // 1 high pos
-    public static double clawCpos1 = 0.4;
+    public static double clawCpos1 = 1;
     // 0.4 is close
     // 0.9 is open
     public static double sweeperCpos = 1;
     // 0.5 low pos
     // 1 high pos
-    public static double wristCpos2 = 0.45;
+    public static double wristCpos2 = 1;
     // 0.07 low pos
     // 0.45 give to ea
     // 0.5 high pos
@@ -72,18 +69,22 @@ public class MainV4 extends LinearOpMode {
     // 0.5 is close
     // 0.6 is grab pos
     // 1 is open pos
-    public static double armCpos = 0.3;
+    public static double armCpos = 0.23;
     // 0.88 low pos
     // 0.72 grab from sa
     // 0 high pos
     public static double subArmCpos = 1;
     // 0 low pos
     // 0.45 high pos
+    public static double rotationalCpos = 0.5;
+    // 0 middle pos
+    // 0.45 high pos
     // misc
     private static boolean ran = false;
     public static boolean redSide = true;
     public static int extendArmSpeed = 100;
     public static double wheelSpeed = 1;
+    public static double rotationalSpeed = 0.01;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
@@ -116,11 +117,18 @@ public class MainV4 extends LinearOpMode {
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
         Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x axon
         // sa
-        Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 1x axon
+        Servo submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
+        Servo submersibleArm2 = hardwareMap.get(Servo.class, "subArm2"); // 1x axon
         Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 20kg
-        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x axon
-        CRServo intake1 = hardwareMap.get(CRServo.class, "intakeL"); // 1x goBilda speed
-        CRServo intake2 = hardwareMap.get(CRServo.class, "intakeR"); // 1x goBilda speed
+        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
+        Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
+        // limits
+        claw2.scaleRange(0.01, 0.08);
+        wrist2.scaleRange(0, 0.8);
+        rotation.scaleRange(0.43, 0.55);
+        arm.scaleRange(0.12, 1);
+        wrist1.scaleRange(0.2, 1);
+        claw1.scaleRange(0.4, 0.8);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -132,7 +140,7 @@ public class MainV4 extends LinearOpMode {
         extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         // misc
-        Limelight limelight = new Limelight(limelightMap, wrist2, submersibleArm, telemetry);
+        Limelight limelight = new Limelight(limelightMap, wrist2, submersibleArm1, telemetry);
         limelightMap.setPollRateHz(100); // update 100 times a second
         limelightMap.start();
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
@@ -162,8 +170,9 @@ public class MainV4 extends LinearOpMode {
                 claw1.setPosition(clawCpos1);
                 claw2.setPosition(clawCpos2);
                 arm.setPosition(armCpos);
-                submersibleArm.setPosition(subArmCpos);
+                submersibleArm1.setPosition(subArmCpos);
                 sweeper.setPosition(sweeperCpos);
+                rotation.setPosition(rotationalCpos);
                 if (buttonClick(gamepad1.share) || buttonClick(gamepad2.share)) redSide = !redSide;
                 // movements
                 if (!odoDrive) {
@@ -204,10 +213,10 @@ public class MainV4 extends LinearOpMode {
                     if (slidesTARGET < eaLimitLow) slidesTARGET = eaLimitLow;
                 }
                 // submersibleArm code
-                if (gamepad1.dpad_up) {
+                if (gamepad1.dpad_right) {
                     subArmCpos = 0.45;
                     wristCpos2 = 0.1;
-                } else if (gamepad1.dpad_down) {
+                } else if (gamepad1.dpad_left) {
                     subArmCpos = 1;
                     wristCpos2 = 0.08;
                 }
@@ -237,9 +246,9 @@ public class MainV4 extends LinearOpMode {
                     // use correction code cuz its easier fr fr
                     slidesTARGET = 0;
                     subArmCpos = 1;
-                    armCpos = 0.96;
-                    wristCpos1 = 0.65;
-                    clawCpos1 = 0.9;
+                    armCpos = 0.92;
+                    wristCpos1 = 0.6;
+                    clawCpos1 = 0;
                 }
                 // limelight grabbing
                 if (gamepad1.x) {
@@ -275,15 +284,15 @@ public class MainV4 extends LinearOpMode {
                 // high basket pos
                 if (gamepad2.y) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = 4500;
+                    slidesTARGET = 2500;
                     wristCpos1 = 1;
                     clawCpos1 = 0.4;
-                    armCpos = 0.7;
+                    armCpos = 0.8;
                 }
                 // low basket pos
                 if (gamepad2.a) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = 2500;
+                    slidesTARGET = 1300;
                     wristCpos1 = 1;
                     clawCpos1 = 0.4;
                     armCpos = 0.8;
@@ -293,50 +302,59 @@ public class MainV4 extends LinearOpMode {
                     // use correction code cuz its easier fr fr
                     slidesTARGET = 0;
                     subArmCpos = 1;
-                    clawCpos2 = 0.5;
-                    wristCpos2 = 0.47;
-                    wristCpos1 = 0.8;
-                    clawCpos1 = 0.9;
-                    armCpos = 0.235;
+                    clawCpos2 = 1;
+                    wristCpos2 = 0.9;
+                    wristCpos1 = 0.5;
+                    clawCpos1 = 0;
+                    armCpos = 0.18;
+                    rotationalCpos = 0.52;
                 }
                 // specimen pos
                 if (gamepad2.b) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = 2700;
-                    armCpos = 0.35;
+                    slidesTARGET = 1880;
+                    armCpos = 0.25;
                     subArmCpos = 1;
-                    wristCpos1 = 0.7;
-                    clawCpos1 = 0.4;
+                    wristCpos1 = 0.45;
+                    clawCpos1 = 1;
                 }
                 // claws
-                if (gamepad2.left_trigger > 0) {
-                    clawCpos1 = 0.9;
-                } else if (gamepad2.right_trigger > 0) {
-                    clawCpos1 = 0.4;
+                if (gamepad2.left_trigger > 0 || gamepad2.right_bumper) {
+                    clawCpos1 = 0;
+                } else if (gamepad2.right_trigger > 0 || gamepad2.left_bumper) {
+                    clawCpos1 = 1;
                 }
                 if (gamepad1.left_trigger > 0) {
-                    clawCpos2 = 0.6;
+                    clawCpos2 = 0;
                 } else if (gamepad1.right_trigger > 0) {
-                    clawCpos2 = 0.5;
+                    clawCpos2 = 1;
                 }
                 // wrist
-                if (gamepad1.dpad_right) {
-                    wristCpos2 = 0.5;
-                } else if (gamepad1.dpad_left) {
-                    wristCpos2 = 0.08;
+                if (gamepad1.dpad_up) {
+                    wristCpos2 = 0;
+                } else if (gamepad1.dpad_down) {
+                    wristCpos2 = 1;
                 }
                 if (gamepad2.dpad_left) {
-                    wristCpos1 = 0.2;
+                    wristCpos1 = 0;
                 } else if(gamepad2.dpad_right) {
-                    wristCpos1 = 0.65;
+                    wristCpos1 = 0.6;
                 }
                 // arm
                 if (gamepad2.right_stick_y > 0.3) {
-                    armCpos = 0.9;
-                    wristCpos1 = 0.7;
+                    armCpos = 0.8;
+                    wristCpos1 = 1;
                 } else if (gamepad2.right_stick_y < -0.3) {
-                    armCpos = 0.3;
-                    wristCpos1 = 0.45;
+                    armCpos = 0.92;
+                    wristCpos1 = 0.6;
+                }
+                // rotate
+                if (gamepad1.right_bumper) {
+                    rotationalCpos += rotationalSpeed;
+                    if (rotationalCpos > 1) rotationalCpos = 1;
+                } else if (gamepad1.left_bumper) {
+                    rotationalCpos -= rotationalSpeed;
+                    if (rotationalCpos < 0) rotationalCpos = 0;
                 }
                 // color sensor code
                 if (Sensor.isRedGrabbed()) {
@@ -368,17 +386,6 @@ public class MainV4 extends LinearOpMode {
                     GamepadUtils.setGamepadColorOld(2, Integer.MAX_VALUE);
                     ran = false;
                 }
-                // auto intake
-                if ((redSide ? Sensor.pickUpRed() : Sensor.pickUpBlue() || Sensor.pickUpYellow()) || gamepad1.right_bumper) {
-                    intake1.setPower(-1);
-                    intake2.setPower(1);
-                } else if (gamepad1.left_bumper) {
-                    intake1.setPower(1);
-                    intake2.setPower(-1);
-                } else {
-                    intake1.setPower(0);
-                    intake2.setPower(0);
-                }
                 // alerts
                 // 15 seconds left and start of match
                 if (Timer.TeleOp.alert(15) || Timer.TeleOp.alert(150)) {
@@ -399,7 +406,7 @@ public class MainV4 extends LinearOpMode {
                 telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
                 telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
                 telemetry.addData("Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
-                telemetry.addData("Submersible Arm Position:", submersibleArm.getPosition());
+                telemetry.addData("Submersible Arm Position1:", submersibleArm1.getPosition());
                 telemetry.addData("Wrist Position1:", wrist1.getPosition());
                 telemetry.addData("Wrist Position2:", wrist2.getPosition());
                 telemetry.addData("Claw Position1:", claw1.getPosition());
