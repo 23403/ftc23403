@@ -25,6 +25,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
 import org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides;
+import org.firstinspires.ftc.teamcode.testCode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
@@ -46,7 +47,6 @@ public class MainV4 extends LinearOpMode {
      * @TODO finish all the presets PROPERLY
      * @TODO get limelight in here
      * @TODO fix color sensor shit
-     * @TODO get the drive train working again
      * MAIN V4 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
@@ -85,12 +85,62 @@ public class MainV4 extends LinearOpMode {
     public static int extendArmSpeed = 100;
     public static double wheelSpeed = 1;
     public static double rotationalSpeed = 0.01;
+    private boolean preset = false;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
     public static int slidesTARGET = 0;
     public static int eaLimitHigh = 4500;
     public static int eaLimitLow = 0;
+    private static double power = 0;
+    @Config("MainV4 Presets")
+    public static class presets {
+        public static CustomPresets humanPlayer = new CustomPresets(
+                eaLimitLow,
+                1.0,
+                -1.0,
+                0.0,
+                -1.0,
+                0.6,
+                0.92,
+                -1.0);
+        public static CustomPresets highBasket = new CustomPresets(
+                2500,
+                -1.0,
+                -1.0,
+                0.4,
+                -1.0,
+                1.0,
+                0.8,
+                -1.0);
+        public static CustomPresets lowBasket = new CustomPresets(
+                1300,
+                -1.0,
+                -1.0,
+                0.4,
+                -1.0,
+                1.0,
+                0.8,
+                -1.0);
+        public static CustomPresets transition = new CustomPresets(
+                eaLimitLow,
+                1.0,
+                1.0,
+                0.0,
+                0.9,
+                0.5,
+                0.18,
+                0.52);
+        public static CustomPresets specimen = new CustomPresets(
+                1880,
+                -1.0,
+                -1.0,
+                1.0,
+                -1.0,
+                0.45,
+                0.25,
+                -1.0);
+    }
     @Override
     public void runOpMode()  {
         // hardware
@@ -199,18 +249,21 @@ public class MainV4 extends LinearOpMode {
                 controller.setPID(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
                 int eaCpos1 = extendArm1.getCurrentPosition();
                 int eaCpos2 = extendArm2.getCurrentPosition();
-                double pid = controller.calculate(eaCpos1, slidesTARGET);
                 double ff = PIDTuneSlides.F;
-                double power = pid + ff;
-                extendArm1.setPower(power);
-                extendArm2.setPower(power);
                 // controls
                 if (gamepad2.dpad_up && eaCpos1 < eaLimitHigh) {
-                    slidesTARGET += extendArmSpeed;
-                    if (slidesTARGET > eaLimitHigh) slidesTARGET = eaLimitHigh;
+                    double pid = controller.calculate(eaCpos1, eaLimitHigh);
+                    power = pid + ff;
+                    extendArm1.setPower(power);
+                    extendArm2.setPower(power);
                 } else if (gamepad2.dpad_down && eaCpos1 > eaLimitLow) {
-                    slidesTARGET -= extendArmSpeed;
-                    if (slidesTARGET < eaLimitLow) slidesTARGET = eaLimitLow;
+                    double pid = controller.calculate(eaCpos1, eaLimitLow);
+                    power = pid + ff;
+                    extendArm1.setPower(power);
+                    extendArm2.setPower(power);
+                } else {
+                    extendArm1.setPower(ff);
+                    extendArm2.setPower(ff);
                 }
                 // submersibleArm code
                 if (gamepad1.dpad_right) {
@@ -244,11 +297,15 @@ public class MainV4 extends LinearOpMode {
                 // humanPlayer pos
                 if (gamepad1.b) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = 0;
-                    subArmCpos = 1;
-                    armCpos = 0.92;
-                    wristCpos1 = 0.6;
-                    clawCpos1 = 0;
+                    slidesTARGET = presets.humanPlayer.extendArm != -1.0 ? presets.humanPlayer.extendArm : eaCpos1;
+                    subArmCpos = presets.humanPlayer.subArm != -1.0 ? presets.humanPlayer.subArm : subArmCpos;
+                    clawCpos2 = presets.humanPlayer.claw2 != -1.0 ? presets.humanPlayer.claw2 : clawCpos2;
+                    wristCpos2 = presets.humanPlayer.wrist2 != -1.0 ? presets.humanPlayer.wrist2 : wristCpos2;
+                    wristCpos1 = presets.humanPlayer.wrist1 != -1.0 ? presets.humanPlayer.wrist1 : wristCpos1;
+                    clawCpos1 = presets.humanPlayer.claw1 != -1.0 ? presets.humanPlayer.claw1 : clawCpos1;
+                    armCpos = presets.humanPlayer.arm != -1.0 ? presets.humanPlayer.arm : armCpos;
+                    rotationalCpos = presets.humanPlayer.rotational != -1.0 ? presets.humanPlayer.rotational : rotationalCpos;
+                    preset = true;
                 }
                 // limelight grabbing
                 if (gamepad1.x) {
@@ -259,6 +316,7 @@ public class MainV4 extends LinearOpMode {
                         wristCpos2 = 0.1;
                         Timer.wait(300);
                         claw2.setPosition(0.55);
+                        preset = true;
                     }
                 }
                 /**
@@ -284,39 +342,63 @@ public class MainV4 extends LinearOpMode {
                 // high basket pos
                 if (gamepad2.y) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = 2500;
-                    wristCpos1 = 1;
-                    clawCpos1 = 0.4;
-                    armCpos = 0.8;
+                    slidesTARGET = presets.highBasket.extendArm != -1.0 ? presets.highBasket.extendArm : eaCpos1;
+                    subArmCpos = presets.highBasket.subArm != -1.0 ? presets.highBasket.subArm : subArmCpos;
+                    clawCpos2 = presets.highBasket.claw2 != -1.0 ? presets.highBasket.claw2 : clawCpos2;
+                    wristCpos2 = presets.highBasket.wrist2 != -1.0 ? presets.highBasket.wrist2 : wristCpos2;
+                    wristCpos1 = presets.highBasket.wrist1 != -1.0 ? presets.highBasket.wrist1 : wristCpos1;
+                    clawCpos1 = presets.highBasket.claw1 != -1.0 ? presets.highBasket.claw1 : clawCpos1;
+                    armCpos = presets.highBasket.arm != -1.0 ? presets.highBasket.arm : armCpos;
+                    rotationalCpos = presets.highBasket.rotational != -1.0 ? presets.highBasket.rotational : rotationalCpos;
+                    preset = true;
                 }
                 // low basket pos
                 if (gamepad2.a) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = 1300;
-                    wristCpos1 = 1;
-                    clawCpos1 = 0.4;
-                    armCpos = 0.8;
+                    slidesTARGET = presets.lowBasket.extendArm != -1.0 ? presets.lowBasket.extendArm : eaCpos1;
+                    subArmCpos = presets.lowBasket.subArm != -1.0 ? presets.lowBasket.subArm : subArmCpos;
+                    clawCpos2 = presets.lowBasket.claw2 != -1.0 ? presets.lowBasket.claw2 : clawCpos2;
+                    wristCpos2 = presets.lowBasket.wrist2 != -1.0 ? presets.lowBasket.wrist2 : wristCpos2;
+                    wristCpos1 = presets.lowBasket.wrist1 != -1.0 ? presets.lowBasket.wrist1 : wristCpos1;
+                    clawCpos1 = presets.lowBasket.claw1 != -1.0 ? presets.lowBasket.claw1 : clawCpos1;
+                    armCpos = presets.lowBasket.arm != -1.0 ? presets.lowBasket.arm : armCpos;
+                    rotationalCpos = presets.lowBasket.rotational != -1.0 ? presets.lowBasket.rotational : rotationalCpos;
+                    preset = true;
                 }
                 // transition pos
                 if (gamepad2.x) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = 0;
-                    subArmCpos = 1;
-                    clawCpos2 = 1;
-                    wristCpos2 = 0.9;
-                    wristCpos1 = 0.5;
-                    clawCpos1 = 0;
-                    armCpos = 0.18;
-                    rotationalCpos = 0.52;
+                    slidesTARGET = presets.transition.extendArm != -1.0 ? presets.transition.extendArm : eaCpos1;
+                    subArmCpos = presets.transition.subArm != -1.0 ? presets.transition.subArm : subArmCpos;
+                    clawCpos2 = presets.transition.claw2 != -1.0 ? presets.transition.claw2 : clawCpos2;
+                    wristCpos2 = presets.transition.wrist2 != -1.0 ? presets.transition.wrist2 : wristCpos2;
+                    wristCpos1 = presets.transition.wrist1 != -1.0 ? presets.transition.wrist1 : wristCpos1;
+                    clawCpos1 = presets.transition.claw1 != -1.0 ? presets.transition.claw1 : clawCpos1;
+                    armCpos = presets.transition.arm != -1.0 ? presets.transition.arm : armCpos;
+                    rotationalCpos = presets.transition.rotational != -1.0 ? presets.transition.rotational : rotationalCpos;
+                    preset = true;
                 }
                 // specimen pos
                 if (gamepad2.b) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = 1880;
-                    armCpos = 0.25;
-                    subArmCpos = 1;
-                    wristCpos1 = 0.45;
-                    clawCpos1 = 1;
+                    slidesTARGET = presets.specimen.extendArm != -1.0 ? presets.specimen.extendArm : eaCpos1;
+                    subArmCpos = presets.specimen.subArm != -1.0 ? presets.specimen.subArm : subArmCpos;
+                    clawCpos2 = presets.specimen.claw2 != -1.0 ? presets.specimen.claw2 : clawCpos2;
+                    wristCpos2 = presets.specimen.wrist2 != -1.0 ? presets.specimen.wrist2 : wristCpos2;
+                    wristCpos1 = presets.specimen.wrist1 != -1.0 ? presets.specimen.wrist1 : wristCpos1;
+                    clawCpos1 = presets.specimen.claw1 != -1.0 ? presets.specimen.claw1 : clawCpos1;
+                    armCpos = presets.specimen.arm != -1.0 ? presets.specimen.arm : armCpos;
+                    rotationalCpos = presets.specimen.rotational != -1.0 ? presets.specimen.rotational : rotationalCpos;
+                    preset = true;
+                }
+                if (preset) {
+                    double pid = controller.calculate(eaCpos1, slidesTARGET);
+                    power = pid + ff;
+                    extendArm1.setPower(power);
+                    extendArm2.setPower(power);
+                    if (Math.abs(power) <= 0.13) {
+                        preset = false;
+                    }
                 }
                 // claws
                 if (gamepad2.left_trigger > 0 || gamepad2.right_bumper) {
