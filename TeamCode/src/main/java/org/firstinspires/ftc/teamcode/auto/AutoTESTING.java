@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.localization.constants.TwoWheelConstants;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
@@ -11,6 +12,8 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Constants;
+import com.pedropathing.util.DashboardPoseTracker;
+import com.pedropathing.util.Drawing;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -32,11 +35,11 @@ import xyz.nin1275.utils.Calibrate;
 
 /**
  * MetroBotics/Code Conductors auto using odometry.
- * Started code  @  2/16/25  @  10:18 am
- * Expected to finish code  @  3/21/25
+ * Started code  @  3/28/25  @  6:20 pm
+ * Expected to finish code  @  3/29/25
  * It is a 1+4 specimen auto with park. It hangs a preloaded specimen and then hang another specimen then push the 3 samples from the ground and hang them.
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
- * @version 3.0, 2/16/25
+ * @version 1.2, 3/29/25
  */
 
 @Config("Auto Testing")
@@ -46,6 +49,8 @@ public class AutoTESTING extends OpMode {
     private Timer pathTimer, opmodeTimer;
     public static double speed = 0.8;
     public static Integer pauses = 1000;
+    private DashboardPoseTracker dashboardPoseTracker;
+    private PoseUpdater poseUpdater;
     /** store the state of our auto. */
     private int pathState;
     // servos
@@ -246,6 +251,12 @@ public class AutoTESTING extends OpMode {
         follower.update();
         follower.setMaxPower(speed);
         autonomousPathUpdate();
+        // Draw the robot on the dashboard
+        poseUpdater.update();
+        dashboardPoseTracker.update();
+        Drawing.drawPoseHistory(dashboardPoseTracker, "#4CAF50");
+        Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
+        Drawing.sendPacket();
         // servos
         claw1.setPosition(clawCpos1);
         claw2.setPosition(clawCpos2);
@@ -313,6 +324,12 @@ public class AutoTESTING extends OpMode {
         follower = new Follower(hardwareMap);
         follower.setStartingPose(startPos);
         buildPaths();
+        // Draw the robot on the dashboard
+        poseUpdater = new PoseUpdater(hardwareMap);
+        poseUpdater.setStartingPose(startPos);
+        dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
+        Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
+        Drawing.sendPacket();
     }
 
     /** This method is called continuously after Init while waiting for "play". **/

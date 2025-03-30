@@ -12,7 +12,10 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.Constants;
+import com.pedropathing.util.DashboardPoseTracker;
+import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -204,6 +207,12 @@ public class MainV4 extends LinearOpMode {
         Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2));
         follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
         Calibrate.Auto.clearEverything();
+        // odometry
+        PoseUpdater poseUpdater = new PoseUpdater(hardwareMap);
+        poseUpdater.setStartingPose(Calibrate.Auto.getLastKnownPos());
+        DashboardPoseTracker dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
+        Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
+        Drawing.sendPacket();
         // telemetry
         telemetry.addData("RESETTING", "DONE!");
         telemetry.update();
@@ -474,6 +483,12 @@ public class MainV4 extends LinearOpMode {
                     GamepadUtils.viberate(gamepad1, 20, 1000);
                     GamepadUtils.viberate(gamepad2, 20, 1000);
                 }
+                // Draw the robot on the dashboard
+                poseUpdater.update();
+                dashboardPoseTracker.update();
+                Drawing.drawPoseHistory(dashboardPoseTracker, "#4CAF50");
+                Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
+                Drawing.sendPacket();
                 // telemetry
                 Calibrate.TeleOp.getStartPositions();
                 telemetry.addData("PIDF", "P: " + PIDTuneSlides.P + " I: " + PIDTuneSlides.I + " D: " + PIDTuneSlides.D + " F: " + PIDTuneSlides.F);
