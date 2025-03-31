@@ -517,6 +517,9 @@ public class MainV4 extends LinearOpMode {
                 telemetry.update();
             }
         }
+        if (isStopRequested()) {
+            // stop code
+        }
     }
     private boolean buttonPreviousState = false;
     public boolean buttonClick (boolean button) {
