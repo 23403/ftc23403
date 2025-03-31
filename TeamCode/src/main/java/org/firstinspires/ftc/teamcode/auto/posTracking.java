@@ -19,7 +19,10 @@ import pedroPathing.constants.LConstants;
 public class posTracking extends OpMode {
     private DashboardPoseTracker dashboardPoseTracker;
     private PoseUpdater poseUpdater;
-    public static Pose startPos = new Pose(9, 63.4, Math.toRadians(0)); // start Pos
+    public static double startPosX = -9;
+    public static double startPosY = 63.4;
+    public static double startPosRotation = -90;
+    private final Pose startPos = new Pose(startPosX, startPosY, Math.toRadians(startPosRotation)); // start Pos
 
     @Override
     public void init() {

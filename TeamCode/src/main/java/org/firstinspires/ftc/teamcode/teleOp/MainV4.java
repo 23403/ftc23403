@@ -28,7 +28,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
 import org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides;
-import org.firstinspires.ftc.teamcode.testCode.utils.CustomPresets;
+import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
@@ -87,14 +87,14 @@ public class MainV4 extends LinearOpMode {
     public static boolean redSide = true;
     public static int extendArmSpeed = 100;
     public static double wheelSpeed = 1;
-    public static double rotationalSpeed = 0.01;
+    public static double rotationalSpeed = 0.2;
     private boolean preset = false;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
     public static int slidesTARGET = 0;
-    public static int eaLimitHigh = 4500;
-    public static int eaLimitLow = 0;
+    public static int eaLimitHigh = 2959;
+    public static int eaLimitLow = -60;
     private static double power = 0;
     @Config("MainV4 Presets")
     public static class presets {
@@ -207,12 +207,6 @@ public class MainV4 extends LinearOpMode {
         Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2));
         follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
         Calibrate.Auto.clearEverything();
-        // odometry
-        PoseUpdater poseUpdater = new PoseUpdater(hardwareMap);
-        poseUpdater.setStartingPose(Calibrate.Auto.getLastKnownPos());
-        DashboardPoseTracker dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
-        Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
-        Drawing.sendPacket();
         // telemetry
         telemetry.addData("RESETTING", "DONE!");
         telemetry.update();
@@ -275,12 +269,10 @@ public class MainV4 extends LinearOpMode {
                     extendArm2.setPower(ff);
                 }
                 // submersibleArm code
-                if (gamepad1.dpad_right) {
+                if (gamepad1.dpad_up) {
                     subArmCpos = 0.45;
-                    wristCpos2 = 0.1;
-                } else if (gamepad1.dpad_left) {
+                } else if (gamepad1.dpad_down) {
                     subArmCpos = 1;
-                    wristCpos2 = 0.08;
                 }
                 // preset code
                 /**
@@ -405,7 +397,7 @@ public class MainV4 extends LinearOpMode {
                     power = pid + ff;
                     extendArm1.setPower(power);
                     extendArm2.setPower(power);
-                    if (Math.abs(power) <= 0.13) {
+                    if (Math.abs(power) <= 0.15) {
                         preset = false;
                     }
                 }
@@ -415,15 +407,15 @@ public class MainV4 extends LinearOpMode {
                 } else if (gamepad2.right_trigger > 0 || gamepad2.left_bumper) {
                     clawCpos1 = 1;
                 }
-                if (gamepad1.left_trigger > 0) {
+                if (gamepad1.left_bumper) {
                     clawCpos2 = 0;
-                } else if (gamepad1.right_trigger > 0) {
+                } else if (gamepad1.right_bumper) {
                     clawCpos2 = 1;
                 }
                 // wrist
-                if (gamepad1.dpad_up) {
+                if (gamepad1.dpad_right) {
                     wristCpos2 = 0;
-                } else if (gamepad1.dpad_down) {
+                } else if (gamepad1.dpad_left) {
                     wristCpos2 = 1;
                 }
                 if (gamepad2.dpad_left) {
@@ -440,12 +432,12 @@ public class MainV4 extends LinearOpMode {
                     wristCpos1 = 0.6;
                 }
                 // rotate
-                if (gamepad1.right_bumper) {
+                if (gamepad1.right_trigger > 0) {
                     rotationalCpos += rotationalSpeed;
-                    if (rotationalCpos > 1) rotationalCpos = 1;
-                } else if (gamepad1.left_bumper) {
+                    if (rotationalCpos > 0.7) rotationalCpos = 0.7;
+                } else if (gamepad1.left_trigger > 0) {
                     rotationalCpos -= rotationalSpeed;
-                    if (rotationalCpos < 0) rotationalCpos = 0;
+                    if (rotationalCpos < 0.2) rotationalCpos = 0.2;
                 }
                 // color sensor code
                 if (Sensor.isRedGrabbed()) {
@@ -483,12 +475,6 @@ public class MainV4 extends LinearOpMode {
                     GamepadUtils.viberate(gamepad1, 20, 1000);
                     GamepadUtils.viberate(gamepad2, 20, 1000);
                 }
-                // Draw the robot on the dashboard
-                poseUpdater.update();
-                dashboardPoseTracker.update();
-                Drawing.drawPoseHistory(dashboardPoseTracker, "#4CAF50");
-                Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
-                Drawing.sendPacket();
                 // telemetry
                 Calibrate.TeleOp.getStartPositions();
                 telemetry.addData("PIDF", "P: " + PIDTuneSlides.P + " I: " + PIDTuneSlides.I + " D: " + PIDTuneSlides.D + " F: " + PIDTuneSlides.F);
