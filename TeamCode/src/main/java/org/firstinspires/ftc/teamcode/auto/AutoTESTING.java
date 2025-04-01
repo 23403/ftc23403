@@ -5,7 +5,7 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.localization.PoseUpdater;
-import com.pedropathing.localization.constants.TwoWheelConstants;
+import com.pedropathing.localization.constants.ThreeWheelIMUConstants;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
@@ -107,120 +107,214 @@ public class AutoTESTING extends OpMode {
     /** different modes */
     private Path preload;
     /** path name */
-    private PathChain grabSpecimen1, scoreSpecimen1, moveToPushLoc1, moveToPushLoc2, moveToPushLoc3, pushBlock1, moveToPushLoc4, moveToPushLoc5, pushBlock2, moveToPushLoc6, moveToPushLoc7, pushBlock3, scoreSpecimen2, grabSpecimen2, scoreSpecimen3, grabSpecimen3, scoreSpecimen4, park;
+    private PathChain grabSpecimen1, grabSpecimen2, scoreSpecimen1, moveToPushLoc1, pushBlock1, moveToPushLoc2, pushBlock2, moveToPushLoc3, pushBlock3, scoreSpecimen2, grabSpecimen3, grabSpecimen4, scoreSpecimen3, grabSpecimen5, grabSpecimen6, scoreSpecimen4, grabSpecimen7, grabSpecimen8, scoreSpecimen5, pushSpecimens, park;
 
 
     /** points */
+    /* line1 */
     public static CustomPedroPathing.beizerLine preloadPoints = new CustomPedroPathing.beizerLine(
-            -9,
-            63.400,
-            10.6,
-            32.2
-    );
-
-    public static CustomPedroPathing.beizerLine grabSpecimen1Points = new CustomPedroPathing.beizerLine(
             10.6,
             32.2,
-            -46,
-            54.8
+            -9,
+            63.4,
+            -90,
+            -90
     );
-    public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
+    /* line2 */
+    public static CustomPedroPathing.beizerLine grabSpecimen1Points = new CustomPedroPathing.beizerLine(
             -46,
             54.8,
-            -46,
-            55.6
+            preloadPoints.endPointX,
+            preloadPoints.endPointY,
+            preloadPoints.getEndHeading(),
+            -90
     );
-    public static CustomPedroPathing.beizerLine moveToPushLoc1Points = new CustomPedroPathing.beizerLine(
+    /* line3 */
+    public static CustomPedroPathing.beizerLine grabSpecimen2Points = new CustomPedroPathing.beizerLine(
             -46,
             55.6,
-            2.8,
-            31.2
+            grabSpecimen1Points.endPointX,
+            grabSpecimen1Points.endPointY,
+            grabSpecimen1Points.getEndHeading(),
+            -90
     );
-    public static CustomPedroPathing.beizerLine moveToPushLoc2Points = new CustomPedroPathing.beizerLine(
+    /* line4 */
+    public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
             2.8,
             31.2,
-            -47.3,
-            20.4
+            grabSpecimen2Points.endPointX,
+            grabSpecimen2Points.endPointY,
+            grabSpecimen2Points.getEndHeading(),
+            -90
     );
-    public static CustomPedroPathing.beizerLine moveToPushLoc3Points = new CustomPedroPathing.beizerLine(
-            -47.3,
-            20.4,
-            -47.3,
-            54.9
+    /* line5 */
+    public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
+            scoreSpecimen1Points.endPointX,
+            scoreSpecimen1Points.endPointY,
+            List.of(0.0),
+            List.of(0.0),
+            2.8,
+            31.2,
+            scoreSpecimen1Points.getEndHeading(),
+            -90
     );
+    /* line6 */
     public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
             -47.3,
-            54.9,
-            -59.3,
-            19.7
+            54.6,
+            moveToPushLoc1Points.endPointX,
+            moveToPushLoc1Points.endPointY,
+            moveToPushLoc1Points.getEndHeading(),
+            -90
     );
-    public static CustomPedroPathing.beizerLine moveToPushLoc4Points = new CustomPedroPathing.beizerLine(
+    /* line7 */
+    public static CustomPedroPathing.beizerCurve moveToPushLoc2Points = new CustomPedroPathing.beizerCurve(
+            pushBlock1Points.endPointX,
+            pushBlock1Points.endPointY,
+            List.of(0.0),
+            List.of(0.0),
             -59.3,
             19.7,
-            -59.3,
-            54.6
+            pushBlock1Points.getEndHeading(),
+            -90
     );
-    public static CustomPedroPathing.beizerLine moveToPushLoc5Points = new CustomPedroPathing.beizerLine(
+    /* line8 */
+    public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
             -59.3,
             54.6,
-            -65.9,
-            20.5
+            moveToPushLoc2Points.endPointX,
+            moveToPushLoc2Points.endPointY,
+            moveToPushLoc2Points.getEndHeading(),
+            -90
     );
-    public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
+    /* line9 */
+    public static CustomPedroPathing.beizerCurve moveToPushLoc3Points = new CustomPedroPathing.beizerCurve(
+            pushBlock2Points.endPointX,
+            pushBlock2Points.endPointY,
+            List.of(0.0),
+            List.of(0.0),
             -65.9,
             20.5,
-            -64.6,
-            57.7
+            pushBlock2Points.getEndHeading(),
+            -90
     );
-    public static CustomPedroPathing.beizerLine moveToPushLoc6Points = new CustomPedroPathing.beizerLine(
+    /* line10 */
+    public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
             -64.6,
             57.7,
-            -1.5,
-            33.3
+            moveToPushLoc3Points.endPointX,
+            moveToPushLoc3Points.endPointY,
+            moveToPushLoc3Points.getEndHeading(),
+            -90
     );
-    public static CustomPedroPathing.beizerLine moveToPushLoc7Points = new CustomPedroPathing.beizerLine(
+    /* line11 */
+    public static CustomPedroPathing.beizerLine scoreSpecimen2Points = new CustomPedroPathing.beizerLine(
             -1.5,
             33.3,
-            -46,
-            54.8
+            pushBlock3Points.endPointX,
+            pushBlock3Points.endPointY,
+            pushBlock3Points.getEndHeading(),
+            -90
     );
-    public static CustomPedroPathing.beizerLine scoreSpecimen2Points = new CustomPedroPathing.beizerLine(
-            -46,
-            64.8,
-            -56,
-            55.6
-    );
-    public static CustomPedroPathing.beizerLine grabSpecimen2Points = new CustomPedroPathing.beizerLine(
-            -56,
-            55.6,
-            -4.4,
-            33.4
-    );
-    public static CustomPedroPathing.beizerLine scoreSpecimen3Points = new CustomPedroPathing.beizerLine(
-            -4.4,
-            33.4,
-            -46,
-            54.8
-    );
+    /* line12 */
     public static CustomPedroPathing.beizerLine grabSpecimen3Points = new CustomPedroPathing.beizerLine(
             -46,
             54.8,
+            scoreSpecimen2Points.endPointX,
+            scoreSpecimen2Points.endPointY,
+            scoreSpecimen2Points.getEndHeading(),
+            -90
+    );
+    /* line13 */
+    public static CustomPedroPathing.beizerLine grabSpecimen4Points = new CustomPedroPathing.beizerLine(
             -46,
-            55.6
-    );
-    public static CustomPedroPathing.beizerLine scoreSpecimen4Points = new CustomPedroPathing.beizerLine(
-            467,
             55.6,
-            -7,
-            33.4
+            grabSpecimen3Points.endPointX,
+            grabSpecimen3Points.endPointY,
+            grabSpecimen3Points.getEndHeading(),
+            -90
     );
-    public static CustomPedroPathing.beizerLine parkPoints = new CustomPedroPathing.beizerLine(
+    /* line14 */
+    public static CustomPedroPathing.beizerLine scoreSpecimen3Points = new CustomPedroPathing.beizerLine(
+            -4.4,
+            33.4,
+            grabSpecimen4Points.endPointX,
+            grabSpecimen4Points.endPointY,
+            grabSpecimen4Points.getEndHeading(),
+            -90
+    );
+    /* line15 */
+    public static CustomPedroPathing.beizerLine grabSpecimen5Points = new CustomPedroPathing.beizerLine(
+            -46,
+            54.8,
+            scoreSpecimen3Points.endPointX,
+            scoreSpecimen3Points.endPointY,
+            scoreSpecimen3Points.getEndHeading(),
+            -90
+    );
+    /* line16 */
+    public static CustomPedroPathing.beizerLine grabSpecimen6Points = new CustomPedroPathing.beizerLine(
+            -46,
+            55.6,
+            grabSpecimen5Points.endPointX,
+            grabSpecimen5Points.endPointY,
+            grabSpecimen5Points.getEndHeading(),
+            -90
+    );
+    /* line17 */
+    public static CustomPedroPathing.beizerLine scoreSpecimen4Points = new CustomPedroPathing.beizerLine(
             -7,
             33.4,
-            -46,
-            54.8
+            grabSpecimen6Points.endPointX,
+            grabSpecimen6Points.endPointY,
+            grabSpecimen6Points.getEndHeading(),
+            -90
     );
-
+    /* line18 */
+    public static CustomPedroPathing.beizerLine grabSpecimen7Points = new CustomPedroPathing.beizerLine(
+            -46,
+            54.8,
+            scoreSpecimen4Points.endPointX,
+            scoreSpecimen4Points.endPointY,
+            scoreSpecimen4Points.getEndHeading(),
+            -90
+    );
+    /* line19 */
+    public static CustomPedroPathing.beizerLine grabSpecimen8Points = new CustomPedroPathing.beizerLine(
+            -46,
+            55.6,
+            grabSpecimen7Points.endPointX,
+            grabSpecimen7Points.endPointY,
+            grabSpecimen7Points.getEndHeading(),
+            -90
+    );
+    /* line20 */
+    public static CustomPedroPathing.beizerLine scoreSpecimen5Points = new CustomPedroPathing.beizerLine(
+            -9,
+            33.6,
+            grabSpecimen8Points.endPointX,
+            grabSpecimen8Points.endPointY,
+            grabSpecimen8Points.getEndHeading(),
+            -90
+    );
+    /* line21 */
+    public static CustomPedroPathing.beizerLine pushSpecimensPoints = new CustomPedroPathing.beizerLine(
+            -0.6,
+            33.3,
+            scoreSpecimen5Points.endPointX,
+            scoreSpecimen5Points.endPointY,
+            scoreSpecimen5Points.getEndHeading(),
+            -90
+    );
+    /* line22 */
+    public static CustomPedroPathing.beizerLine parkPoints = new CustomPedroPathing.beizerLine(
+            -27,
+            53.6,
+            pushSpecimensPoints.endPointX,
+            pushSpecimensPoints.endPointY,
+            pushSpecimensPoints.getEndHeading(),
+            160
+    );
     /** create paths */
     public void buildPaths() {
         /* There are two major types of paths components: BezierCurves and BezierLines.
@@ -244,136 +338,138 @@ public class AutoTESTING extends OpMode {
                 preloadPoints.getStartPoint(),
                 preloadPoints.getEndPoint()
         ));
-        preload.setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90));
+        preload.setLinearHeadingInterpolation(Math.toRadians(preloadPoints.getStartHeading()), Math.toRadians(preloadPoints.getEndHeading()));
         /* line2 */
         grabSpecimen1 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         grabSpecimen1Points.getStartPoint(),
                         grabSpecimen1Points.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
+                .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen1Points.getStartHeading()), Math.toRadians(grabSpecimen1Points.getEndHeading()))
                 .build();
         /* line3 */
-        scoreSpecimen1 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        scoreSpecimen1Points.getStartPoint(),
-                        scoreSpecimen1Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line4 */
-        moveToPushLoc1 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        moveToPushLoc1Points.getStartPoint(),
-                        moveToPushLoc1Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line5 */
-        moveToPushLoc2 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        moveToPushLoc2Points.getStartPoint(),
-                        moveToPushLoc2Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line6 */
-        moveToPushLoc3 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        moveToPushLoc3Points.getStartPoint(),
-                        moveToPushLoc3Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line7 */
-        pushBlock1 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        pushBlock1Points.getStartPoint(),
-                        pushBlock1Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line8 */
-        moveToPushLoc4 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        moveToPushLoc4Points.getStartPoint(),
-                        moveToPushLoc4Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line9 */
-        moveToPushLoc5 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        moveToPushLoc5Points.getStartPoint(),
-                        moveToPushLoc5Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line1-90 */
-        pushBlock2 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        pushBlock2Points.getStartPoint(),
-                        pushBlock2Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line11 */
-        moveToPushLoc6 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        moveToPushLoc6Points.getStartPoint(),
-                        moveToPushLoc6Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line12 */
-        moveToPushLoc7 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        moveToPushLoc7Points.getStartPoint(),
-                        moveToPushLoc7Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line13 */
-        pushBlock3 = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        new Point(56.000, 11.000, Point.CARTESIAN),
-                        new Point(6.000, 12.400, Point.CARTESIAN),
-                        new Point(1.000, 2.900, Point.CARTESIAN),
-                        new Point(18.700, 28.000, Point.CARTESIAN)
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line14 */
-        scoreSpecimen2 = follower.pathBuilder()
-                .addPath(new BezierLine(
-                        scoreSpecimen2Points.getStartPoint(),
-                        scoreSpecimen2Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
-                .build();
-        /* line14 */
         grabSpecimen2 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         grabSpecimen2Points.getStartPoint(),
                         grabSpecimen2Points.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
+                .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen2Points.getStartHeading()), Math.toRadians(grabSpecimen2Points.getEndHeading()))
                 .build();
-        /* line15 */
-        scoreSpecimen3 = follower.pathBuilder()
+        /* line4 */
+        scoreSpecimen1 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        scoreSpecimen3Points.getStartPoint(),
-                        scoreSpecimen3Points.getEndPoint()
+                        scoreSpecimen1Points.getStartPoint(),
+                        scoreSpecimen1Points.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
+                .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen1Points.getStartHeading()), Math.toRadians(scoreSpecimen1Points.getEndHeading()))
                 .build();
-        /* line16 */
+        /* line5 */
+        moveToPushLoc1 = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        moveToPushLoc1Points.getStartPoint(),
+                        moveToPushLoc1Points.getMiddlePoint(0),
+                        moveToPushLoc1Points.getMiddlePoint(0),
+                        moveToPushLoc1Points.getMiddlePoint(1),
+                        moveToPushLoc1Points.getMiddlePoint(1),
+                        moveToPushLoc1Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc1Points.getStartHeading()), Math.toRadians(moveToPushLoc1Points.getEndHeading()))
+                .build();
+        /* line6 */
+        pushBlock1 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pushBlock1Points.getStartPoint(),
+                        pushBlock1Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(pushBlock1Points.getStartHeading()), Math.toRadians(pushBlock1Points.getEndHeading()))
+                .build();
+        /* line7 */
+        moveToPushLoc2 = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        moveToPushLoc2Points.getStartPoint(),
+                        moveToPushLoc2Points.getMiddlePoint(0),
+                        moveToPushLoc2Points.getMiddlePoint(0),
+                        moveToPushLoc2Points.getMiddlePoint(1),
+                        moveToPushLoc2Points.getMiddlePoint(1),
+                        moveToPushLoc2Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc2Points.getStartHeading()), Math.toRadians(moveToPushLoc2Points.getEndHeading()))
+                .build();
+        /* line8 */
+        pushBlock2 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pushBlock2Points.getStartPoint(),
+                        pushBlock2Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(pushBlock2Points.getStartHeading()), Math.toRadians(pushBlock2Points.getEndHeading()))
+                .build();
+        /* line9 */
+        moveToPushLoc3 = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        moveToPushLoc3Points.getStartPoint(),
+                        moveToPushLoc3Points.getMiddlePoint(0),
+                        moveToPushLoc3Points.getMiddlePoint(0),
+                        moveToPushLoc3Points.getMiddlePoint(1),
+                        moveToPushLoc3Points.getMiddlePoint(1),
+                        moveToPushLoc3Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc3Points.getStartHeading()), Math.toRadians(moveToPushLoc3Points.getEndHeading()))
+                .build();
+        /* line10 */
+        pushBlock3 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pushBlock3Points.getStartPoint(),
+                        pushBlock3Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(pushBlock3Points.getStartHeading()), Math.toRadians(pushBlock3Points.getEndHeading()))
+                .build();
+        /* line11 */
+        scoreSpecimen2 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        scoreSpecimen2Points.getStartPoint(),
+                        scoreSpecimen2Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen2Points.getStartHeading()), Math.toRadians(scoreSpecimen2Points.getEndHeading()))
+                .build();
+        /* line12 */
         grabSpecimen3 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         grabSpecimen3Points.getStartPoint(),
                         grabSpecimen3Points.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
+                .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen3Points.getStartHeading()), Math.toRadians(grabSpecimen3Points.getEndHeading()))
+                .build();
+        /* line13 */
+        grabSpecimen4 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        grabSpecimen4Points.getStartPoint(),
+                        grabSpecimen4Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen4Points.getStartHeading()), Math.toRadians(grabSpecimen4Points.getEndHeading()))
+                .build();
+        /* line14 */
+        scoreSpecimen3 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        scoreSpecimen3Points.getStartPoint(),
+                        scoreSpecimen3Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen3Points.getStartHeading()), Math.toRadians(scoreSpecimen3Points.getEndHeading()))
+                .build();
+        /* line15 */
+        grabSpecimen5 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        grabSpecimen5Points.getStartPoint(),
+                        grabSpecimen5Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen5Points.getStartHeading()), Math.toRadians(grabSpecimen5Points.getEndHeading()))
+                .build();
+        /* line16 */
+        grabSpecimen6 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        grabSpecimen6Points.getStartPoint(),
+                        grabSpecimen6Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen6Points.getStartHeading()), Math.toRadians(grabSpecimen6Points.getEndHeading()))
                 .build();
         /* line17 */
         scoreSpecimen4 = follower.pathBuilder()
@@ -381,15 +477,47 @@ public class AutoTESTING extends OpMode {
                         scoreSpecimen4Points.getStartPoint(),
                         scoreSpecimen4Points.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
+                .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen4Points.getStartHeading()), Math.toRadians(scoreSpecimen4Points.getEndHeading()))
                 .build();
         /* line18 */
+        grabSpecimen7 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        grabSpecimen7Points.getStartPoint(),
+                        grabSpecimen7Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen7Points.getStartHeading()), Math.toRadians(grabSpecimen7Points.getEndHeading()))
+                .build();
+        /* line19 */
+        grabSpecimen8 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        grabSpecimen8Points.getStartPoint(),
+                        grabSpecimen8Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen8Points.getStartHeading()), Math.toRadians(grabSpecimen8Points.getEndHeading()))
+                .build();
+        /* line20 */
+        scoreSpecimen5 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        scoreSpecimen5Points.getStartPoint(),
+                        scoreSpecimen5Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen5Points.getStartHeading()), Math.toRadians(scoreSpecimen5Points.getEndHeading()))
+                .build();
+        /* line21 */
+        pushSpecimens = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pushSpecimensPoints.getStartPoint(),
+                        pushSpecimensPoints.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(pushSpecimensPoints.getStartHeading()), Math.toRadians(pushSpecimensPoints.getEndHeading()))
+                .build();
+        /* line22 */
         park = follower.pathBuilder()
                 .addPath(new BezierLine(
                         parkPoints.getStartPoint(),
                         parkPoints.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(-90), Math.toRadians(-90))
+                .setLinearHeadingInterpolation(Math.toRadians(parkPoints.getStartHeading()), Math.toRadians(parkPoints.getEndHeading()))
                 .build();
     }
 
@@ -404,8 +532,6 @@ public class AutoTESTING extends OpMode {
             case 0: /* line1 */
                 if(follower.getPose().getX() > 39.5) {
                     // arm movements
-                    arm(0.25);
-                    wrist1(0.);
                 }
                 if(!follower.isBusy()) {
                     follower.followPath(preload,true);
@@ -422,117 +548,138 @@ public class AutoTESTING extends OpMode {
                 break;
             case 2: /* line3 */
                 if(!follower.isBusy()) {
-                    follower.followPath(scoreSpecimen1,true);
+                    follower.followPath(grabSpecimen2,true);
                     timer.wait(pauses);
                     setPathState(3);
                 }
                 break;
             case 3: /* line4 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveToPushLoc1,true);
+                    follower.followPath(scoreSpecimen1,true);
                     timer.wait(pauses);
                     setPathState(4);
                 }
                 break;
             case 4: /* line5 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveToPushLoc2,true);
+                    follower.followPath(moveToPushLoc1,true);
                     timer.wait(pauses);
                     setPathState(5);
                 }
                 break;
             case 5: /* line6 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveToPushLoc3,true);
+                    follower.followPath(pushBlock1,true);
                     timer.wait(pauses);
                     setPathState(6);
                 }
                 break;
             case 6: /* line7 */
                 if(!follower.isBusy()) {
-                    follower.followPath(pushBlock1,true);
+                    follower.followPath(moveToPushLoc2,true);
                     timer.wait(pauses);
                     setPathState(7);
                 }
                 break;
             case 7: /* line8 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveToPushLoc4,true);
+                    follower.followPath(pushBlock2,true);
                     timer.wait(pauses);
                     setPathState(8);
                 }
                 break;
             case 8: /* line9 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveToPushLoc5,true);
+                    follower.followPath(moveToPushLoc3,true);
                     timer.wait(pauses);
                     setPathState(9);
                 }
                 break;
             case 9: /* line10 */
                 if(!follower.isBusy()) {
-                    follower.followPath(pushBlock2,true);
+                    follower.followPath(pushBlock3,true);
                     timer.wait(pauses);
                     setPathState(10);
                 }
                 break;
             case 10: /* line11 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveToPushLoc6,true);
+                    follower.followPath(scoreSpecimen2,true);
                     timer.wait(pauses);
                     setPathState(11);
                 }
                 break;
             case 11: /* line12 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveToPushLoc7,true);
+                    follower.followPath(grabSpecimen3,true);
                     timer.wait(pauses);
                     setPathState(12);
                 }
                 break;
             case 12: /* line13 */
                 if(!follower.isBusy()) {
-                    follower.followPath(pushBlock3,true);
+                    follower.followPath(grabSpecimen4,true);
                     timer.wait(pauses);
                     setPathState(13);
                 }
                 break;
             case 13: /* line14 */
                 if(!follower.isBusy()) {
-                    follower.followPath(scoreSpecimen2,true);
+                    follower.followPath(scoreSpecimen3,true);
                     timer.wait(pauses);
                     setPathState(14);
                 }
                 break;
             case 14: /* line15 */
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen2,true);
+                    follower.followPath(grabSpecimen5,true);
                     timer.wait(pauses);
                     setPathState(15);
                 }
                 break;
             case 15: /* line16 */
                 if(!follower.isBusy()) {
-                    follower.followPath(scoreSpecimen3,true);
+                    follower.followPath(grabSpecimen6,true);
                     timer.wait(pauses);
                     setPathState(16);
                 }
                 break;
             case 16: /* line17 */
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen3,true);
+                    follower.followPath(scoreSpecimen4,true);
                     timer.wait(pauses);
                     setPathState(17);
                 }
                 break;
             case 17: /* line18 */
                 if(!follower.isBusy()) {
-                    follower.followPath(scoreSpecimen4,true);
+                    follower.followPath(grabSpecimen7,true);
                     timer.wait(pauses);
                     setPathState(18);
                 }
                 break;
             case 18: /* line19 */
+                if(!follower.isBusy()) {
+                    follower.followPath(grabSpecimen8,true);
+                    timer.wait(pauses);
+                    setPathState(19);
+                }
+                break;
+            case 19: /* line20 */
+                if(!follower.isBusy()) {
+                    follower.followPath(scoreSpecimen5,true);
+                    timer.wait(pauses);
+                    setPathState(19);
+                }
+                break;
+            case 20: /* line21 */
+                if(!follower.isBusy()) {
+                    follower.followPath(pushSpecimens,true);
+                    timer.wait(pauses);
+                    setPathState(19);
+                }
+                break;
+            case 21: /* line22 */
                 if(!follower.isBusy()) {
                     follower.followPath(park,true);
                     timer.wait(pauses);
@@ -669,7 +816,7 @@ public class AutoTESTING extends OpMode {
         Constants.setConstants(FConstants.class, LConstants.class);
         MetroLib.setConstants(MConstants.class);
         Calibrate.Auto.clearEverything();
-        hardwareMap.get(IMU.class, TwoWheelConstants.IMU_HardwareMapName).resetYaw();
+        hardwareMap.get(IMU.class, ThreeWheelIMUConstants.IMU_HardwareMapName).resetYaw();
         AutoVariables.eaMovements1 = 0;
         AutoVariables.eaMovements2 = 0;
         controller = new PIDController(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);

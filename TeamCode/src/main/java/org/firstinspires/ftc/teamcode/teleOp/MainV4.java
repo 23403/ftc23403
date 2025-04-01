@@ -12,10 +12,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.Constants;
-import com.pedropathing.util.DashboardPoseTracker;
-import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -496,6 +493,7 @@ public class MainV4 extends LinearOpMode {
                 telemetry.addData("Claw Position2:", claw2.getPosition());
                 telemetry.addData("Arm Position:", arm.getPosition());
                 telemetry.addData("Sweeper Position:", sweeper.getPosition());
+                telemetry.addData("Rotation Position:", rotation.getPosition());
                 telemetry.addData("triggersR?", gamepad1.right_trigger);
                 telemetry.addData("triggersL?", gamepad1.left_trigger);
                 telemetry.addData("Manually moving robot?", moving);
