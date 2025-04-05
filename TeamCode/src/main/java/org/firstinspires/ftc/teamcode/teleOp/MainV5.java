@@ -77,6 +77,7 @@ public class MainV5 extends LinearOpMode {
     // presets
     @Config("MainV5 Presets")
     public static class presets {
+        public static double preScoreArmPos = 0.3;
         public static CustomPresets humanPlayer = new CustomPresets(
                 eaLimitLow,
                 1.0,
@@ -188,6 +189,8 @@ public class MainV5 extends LinearOpMode {
         if (opModeIsActive()) {
             extendArmState = extendArmStates.LOW_POS;
             while (opModeIsActive()) {
+                // variables
+                boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 // servos
                 wrist1.setPosition(wristCpos1);
                 wrist2.setPosition(wristCpos2);
@@ -386,6 +389,13 @@ public class MainV5 extends LinearOpMode {
                     armCpos = MainV5.presets.specimen.arm != -1.0 ? MainV5.presets.specimen.arm : armCpos;
                     rotationalCpos = MainV5.presets.specimen.rotational != -1.0 ? MainV5.presets.specimen.rotational : rotationalCpos;
                     extendArmState = extendArmStates.MOVING_TO_PRESET;
+                }
+                // auto move arm to score when we pickup from human player
+                if (armCpos == presets.humanPlayer.arm && wristCpos1 == presets.humanPlayer.wrist1 && clawCpos1 == 1) {
+                    Timer.wait(200);
+                    if (moving) {
+                        armCpos = presets.preScoreArmPos;
+                    }
                 }
                 // claws
                 if (gamepad2.left_trigger > 0 || gamepad2.right_bumper) {
