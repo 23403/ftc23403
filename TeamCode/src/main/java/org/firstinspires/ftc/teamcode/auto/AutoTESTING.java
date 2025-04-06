@@ -534,154 +534,154 @@ public class AutoTESTING extends OpMode {
                     // arm movements
                 }
                 if(!follower.isBusy()) {
-                    follower.followPath(preload,true);
+                    follower.followPath(preload,false);
                     timer.wait(pauses);
                     setPathState(1);
                 }
                 break;
             case 1: /* line2 */
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen1,true);
+                    follower.followPath(grabSpecimen1,false);
                     timer.wait(pauses);
                     setPathState(2);
                 }
                 break;
             case 2: /* line3 */
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen2,true);
+                    follower.followPath(grabSpecimen2,false);
                     timer.wait(pauses);
                     setPathState(3);
                 }
                 break;
             case 3: /* line4 */
                 if(!follower.isBusy()) {
-                    follower.followPath(scoreSpecimen1,true);
+                    follower.followPath(scoreSpecimen1,false);
                     timer.wait(pauses);
                     setPathState(4);
                 }
                 break;
             case 4: /* line5 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveToPushLoc1,true);
+                    follower.followPath(moveToPushLoc1,false);
                     timer.wait(pauses);
                     setPathState(5);
                 }
                 break;
             case 5: /* line6 */
                 if(!follower.isBusy()) {
-                    follower.followPath(pushBlock1,true);
+                    follower.followPath(pushBlock1,false);
                     timer.wait(pauses);
                     setPathState(6);
                 }
                 break;
             case 6: /* line7 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveToPushLoc2,true);
+                    follower.followPath(moveToPushLoc2,false);
                     timer.wait(pauses);
                     setPathState(7);
                 }
                 break;
             case 7: /* line8 */
                 if(!follower.isBusy()) {
-                    follower.followPath(pushBlock2,true);
+                    follower.followPath(pushBlock2,false);
                     timer.wait(pauses);
                     setPathState(8);
                 }
                 break;
             case 8: /* line9 */
                 if(!follower.isBusy()) {
-                    follower.followPath(moveToPushLoc3,true);
+                    follower.followPath(moveToPushLoc3,false);
                     timer.wait(pauses);
                     setPathState(9);
                 }
                 break;
             case 9: /* line10 */
                 if(!follower.isBusy()) {
-                    follower.followPath(pushBlock3,true);
+                    follower.followPath(pushBlock3,false);
                     timer.wait(pauses);
                     setPathState(10);
                 }
                 break;
             case 10: /* line11 */
                 if(!follower.isBusy()) {
-                    follower.followPath(scoreSpecimen2,true);
+                    follower.followPath(scoreSpecimen2,false);
                     timer.wait(pauses);
                     setPathState(11);
                 }
                 break;
             case 11: /* line12 */
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen3,true);
+                    follower.followPath(grabSpecimen3,false);
                     timer.wait(pauses);
                     setPathState(12);
                 }
                 break;
             case 12: /* line13 */
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen4,true);
+                    follower.followPath(grabSpecimen4,false);
                     timer.wait(pauses);
                     setPathState(13);
                 }
                 break;
             case 13: /* line14 */
                 if(!follower.isBusy()) {
-                    follower.followPath(scoreSpecimen3,true);
+                    follower.followPath(scoreSpecimen3,false);
                     timer.wait(pauses);
                     setPathState(14);
                 }
                 break;
             case 14: /* line15 */
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen5,true);
+                    follower.followPath(grabSpecimen5,false);
                     timer.wait(pauses);
                     setPathState(15);
                 }
                 break;
             case 15: /* line16 */
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen6,true);
+                    follower.followPath(grabSpecimen6,false);
                     timer.wait(pauses);
                     setPathState(16);
                 }
                 break;
             case 16: /* line17 */
                 if(!follower.isBusy()) {
-                    follower.followPath(scoreSpecimen4,true);
+                    follower.followPath(scoreSpecimen4,false);
                     timer.wait(pauses);
                     setPathState(17);
                 }
                 break;
             case 17: /* line18 */
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen7,true);
+                    follower.followPath(grabSpecimen7,false);
                     timer.wait(pauses);
                     setPathState(18);
                 }
                 break;
             case 18: /* line19 */
                 if(!follower.isBusy()) {
-                    follower.followPath(grabSpecimen8,true);
+                    follower.followPath(grabSpecimen8,false);
                     timer.wait(pauses);
                     setPathState(19);
                 }
                 break;
             case 19: /* line20 */
                 if(!follower.isBusy()) {
-                    follower.followPath(scoreSpecimen5,true);
+                    follower.followPath(scoreSpecimen5,false);
                     timer.wait(pauses);
                     setPathState(19);
                 }
                 break;
             case 20: /* line21 */
                 if(!follower.isBusy()) {
-                    follower.followPath(pushSpecimens,true);
+                    follower.followPath(pushSpecimens,false);
                     timer.wait(pauses);
                     setPathState(19);
                 }
                 break;
             case 21: /* line22 */
                 if(!follower.isBusy()) {
-                    follower.followPath(park,true);
+                    follower.followPath(park,false);
                     timer.wait(pauses);
                     setPathState(19);
                 }
