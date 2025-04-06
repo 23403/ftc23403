@@ -128,8 +128,7 @@ public class MainV5 extends LinearOpMode {
     @Override
     public void runOpMode() {
         // hardware
-        Constants.setConstants(FConstants.class, LConstants.class);
-        Follower follower = new Follower(hardwareMap);
+        Follower follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         PIDController controller = new PIDController(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);

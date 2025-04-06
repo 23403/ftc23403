@@ -15,6 +15,9 @@ import  com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
 
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
+
 @Disabled
 @Autonomous(name = "Auto", group = "ftc23403")
 public class AutoAhmed extends OpMode {
@@ -482,7 +485,7 @@ public class AutoAhmed extends OpMode {
         opmodeTimer.resetTimer();
 
 
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPose);
 
         DcMotor slide = hardwareMap.dcMotor.get("slide");

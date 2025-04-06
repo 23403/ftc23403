@@ -329,7 +329,6 @@ public class AutoHookOdometry extends OpMode {
     @Override
     public void init() {
         // hardware
-        Constants.setConstants(FConstants.class, LConstants.class);
         hardwareMap.get(GoBildaPinpointDriver.class, PinpointConstants.hardwareMapName).resetPosAndIMU();
         // servos
         Servo wrist = hardwareMap.get(Servo.class, "wrist");
@@ -345,7 +344,7 @@ public class AutoHookOdometry extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPos);
         buildPaths();
     }

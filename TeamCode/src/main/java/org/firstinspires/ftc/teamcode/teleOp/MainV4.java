@@ -146,8 +146,7 @@ public class MainV4 extends LinearOpMode {
         // hardware
         IMU imu = hardwareMap.get(IMU.class, "imu");
         MetroLib.setConstants(MConstants.class);
-        Follower follower = new Follower(hardwareMap);
-        Constants.setConstants(FConstants.class, LConstants.class);
+        Follower follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         PIDController controller = new PIDController(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);

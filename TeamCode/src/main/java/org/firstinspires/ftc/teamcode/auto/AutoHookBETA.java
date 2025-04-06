@@ -552,7 +552,6 @@ public class AutoHookBETA extends OpMode {
     @Override
     public void init() {
         // hardware
-        Constants.setConstants(FConstants.class, LConstants.class);
         MetroLib.setConstants(MConstants.class);
         Calibrate.Auto.clearEverything();
         hardwareMap.get(IMU.class, TwoWheelConstants.IMU_HardwareMapName).resetYaw();
@@ -579,7 +578,7 @@ public class AutoHookBETA extends OpMode {
         pathTimer = new Timer();
         opmodeTimer = new Timer();
         opmodeTimer.resetTimer();
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(startPos);
         buildPaths();
     }

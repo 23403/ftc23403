@@ -51,9 +51,8 @@ public class AutoHookALPHA extends OpMode {
     @Override
     public void init() {
         // reset imu
-        Constants.setConstants(FConstants.class, LConstants.class);
         hardwareMap.get(GoBildaPinpointDriver.class, PinpointConstants.hardwareMapName).resetPosAndIMU();
-        follower = new Follower(hardwareMap);
+        follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         // path
         specimen = follower.pathBuilder()
                 .addPath(

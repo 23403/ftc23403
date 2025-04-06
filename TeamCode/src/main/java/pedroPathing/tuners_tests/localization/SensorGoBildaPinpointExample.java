@@ -23,6 +23,7 @@
 package pedroPathing.tuners_tests.localization;
 
 import com.pedropathing.localization.GoBildaPinpointDriver;
+import com.pedropathing.localization.Pose;
 import com.pedropathing.localization.constants.PinpointConstants;
 import com.pedropathing.util.Constants;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -146,14 +147,14 @@ public class SensorGoBildaPinpointExample extends LinearOpMode {
             /*
             gets the current Position (x & y in mm, and heading in degrees) of the robot, and prints it.
              */
-            Pose2D pos = odo.getPosition();
-            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(DistanceUnit.MM), pos.getY(DistanceUnit.MM), pos.getHeading(AngleUnit.DEGREES));
+            Pose pos = odo.getPosition();
+            String data = String.format(Locale.US, "{X: %.3f, Y: %.3f, H: %.3f}", pos.getX(), pos.getY(), Math.toDegrees(pos.getHeading()));
             telemetry.addData("Position", data);
             /*
             gets the current Velocity (x & y in mm/sec and heading in degrees/sec) and prints it.
              */
-            Pose2D vel = odo.getVelocity();
-            String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(DistanceUnit.MM), vel.getY(DistanceUnit.MM), vel.getHeading(AngleUnit.DEGREES));
+            Pose vel = odo.getVelocity();
+            String velocity = String.format(Locale.US,"{XVel: %.3f, YVel: %.3f, HVel: %.3f}", vel.getX(), vel.getY(), Math.toDegrees(vel.getHeading()));
             telemetry.addData("Velocity", velocity);
             /*
             Gets the Pinpoint device status. Pinpoint can reflect a few states. But we'll primarily see
