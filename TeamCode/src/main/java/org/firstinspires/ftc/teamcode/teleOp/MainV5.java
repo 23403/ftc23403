@@ -168,8 +168,7 @@ public class MainV5 extends LinearOpMode {
         // breaks
         Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear));
         // reset encoders
-        extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
-        extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        Motors.resetEncoders(List.of(extendArm1, extendArm2));
         // misc
         Limelight limelight = new Limelight(limelight3A, wrist2, submersibleArm1, telemetry);
         gamepad1.setLedColor(0, 255, 0, -1);
@@ -180,14 +179,14 @@ public class MainV5 extends LinearOpMode {
         follower.startTeleopDrive();
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
-        follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
+        if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
+        Calibrate.Auto.clearEverything();
         extendArmState = extendArmStates.RESETTING_ZERO_POS;
         // telemetry
-        telemetry.addData("RESETTING", "DONE!");
+        telemetry.addData("INIT", "DONE!");
         telemetry.update();
         waitForStart();
         if (opModeIsActive()) {
-            extendArmState = extendArmStates.LOW_POS;
             while (opModeIsActive()) {
                 // variables
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
@@ -250,9 +249,9 @@ public class MainV5 extends LinearOpMode {
                     extendArmState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
                 }
                 // states
-                if (eaCpos1 >= eaLimitHigh) {
+                if (Math.abs(eaCpos1 - eaLimitHigh) > 60) {
                     extendArmState = extendArmStates.MAX_POS;
-                } else if (eaCpos1 <= eaLimitLow) {
+                } else if (Math.abs(eaCpos1 - eaLimitLow) > 60) {
                     extendArmState = extendArmStates.LOW_POS;
                 }
                 // preset controls
@@ -462,6 +461,10 @@ public class MainV5 extends LinearOpMode {
                 telemetry.addData("Red side?", redSide);
                 telemetry.update();
             }
+        }
+        if (isStopRequested()) {
+            // stop code
+            // turn off servos on the servo hub or spm if we get them
         }
     }
 }
