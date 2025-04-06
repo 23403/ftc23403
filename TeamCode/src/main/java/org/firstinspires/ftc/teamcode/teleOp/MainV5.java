@@ -13,6 +13,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
 import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
@@ -127,8 +128,8 @@ public class MainV5 extends LinearOpMode {
     @Override
     public void runOpMode() {
         // hardware
-        Follower follower = new Follower(hardwareMap);
         Constants.setConstants(FConstants.class, LConstants.class);
+        Follower follower = new Follower(hardwareMap);
         PIDController controller = new PIDController(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
@@ -176,10 +177,13 @@ public class MainV5 extends LinearOpMode {
         extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         claw1.setPosition(clawCpos1);
-        follower.startTeleopDrive();
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
-        if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
+        if (Calibrate.Auto.getLastKnownPos() != null) {
+            follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
+        } else {
+            follower.setStartingPose(new Pose(0,0,0));
+        }
         Calibrate.Auto.clearEverything();
         extendArmState = extendArmStates.RESETTING_ZERO_POS;
         // telemetry
@@ -187,6 +191,7 @@ public class MainV5 extends LinearOpMode {
         telemetry.update();
         waitForStart();
         if (opModeIsActive()) {
+            follower.startTeleopDrive();
             while (opModeIsActive()) {
                 // variables
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
