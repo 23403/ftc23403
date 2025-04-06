@@ -121,7 +121,7 @@ public class MainV5 extends LinearOpMode {
                 -1.0,
                 1.0,
                 -1.0,
-                0.45,
+                0.0,
                 0.25,
                 -1.0);
     }
@@ -160,6 +160,7 @@ public class MainV5 extends LinearOpMode {
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0.2, 1);
         claw1.scaleRange(0.4, 0.8);
+        submersibleArm1.scaleRange(0.45, 1);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -271,7 +272,7 @@ public class MainV5 extends LinearOpMode {
                 }
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
-                    subArmCpos = 0.45;
+                    subArmCpos = 0;
                 } else if (gamepad1.dpad_down) {
                     subArmCpos = 1;
                 }

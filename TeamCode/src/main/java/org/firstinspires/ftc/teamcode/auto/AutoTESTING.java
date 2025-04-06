@@ -53,39 +53,24 @@ public class AutoTESTING extends OpMode {
     /** store the state of our auto. */
     private int pathState;
     // servos
-    public Servo claw1; // axon
-    public Servo claw2; // axon
-    public Servo wrist1; // axon
-    public Servo wrist2; // 20kg
-    public Servo sweeper; // goBilda torque
-    public Servo submersibleArm1; // axon
-    public Servo arm; // axon
+    private Servo sweeper; // 1x goBilda torque
+    private Servo arm; // 2x axon
+    private Servo wrist1; // 1x axon
+    private Servo claw1; // 1x axon
+    private Servo submersibleArm1; // 1x axon
+    private Servo submersibleArm2; // 1x axon
+    private Servo wrist2; // 1x 20kg
+    private Servo claw2; // 1x goBilda speed
+    private Servo rotation; // 1x goBilda speed
     // servo positions
-    public static double wristCpos1 = 0.38;
-    // 0.5 low pos
-    // 0.38 grab from sa
-    // 1 high pos
-    public static double clawCpos1 = 0.9;
-    // 0.4 is close
-    // 0.9 is open
+    public static double wristCpos1 = 0;
+    public static double clawCpos1 = 1;
     public static double sweeperCpos = 1;
-    // 0.5 low pos
-    // 1 high pos
-    public static double wristCpos2 = 0.45;
-    // 0.07 low pos
-    // 0.45 give to ea
-    // 0.5 high pos
+    public static double wristCpos2 = 1;
     public static double clawCpos2 = 0.5;
-    // 0.5 is close
-    // 0.55 is grab pos
-    // 1 is open pos
-    public static double armCpos = 0.72;
-    // 0.88 low pos
-    // 0.72 grab from sa
-    // 0 high pos
+    public static double armCpos = 0.23;
     public static double subArmCpos = 1;
-    // 0 low pos
-    // 0.45 high pos
+    public static double rotationalCpos = 0.5;
     // pid
     private PIDController controller;
     private DcMotorEx extendArm1;
@@ -687,7 +672,7 @@ public class AutoTESTING extends OpMode {
     }
 
     /**
-     * Encoder movements for the arms and sliders,
+     * Servo movements, and encoder movements for the slides
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
      */
     private void extendArmMove(int pos) {
@@ -752,6 +737,9 @@ public class AutoTESTING extends OpMode {
     private void submersibleArm(double pos) {
         subArmCpos = pos;
     }
+    private void rotation(double pos) {
+        rotationalCpos = pos;
+    }
 
     /** These change the states of the paths and actions
      * It will also reset the timers of the individual switches **/
@@ -774,13 +762,14 @@ public class AutoTESTING extends OpMode {
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();
         // servos
-        claw1.setPosition(clawCpos1);
-        claw2.setPosition(clawCpos2);
         wrist1.setPosition(wristCpos1);
         wrist2.setPosition(wristCpos2);
-        sweeper.setPosition(sweeperCpos);
-        submersibleArm1.setPosition(subArmCpos);
+        claw1.setPosition(clawCpos1);
+        claw2.setPosition(clawCpos2);
         arm.setPosition(armCpos);
+        submersibleArm1.setPosition(subArmCpos);
+        sweeper.setPosition(sweeperCpos);
+        rotation.setPosition(rotationalCpos);
         // extendArm code
         controller.setPID(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
         int eaCpos1 = extendArm1.getCurrentPosition();
@@ -813,25 +802,35 @@ public class AutoTESTING extends OpMode {
         MetroLib.setConstants(MConstants.class);
         Calibrate.Auto.clearEverything();
         hardwareMap.get(IMU.class, ThreeWheelIMUConstants.IMU_HardwareMapName).resetYaw();
-        AutoVariables.eaMovements1 = 0;
-        AutoVariables.eaMovements2 = 0;
         controller = new PIDController(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
         // motors
         extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // servos
-        claw1 = hardwareMap.get(Servo.class, "claw1"); // axon
-        claw2 = hardwareMap.get(Servo.class, "claw2"); // axon
-        wrist1 = hardwareMap.get(Servo.class, "wrist1"); // axon
-        wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 20kg
-        sweeper = hardwareMap.get(Servo.class, "sweeper"); // goBilda torque
-        submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // axon
-        arm = hardwareMap.get(Servo.class, "arm"); // axon
+        sweeper = hardwareMap.get(Servo.class, "sweeper"); // 1x goBilda torque
+        // ea
+        arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
+        wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
+        claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x axon
+        // sa
+        submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
+        submersibleArm2 = hardwareMap.get(Servo.class, "subArm2"); // 1x axon
+        wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 20kg
+        claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
+        rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
         // directions
         sweeper.setDirection(Servo.Direction.REVERSE);
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
+        // limits
+        claw2.scaleRange(0.01, 0.08);
+        wrist2.scaleRange(0, 0.8);
+        rotation.scaleRange(0.43, 0.55);
+        arm.scaleRange(0.12, 1);
+        wrist1.scaleRange(0.2, 1);
+        claw1.scaleRange(0.4, 0.8);
+        submersibleArm1.scaleRange(0.45, 1);
         // starting pos
-        claw1(0.4);
+        claw1(1);
         // movement
         pathTimer = new com.pedropathing.util.Timer();
         opmodeTimer = new com.pedropathing.util.Timer();
@@ -862,7 +861,6 @@ public class AutoTESTING extends OpMode {
     /** We do not use this because everything should automatically disable **/
     @Override
     public void stop() {
-        Calibrate.Auto.savePositions(List.of(AutoVariables.eaMovements1, AutoVariables.eaMovements2));
         Calibrate.Auto.saveLastKnownPos(follower.getPose());
     }
 }
