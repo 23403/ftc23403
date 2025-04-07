@@ -17,9 +17,11 @@ import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
@@ -148,8 +150,8 @@ public class MainV4 extends LinearOpMode {
         MetroLib.setConstants(MConstants.class);
         Follower follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         PIDController controller = new PIDController(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
-        ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
-        MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
+        TouchSensor sensor = hardwareMap.get(TouchSensor.class, "sensor");
+        MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         Limelight3A limelightMap = hardwareMap.get(Limelight3A.class, "limelight");
         // motors
@@ -176,7 +178,7 @@ public class MainV4 extends LinearOpMode {
         wrist2.scaleRange(0, 0.8);
         rotation.scaleRange(0.43, 0.55);
         arm.scaleRange(0.12, 1);
-        wrist1.scaleRange(0.2, 1);
+        wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0.4, 0.8);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
@@ -264,6 +266,12 @@ public class MainV4 extends LinearOpMode {
                     extendArm1.setPower(ff);
                     extendArm2.setPower(ff);
                 }
+                if (sensor.isPressed()) {
+                    extendArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    extendArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+                    extendArm1.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                    extendArm2.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+                }
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
                     subArmCpos = 0.45;
@@ -290,7 +298,7 @@ public class MainV4 extends LinearOpMode {
                  *               '.             /
                  *                \\.          .'
                  *                  \\________/
-                 */
+                */
                 // humanPlayer pos
                 if (gamepad1.b) {
                     // use correction code cuz its easier fr fr
@@ -335,7 +343,7 @@ public class MainV4 extends LinearOpMode {
                  *               '.             /
                  *                \\.          .'
                  *                  \\________/
-                 */
+                */
                 // high basket pos
                 if (gamepad2.y) {
                     // use correction code cuz its easier fr fr
@@ -483,8 +491,8 @@ public class MainV4 extends LinearOpMode {
                 telemetry.addData("errorAvg", (Math.abs(slidesTARGET - eaCpos1) + Math.abs(slidesTARGET - eaCpos2)) / 2);
                 telemetry.addData("DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
                 telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
-                telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
-                telemetry.addData("Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
+                telemetry.addData("touch sensor", sensor.isPressed());
+                telemetry.addData("touch sensor", sensor.getValue());
                 telemetry.addData("Submersible Arm Position1:", submersibleArm1.getPosition());
                 telemetry.addData("Wrist Position1:", wrist1.getPosition());
                 telemetry.addData("Wrist Position2:", wrist2.getPosition());

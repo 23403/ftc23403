@@ -158,7 +158,7 @@ public class MainV5 extends LinearOpMode {
         wrist2.scaleRange(0, 0.8);
         rotation.scaleRange(0.43, 0.55);
         arm.scaleRange(0.12, 1);
-        wrist1.scaleRange(0.2, 1);
+        wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0.4, 0.8);
         submersibleArm1.scaleRange(0.45, 1);
         // reverse
@@ -254,9 +254,9 @@ public class MainV5 extends LinearOpMode {
                     extendArmState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
                 }
                 // states
-                if (Math.abs(eaCpos1 - eaLimitHigh) > 60) {
+                if (Math.abs(eaCpos1 - eaLimitHigh) < 60) {
                     extendArmState = extendArmStates.MAX_POS;
-                } else if (Math.abs(eaCpos1 - eaLimitLow) > 60) {
+                } else if (Math.abs(eaCpos1 - eaLimitLow) < 60) {
                     extendArmState = extendArmStates.LOW_POS;
                 }
                 // preset controls
@@ -296,7 +296,7 @@ public class MainV5 extends LinearOpMode {
                  *               '.             /
                  *                \\.          .'
                  *                  \\________/
-                 */
+                */
                 // humanPlayer pos
                 if (gamepad1.b) {
                     // use correction code cuz its easier fr fr
@@ -341,7 +341,7 @@ public class MainV5 extends LinearOpMode {
                  *               '.             /
                  *                \\.          .'
                  *                  \\________/
-                 */
+                */
                 // high basket pos
                 if (gamepad2.y) {
                     // use correction code cuz its easier fr fr
