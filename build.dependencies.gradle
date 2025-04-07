@@ -18,7 +18,7 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.7.0'
     implementation 'org.ftclib.ftclib:core:2.1.1' // ftclib
     implementation 'com.pedropathing:ftclib:1.0.7' // pedropathing ftclib
-    implementation 'com.pedropathing:dev:1.1.0-dev3' // pedropathing
+    implementation 'com.pedropathing:pedro:1.0.9' // pedropathing
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.16' // ftc dashboard
     implementation 'xyz.nin1275:metrolib:0.1.8-dev' // MetroLib
 }

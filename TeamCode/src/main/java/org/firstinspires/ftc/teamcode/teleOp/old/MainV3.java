@@ -24,6 +24,8 @@ import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
 import java.util.List;
 
+import pedroPathing.constants.FConstants;
+import pedroPathing.constants.LConstants;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.GamepadUtils;
 import xyz.nin1275.MetroLib;
@@ -119,7 +121,7 @@ public class MainV3 extends LinearOpMode {
         // hardware
         IMU imu = hardwareMap.get(IMU.class, "imu");
         MetroLib.setConstants(MConstants.class);
-        Follower follower = new Follower(hardwareMap);
+        Follower follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         // motors
