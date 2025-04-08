@@ -20,7 +20,11 @@ public class PIDTuneSlides extends OpMode {
     public static double I = 0;
     public static double D = 0.0005;
     public static double F = 0.1;
+    public static double K = 0.05;
     public static double TARGET = 0;
+    public static double CPR = 384.16; // counts per revolution
+    public static double INCHES_PER_REV = 1.5; // how far the arm travels linearly per motor revolution
+
 
     /**
      * Initialization code.
@@ -52,29 +56,37 @@ public class PIDTuneSlides extends OpMode {
      */
     @Override
     public void loop() {
-        // update the values so we can change them mid match
+        // Update PID values
         controller.setPID(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
-        // grab current pos
-        int eaCpos1 = extendArm1.getCurrentPosition();
-        int eaCpos2 = extendArm2.getCurrentPosition();
-        // calculate the power
-        double pid = controller.calculate(eaCpos1, TARGET);
-        // save the Force Feedback value
-        double ff = PIDTuneSlides.F;
-        // the final power value
-        double power = pid + ff;
-        // send the power to the motors
-        extendArm1.setPower(power);
-        extendArm2.setPower(power);
+        // Get current positions
+        int eaTicks1 = extendArm1.getCurrentPosition();
+        int eaTicks2 = extendArm2.getCurrentPosition();
+        // Convert ticks to inches
+        double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
+        double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
+        // Calculate PID only on one motor (leader)
+        double pid = controller.calculate(eaInches1, TARGET);
+        double ff = F;
+        double rawPower = pid + ff;
+        // Calculate sync error
+        double syncError = eaInches1 - eaInches2;
+        // Calculate correction power
+        double correction = syncError * K;
+        // Apply power
+        extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
+        extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
         // telemetry for debugging
         telemetry.addData("PIDF", "P: " + P + " I: " + I + " D: " + D + " F: " + F);
         telemetry.addData("target", TARGET);
-        telemetry.addData("eaCpos1", eaCpos1);
-        telemetry.addData("eaCpos2", eaCpos2);
-        telemetry.addData("eaPower", power);
-        telemetry.addData("error1", Math.abs(TARGET - eaCpos1));
-        telemetry.addData("error2", Math.abs(TARGET - eaCpos2));
-        telemetry.addData("errorAvg", (Math.abs(TARGET - eaCpos1) + Math.abs(TARGET - eaCpos2)) / 2);
+        telemetry.addData("eaCpos1", eaInches1);
+        telemetry.addData("eaCpos2", eaInches2);
+        telemetry.addData("eaPowerRAW", rawPower);
+        telemetry.addData("eaPower", Math.max(-1, Math.min(1, rawPower)));
+        telemetry.addData("eaPower SYNC ERROR RAW", rawPower + correction);
+        telemetry.addData("error1", Math.abs(TARGET - eaInches1));
+        telemetry.addData("error2", Math.abs(TARGET - eaInches2));
+        telemetry.addData("errorAvg", (Math.abs(TARGET - eaInches1) + Math.abs(TARGET - eaInches2)) / 2);
+        telemetry.addData("errorSync", syncError);
         telemetry.update();
     }
 }
