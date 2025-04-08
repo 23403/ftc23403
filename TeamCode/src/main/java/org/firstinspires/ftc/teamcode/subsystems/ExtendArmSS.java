@@ -30,7 +30,7 @@ public class ExtendArmSS {
     // Target (in inches)
     private double targetInches;
     private double power;
-    private boolean eaCorrection;
+    private boolean eaCorrection = true;
 
     // State Management
     private extendArmStates currentState;

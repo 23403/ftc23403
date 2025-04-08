@@ -76,7 +76,7 @@ public class PIDTuneSlides extends OpMode {
         extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
         extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
         // telemetry for debugging
-        telemetry.addData("PIDF", "P: " + P + " I: " + I + " D: " + D + " F: " + F);
+        telemetry.addData("PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
         telemetry.addData("target", TARGET);
         telemetry.addData("eaCpos1", eaInches1);
         telemetry.addData("eaCpos2", eaInches2);

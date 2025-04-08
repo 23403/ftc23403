@@ -16,7 +16,10 @@ public class ExtendArmSSTest extends LinearOpMode {
     public void runOpMode() throws InterruptedException {
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
+        extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
         ExtendArmSS extendArmSS = new ExtendArmSS(extendArm1, extendArm2);
+        telemetry.addData("currentState", extendArmSS.getCurrentState());
+        telemetry.update();
         waitForStart();
         if (opModeIsActive()) {
             while (opModeIsActive()) {
