@@ -6,7 +6,6 @@ import static org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides.I;
 import static org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides.F;
 
-
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -123,43 +122,10 @@ public class ExtendArmSS {
     }
 
     public void moveSlides(boolean up, boolean down) {
-        // Move slides based on button presses
-        if (up) {
+        // Handle movement based on button presses, respecting the limits
+        if (up && ticksToInches(extendArm1.getCurrentPosition()) < eaLimitHigh) {
             currentState = extendArmStates.MOVING_TO_PRESET;
-        } else if (down) {
-            currentState = extendArmStates.MOVING_TO_PRESET;
-        } else {
-            currentState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
-        }
-    }
-
-    public void moveSlides(double up, double down) {
-        // Move slides based on button presses
-        if (Math.abs(up) > 0.05) {
-            currentState = extendArmStates.MOVING_TO_PRESET;
-        } else if (Math.abs(down) > 0.05) {
-            currentState = extendArmStates.MOVING_TO_PRESET;
-        } else {
-            currentState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
-        }
-    }
-
-    public void moveSlides(boolean up, double down) {
-        // Move slides based on button presses
-        if (up) {
-            currentState = extendArmStates.MOVING_TO_PRESET;
-        } else if (Math.abs(down) > 0.05) {
-            currentState = extendArmStates.MOVING_TO_PRESET;
-        } else {
-            currentState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
-        }
-    }
-
-    public void moveSlides(double up, boolean down) {
-        // Move slides based on button presses
-        if (Math.abs(up) > 0.05) {
-            currentState = extendArmStates.MOVING_TO_PRESET;
-        } else if (down) {
+        } else if (down && ticksToInches(extendArm1.getCurrentPosition()) > eaLimitLow) {
             currentState = extendArmStates.MOVING_TO_PRESET;
         } else {
             currentState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
@@ -167,13 +133,13 @@ public class ExtendArmSS {
     }
 
     public void preset(double pos) {
-        // Move slides based on button presses
+        // Move slides to a preset target (in inches)
         targetInches = pos;
         currentState = extendArmStates.MOVING_TO_PRESET;
     }
 
     private void manualMovement(double pos1, double ff) {
-        // Manual movement control based on dpad
+        // Manual movement control based on dpad, respecting the limits
         if (pos1 < eaLimitHigh) {
             double pid = controller.calculate(pos1, eaLimitHigh);
             power = pid + ff;
