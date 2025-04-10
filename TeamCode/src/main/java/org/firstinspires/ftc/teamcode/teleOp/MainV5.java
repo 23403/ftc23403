@@ -80,7 +80,6 @@ public class MainV5 extends LinearOpMode {
     public static boolean eaCorrection = true;
     private static extendArmStates extendArmState = extendArmStates.FLOATING;
     ElapsedTime resetTimer = new ElapsedTime();
-    boolean isResetting = false;
     // presets
     @Config("MainV5 Presets")
     public static class presets {
@@ -519,7 +518,6 @@ public class MainV5 extends LinearOpMode {
                 telemetry.addData("triggersR?", gamepad1.right_trigger);
                 telemetry.addData("triggersL?", gamepad1.left_trigger);
                 telemetry.addData("Red side?", redSide);
-                telemetry.addData("isResetting", isResetting);
                 telemetry.addData("Timer", resetTimer.milliseconds());
                 telemetry.addData("MotorPower1", extendArm1.getPower());
                 telemetry.addData("MotorPower2", extendArm2.getPower());
