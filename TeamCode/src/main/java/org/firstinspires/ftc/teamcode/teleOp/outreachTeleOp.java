@@ -1,10 +1,9 @@
 /***
- * MAIN V5
+ * Outreach Tele-Op
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
- * coding from scratch because i hate my old code
- * based off of MainV4 but better and advancer
- * started recoding at 4/4/25  @  7:55 pm
- * robot v5 finished building at 4/9/25
+ * made for outreach moments when the people need to drive the robot
+ * based off of MainV5 but simpiler
+ * started at 4/10/25  @  11:29 am
  */
 package org.firstinspires.ftc.teamcode.teleOp;
 
@@ -29,11 +28,9 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
 import org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides;
-import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.enums.extendArmStates;
 
 import java.util.List;
@@ -43,20 +40,15 @@ import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.Motors;
-import xyz.nin1275.utils.Sensor;
 import xyz.nin1275.utils.Timer;
 
-@Config("MainV5")
-@TeleOp(name="Main v5", group=".ftc23403")
-public class MainV5 extends LinearOpMode {
+@Config("Outreach")
+@TeleOp(name="Outreach", group=".ftc23403")
+public class outreachTeleOp extends LinearOpMode {
     /**
-     * @TODO finish all the presets PROPERLY FOR ONCE GODDAMNIT
-     * @TODO get limelight working in here
-     * @TODO add color sensor shit
-     * @TODO get all the finite state machines working in here gang
-     * MAIN V5 BY DAVID
+     * Outreach Tele-Op BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
-    */
+     */
     // servos
     public static double wristCpos1 = 0;
     public static double clawCpos1 = 1;
@@ -69,10 +61,10 @@ public class MainV5 extends LinearOpMode {
     // misc
     public static boolean redSide = true;
     public static int extendArmSpeed = 100;
-    public static double wheelSpeed = 1;
+    public static double wheelSpeed = 0.7;
     public static double rotationalSpeed = 0.2;
     // odometry
-    public static boolean odoDrive = true;
+    public static boolean odoDrive = false;
     // extend arm
     public static double slidesTARGET = 0;
     public static int eaLimitHigh = 36;
@@ -81,56 +73,6 @@ public class MainV5 extends LinearOpMode {
     private static extendArmStates extendArmState = extendArmStates.FLOATING;
     ElapsedTime resetTimer = new ElapsedTime();
     boolean isResetting = false;
-    // presets
-    @Config("MainV5 Presets")
-    public static class presets {
-        public static double preScoreArmPos = 0.3;
-        public static CustomPresets humanPlayer = new CustomPresets(
-                eaLimitLow,
-                1.0,
-                -1.0,
-                0.0,
-                -1.0,
-                0.6,
-                0.92,
-                -1.0);
-        public static CustomPresets highBasket = new CustomPresets(
-                2500,
-                -1.0,
-                -1.0,
-                0.4,
-                -1.0,
-                1.0,
-                0.8,
-                -1.0);
-        public static CustomPresets lowBasket = new CustomPresets(
-                1300,
-                -1.0,
-                -1.0,
-                0.4,
-                -1.0,
-                1.0,
-                0.8,
-                -1.0);
-        public static CustomPresets transition = new CustomPresets(
-                eaLimitLow,
-                1.0,
-                1.0,
-                0.0,
-                0.9,
-                0.5,
-                0.18,
-                0.52);
-        public static CustomPresets specimen = new CustomPresets(
-                5.8,
-                -1.0,
-                -1.0,
-                1.0,
-                -1.0,
-                0.6,
-                0.23,
-                -1.0);
-    }
     @Override
     public void runOpMode() {
         // hardware
@@ -199,7 +141,7 @@ public class MainV5 extends LinearOpMode {
         Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         resetTimer.reset();
         // telemetry
-        telemetry.addData("INIT", "DONE!");
+        telemetry.addData("BEASTKIT", "Team 23403!");
         telemetry.update();
         waitForStart();
         if (opModeIsActive()) {
@@ -352,7 +294,7 @@ public class MainV5 extends LinearOpMode {
                  *               '.             /
                  *                \\.          .'
                  *                  \\________/
-                */
+                 */
                 // humanPlayer pos
                 if (gamepad1.b) {
                     // use correction code cuz its easier fr fr
@@ -397,7 +339,7 @@ public class MainV5 extends LinearOpMode {
                  *               '.             /
                  *                \\.          .'
                  *                  \\________/
-                */
+                 */
                 // high basket pos
                 if (gamepad2.y) {
                     // use correction code cuz its easier fr fr
@@ -451,10 +393,10 @@ public class MainV5 extends LinearOpMode {
                     extendArmState = extendArmStates.MOVING_TO_PRESET;
                 }
                 // auto move arm to score when we pickup from human player
-                if (armCpos == presets.humanPlayer.arm && wristCpos1 == presets.humanPlayer.wrist1 && clawCpos1 == 1) {
+                if (armCpos == MainV5.presets.humanPlayer.arm && wristCpos1 == MainV5.presets.humanPlayer.wrist1 && clawCpos1 == 1) {
                     Timer.wait(200);
                     if (moving && clawCpos1 == 1) {
-                        armCpos = presets.preScoreArmPos;
+                        armCpos = MainV5.presets.preScoreArmPos;
                     }
                 }
                 // claws
@@ -474,19 +416,6 @@ public class MainV5 extends LinearOpMode {
                 } else if (gamepad1.dpad_left) {
                     wristCpos2 = 1;
                 }
-                if (gamepad2.dpad_left) {
-                    wristCpos1 = 0;
-                } else if(gamepad2.dpad_right) {
-                    wristCpos1 = 0.6;
-                }
-                // arm
-                if (gamepad2.right_stick_y > 0.3) {
-                    armCpos = 0.8;
-                    wristCpos1 = 1;
-                } else if (gamepad2.right_stick_y < -0.3) {
-                    armCpos = 0.92;
-                    wristCpos1 = 0.6;
-                }
                 // rotate
                 if (gamepad1.right_trigger > 0) {
                     rotationalCpos += rotationalSpeed;
@@ -496,33 +425,7 @@ public class MainV5 extends LinearOpMode {
                     if (rotationalCpos < 0.2) rotationalCpos = 0.2;
                 }
                 // telemetry
-                telemetry.addData("extendArmState", extendArmState);
-                telemetry.addData("PIDF", "P: " + PIDTuneSlides.P + " I: " + PIDTuneSlides.I + " D: " + PIDTuneSlides.D + " F: " + PIDTuneSlides.F);
-                telemetry.addData("target", slidesTARGET);
-                telemetry.addData("eaCpos1", eaInches1);
-                telemetry.addData("eaCpos2", eaInches2);
-                telemetry.addData("preset error1", Math.abs(slidesTARGET - eaInches1));
-                telemetry.addData("preset error2", Math.abs(slidesTARGET - eaInches2));
-                telemetry.addData("preset errorAvg", (Math.abs(slidesTARGET - eaInches1) + Math.abs(slidesTARGET - eaInches2)) / 2);
-                telemetry.addData("DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
-                telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
-                telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
-                telemetry.addData("Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
-                telemetry.addData("Submersible Arm Position1:", submersibleArm1.getPosition());
-                telemetry.addData("Wrist Position1:", wrist1.getPosition());
-                telemetry.addData("Wrist Position2:", wrist2.getPosition());
-                telemetry.addData("Claw Position1:", claw1.getPosition());
-                telemetry.addData("Claw Position2:", claw2.getPosition());
-                telemetry.addData("Arm Position:", arm.getPosition());
-                telemetry.addData("Sweeper Position:", sweeper.getPosition());
-                telemetry.addData("Rotation Position:", rotation.getPosition());
-                telemetry.addData("triggersR?", gamepad1.right_trigger);
-                telemetry.addData("triggersL?", gamepad1.left_trigger);
-                telemetry.addData("Red side?", redSide);
-                telemetry.addData("isResetting", isResetting);
-                telemetry.addData("Timer", resetTimer.milliseconds());
-                telemetry.addData("MotorPower1", extendArm1.getPower());
-                telemetry.addData("MotorPower2", extendArm2.getPower());
+                telemetry.addData("BEASTKIT", "Team 23403!");
                 telemetry.update();
             }
         }
