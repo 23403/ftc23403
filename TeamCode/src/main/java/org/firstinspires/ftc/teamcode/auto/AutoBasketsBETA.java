@@ -30,7 +30,6 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.constants.PIDConstants;
-import xyz.nin1275.controllers.PIDController;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.MetroLib;
 
@@ -225,7 +224,7 @@ public class AutoBasketsBETA extends OpMode {
         AutoVariables.eaMovements1+=dis1;
         AutoVariables.eaMovements2+=dis2;
         // PID initialization
-        PIDController controller = new PIDController(0, 0);
+        //PIDController controller = new PIDController(0, 0);
         double tickPerRevolution = 751.8 / 180;
         int eaPos1 = extendArm1.getCurrentPosition();
         int eaPos2 = extendArm2.getCurrentPosition();
@@ -233,13 +232,13 @@ public class AutoBasketsBETA extends OpMode {
         double ff2 = Math.cos(Math.toRadians(-eaPos2/ tickPerRevolution)) * PIDConstants.F;
         // formula
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
-        double pid1 = controller.calculate(eaPos1, dis1);
-        double pid2 = controller.calculate(eaPos2, dis2);
-        double power1 = pid1 + ff1;
-        double power2 = pid2 + ff2;
+        //double pid1 = controller.calculate(eaPos1, dis1);
+        //double pid2 = controller.calculate(eaPos2, dis2);
+        //double power1 = pid1 + ff1;
+        // power2 = pid2 + ff2;
         // movement
-        extendArm1.setPower(power1);
-        extendArm2.setPower(power2);
+        //extendArm1.setPower(power1);
+        //extendArm2.setPower(power2);
         while (extendArm1.isBusy() || extendArm2.isBusy()) {
             telemetry.addData("ExtendArm1Pos:", extendArm1.getCurrentPosition());
             telemetry.addData("ExtendArm2Pos:", extendArm2.getCurrentPosition());

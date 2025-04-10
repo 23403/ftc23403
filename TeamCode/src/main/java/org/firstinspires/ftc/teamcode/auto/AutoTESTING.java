@@ -20,7 +20,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides;
+import org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides;
 import org.firstinspires.ftc.teamcode.utils.CustomPedroPathing;
 import org.firstinspires.ftc.teamcode.variables.constants.AutoVariables;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;

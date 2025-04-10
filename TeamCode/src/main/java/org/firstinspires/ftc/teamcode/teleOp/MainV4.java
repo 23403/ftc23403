@@ -12,21 +12,18 @@ import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
-import com.pedropathing.util.Constants;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
-import org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides;
+import org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 
@@ -302,7 +299,7 @@ public class MainV4 extends LinearOpMode {
                 // humanPlayer pos
                 if (gamepad1.b) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = presets.humanPlayer.extendArm != -1.0 ? presets.humanPlayer.extendArm : eaCpos1;
+                    slidesTARGET = presets.humanPlayer.extendArm != -1.0 ? (int) presets.humanPlayer.extendArm : eaCpos1;
                     subArmCpos = presets.humanPlayer.subArm != -1.0 ? presets.humanPlayer.subArm : subArmCpos;
                     clawCpos2 = presets.humanPlayer.claw2 != -1.0 ? presets.humanPlayer.claw2 : clawCpos2;
                     wristCpos2 = presets.humanPlayer.wrist2 != -1.0 ? presets.humanPlayer.wrist2 : wristCpos2;
@@ -347,7 +344,7 @@ public class MainV4 extends LinearOpMode {
                 // high basket pos
                 if (gamepad2.y) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = presets.highBasket.extendArm != -1.0 ? presets.highBasket.extendArm : eaCpos1;
+                    slidesTARGET = presets.highBasket.extendArm != -1.0 ? (int) presets.highBasket.extendArm : eaCpos1;
                     subArmCpos = presets.highBasket.subArm != -1.0 ? presets.highBasket.subArm : subArmCpos;
                     clawCpos2 = presets.highBasket.claw2 != -1.0 ? presets.highBasket.claw2 : clawCpos2;
                     wristCpos2 = presets.highBasket.wrist2 != -1.0 ? presets.highBasket.wrist2 : wristCpos2;
@@ -360,7 +357,7 @@ public class MainV4 extends LinearOpMode {
                 // low basket pos
                 if (gamepad2.a) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = presets.lowBasket.extendArm != -1.0 ? presets.lowBasket.extendArm : eaCpos1;
+                    slidesTARGET = presets.lowBasket.extendArm != -1.0 ? (int) presets.lowBasket.extendArm : eaCpos1;
                     subArmCpos = presets.lowBasket.subArm != -1.0 ? presets.lowBasket.subArm : subArmCpos;
                     clawCpos2 = presets.lowBasket.claw2 != -1.0 ? presets.lowBasket.claw2 : clawCpos2;
                     wristCpos2 = presets.lowBasket.wrist2 != -1.0 ? presets.lowBasket.wrist2 : wristCpos2;
@@ -373,7 +370,7 @@ public class MainV4 extends LinearOpMode {
                 // transition pos
                 if (gamepad2.x) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = presets.transition.extendArm != -1.0 ? presets.transition.extendArm : eaCpos1;
+                    slidesTARGET = presets.transition.extendArm != -1.0 ? (int) presets.transition.extendArm : eaCpos1;
                     subArmCpos = presets.transition.subArm != -1.0 ? presets.transition.subArm : subArmCpos;
                     clawCpos2 = presets.transition.claw2 != -1.0 ? presets.transition.claw2 : clawCpos2;
                     wristCpos2 = presets.transition.wrist2 != -1.0 ? presets.transition.wrist2 : wristCpos2;
@@ -386,7 +383,7 @@ public class MainV4 extends LinearOpMode {
                 // specimen pos
                 if (gamepad2.b) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = presets.specimen.extendArm != -1.0 ? presets.specimen.extendArm : eaCpos1;
+                    slidesTARGET = presets.specimen.extendArm != -1.0 ? (int) presets.specimen.extendArm : eaCpos1;
                     subArmCpos = presets.specimen.subArm != -1.0 ? presets.specimen.subArm : subArmCpos;
                     clawCpos2 = presets.specimen.claw2 != -1.0 ? presets.specimen.claw2 : clawCpos2;
                     wristCpos2 = presets.specimen.wrist2 != -1.0 ? presets.specimen.wrist2 : wristCpos2;

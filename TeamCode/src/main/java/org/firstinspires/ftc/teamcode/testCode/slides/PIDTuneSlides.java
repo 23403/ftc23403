@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.testCode;
+package org.firstinspires.ftc.teamcode.testCode.slides;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -16,14 +16,14 @@ public class PIDTuneSlides extends OpMode {
     private DcMotorEx extendArm1;
     private DcMotorEx extendArm2;
     private PIDController controller;
-    public static double P = 0.000025;
+    public static double P = 0.6;
     public static double I = 0;
-    public static double D = 0.0005;
+    public static double D = 0;
     public static double F = 0.1;
     public static double K = 0.05;
     public static double TARGET = 0;
     public static double CPR = 384.16; // counts per revolution
-    public static double INCHES_PER_REV = 1.5; // how far the arm travels linearly per motor revolution
+    public static double INCHES_PER_REV = 4.8; // how far the arm travels linearly per motor revolution
 
 
     /**

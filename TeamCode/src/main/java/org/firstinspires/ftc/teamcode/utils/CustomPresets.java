@@ -1,7 +1,7 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 public class CustomPresets {
-    public Integer extendArm;
+    public double extendArm;
     public Double subArm;
     public Double claw2;
     public Double claw1;
@@ -10,7 +10,7 @@ public class CustomPresets {
     public Double arm;
     public Double rotational;
 
-    public CustomPresets(Integer extendArm, Double subArm, Double claw2, Double claw1, Double wrist2, Double wrist1, Double arm, Double rotational) {
+    public CustomPresets(double extendArm, Double subArm, Double claw2, Double claw1, Double wrist2, Double wrist1, Double arm, Double rotational) {
         this.extendArm = extendArm;
         this.subArm = subArm;
         this.claw2 = claw2;

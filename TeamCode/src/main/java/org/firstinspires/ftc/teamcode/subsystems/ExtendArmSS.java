@@ -1,10 +1,10 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides.K;
-import static org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides.P;
-import static org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides.I;
-import static org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides.D;
-import static org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides.F;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;

@@ -8,6 +8,12 @@
  */
 package org.firstinspires.ftc.teamcode.teleOp;
 
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
+
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -21,11 +27,12 @@ import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
-import org.firstinspires.ftc.teamcode.testCode.PIDTuneSlides;
+import org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.enums.extendArmStates;
 
@@ -68,12 +75,14 @@ public class MainV5 extends LinearOpMode {
     // odometry
     public static boolean odoDrive = false;
     // extend arm
-    public static int slidesTARGET = 0;
-    public static int eaLimitHigh = 2959;
-    public static int eaLimitLow = -60;
+    public static double slidesTARGET = 0;
+    public static int eaLimitHigh = 36;
+    public static int eaLimitLow = 0;
     private static double power = 0;
     public static boolean eaCorrection = true;
     private static extendArmStates extendArmState = extendArmStates.FLOATING;
+    ElapsedTime resetTimer = new ElapsedTime();
+    boolean isResetting = false;
     // presets
     @Config("MainV5 Presets")
     public static class presets {
@@ -115,13 +124,13 @@ public class MainV5 extends LinearOpMode {
                 0.18,
                 0.52);
         public static CustomPresets specimen = new CustomPresets(
-                1880,
+                5.8,
                 -1.0,
                 -1.0,
                 1.0,
                 -1.0,
-                0.0,
-                0.25,
+                0.6,
+                0.23,
                 -1.0);
     }
     @Override
@@ -158,7 +167,7 @@ public class MainV5 extends LinearOpMode {
         rotation.scaleRange(0.43, 0.55);
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
-        claw1.scaleRange(0.4, 0.8);
+        claw1.scaleRange(0, 0.4);
         submersibleArm1.scaleRange(0.45, 1);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
@@ -173,8 +182,6 @@ public class MainV5 extends LinearOpMode {
         Limelight limelight = new Limelight(limelight3A, wrist2, submersibleArm1, telemetry);
         gamepad1.setLedColor(0, 255, 0, -1);
         gamepad2.setLedColor(255, 0, 255, -1);
-        extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         claw1.setPosition(clawCpos1);
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
@@ -184,7 +191,16 @@ public class MainV5 extends LinearOpMode {
             follower.setStartingPose(new Pose(0,0,0));
         }
         Calibrate.Auto.clearEverything();
-        extendArmState = extendArmStates.RESETTING_ZERO_POS;
+        resetTimer.reset();
+        while (resetTimer.milliseconds() < 500) {
+            extendArm1.setPower(-0.4);
+            extendArm2.setPower(-0.4);
+        }
+        extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        resetTimer.reset();
         // telemetry
         telemetry.addData("INIT", "DONE!");
         telemetry.update();
@@ -225,47 +241,93 @@ public class MainV5 extends LinearOpMode {
                     rightFront.setPower(rightFrontPower);
                     rightRear.setPower(rightBackPower);
                 } else {
-                    follower.setTeleOpMovementVectors(gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x, true);
+                    follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
                     follower.update();
                 }
                 // extendArm code
-                controller.setPID(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
-                int eaCpos1 = extendArm1.getCurrentPosition();
-                int eaCpos2 = extendArm2.getCurrentPosition();
-                double ff = PIDTuneSlides.F;
+                controller.setPID(Math.sqrt(P), I, D);
+                // Get current positions
+                int eaTicks1 = extendArm1.getCurrentPosition();
+                int eaTicks2 = extendArm2.getCurrentPosition();
+                // Convert ticks to inches
+                // counts per revolution
+                double CPR = 384.16;
+                // vars
+                double ff = eaCorrection ? F : 0;
+                // how far the arm travels linearly per motor revolution
+                double INCHES_PER_REV = 4.8;
+                double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
+                double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
                 // controls
-                if (gamepad2.dpad_up && eaCpos1 < eaLimitHigh) {
-                    double pid = controller.calculate(eaCpos1, eaLimitHigh);
-                    power = pid + (eaCorrection ? ff : 0);
-                    extendArm1.setPower(power);
-                    extendArm2.setPower(power);
+                if (gamepad2.dpad_up && eaInches1 < eaLimitHigh) {
+                    double pid = controller.calculate(eaInches1, eaLimitHigh);
+                    double rawPower = pid + ff;
+                    double syncError = eaInches1 - eaInches2;
+                    double correction = syncError * K;
+                    extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
+                    extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
                     extendArmState = extendArmStates.MANUAL_MOVEMENT;
-                } else if (gamepad2.dpad_down && eaCpos1 > eaLimitLow) {
-                    double pid = controller.calculate(eaCpos1, eaLimitLow);
-                    power = pid + (eaCorrection ? ff : 0);
-                    extendArm1.setPower(power);
-                    extendArm2.setPower(power);
+                } else if (gamepad2.dpad_down && eaInches1 > eaLimitLow) {
+                    double pid = controller.calculate(eaInches1, eaLimitLow);
+                    double rawPower = pid + ff;
+                    double syncError = eaInches1 - eaInches2;
+                    double correction = syncError * K;
+                    extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
+                    extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
                     extendArmState = extendArmStates.MANUAL_MOVEMENT;
-                } else if (Math.abs(eaCpos1 - eaLimitLow) > 60) {
-                    extendArm1.setPower(eaCorrection ? ff : 0);
-                    extendArm2.setPower(eaCorrection ? ff : 0);
+                } else if (Math.abs(eaInches1 - eaLimitLow) > 2 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
+                    extendArm1.setPower(ff);
+                    extendArm2.setPower(ff);
                     if (extendArmState == extendArmStates.PRESET_REACHED) Timer.wait(500);
                     extendArmState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
                 }
                 // states
-                if (Math.abs(eaCpos1 - eaLimitHigh) < 60) {
+                if (Math.abs(eaInches1 - eaLimitHigh) < 1 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
                     extendArmState = extendArmStates.MAX_POS;
-                } else if (Math.abs(eaCpos1 - eaLimitLow) < 60) {
-                    extendArmState = extendArmStates.LOW_POS;
+                } else if (Math.abs(eaInches1 - eaLimitLow) < 2 && extendArmState != extendArmStates.MOVING_TO_PRESET && extendArmState != extendArmStates.RESETTING_ZERO_POS && extendArmState != extendArmStates.ZERO_POS_RESET && extendArmState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                    telemetry.addData("DEBUG", "4");
+                    telemetry.update();
+                    extendArmState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
+                    resetTimer.reset();
+                }
+                // pre resetting slides pos
+                if (extendArmState == extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                    if (resetTimer.milliseconds() > 200 && Math.abs(eaInches1 - eaLimitLow) < 2) {
+                        telemetry.addData("DEBUG", "3");
+                        telemetry.update();
+                        extendArmState = extendArmStates.RESETTING_ZERO_POS;
+                        resetTimer.reset();
+                    }
+                }
+                // reset slides 0 pos
+                if (extendArmState == extendArmStates.RESETTING_ZERO_POS) {
+                    if (resetTimer.milliseconds() < 200) {
+                        telemetry.addData("DEBUG", "1");
+                        telemetry.update();
+                        extendArm1.setPower(-0.4);
+                        extendArm2.setPower(-0.4);
+                    } else {
+                        telemetry.addData("DEBUG", "2");
+                        telemetry.update();
+                        extendArm1.setPower(0);
+                        extendArm2.setPower(0);
+                        extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                        extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+                        extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                        extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                        extendArmState = extendArmStates.ZERO_POS_RESET;
+                    }
                 }
                 // preset controls
                 if (extendArmState == extendArmStates.MOVING_TO_PRESET) {
-                    double pid = controller.calculate(eaCpos1, slidesTARGET);
-                    power = pid + (eaCorrection ? ff : 0);
-                    extendArm1.setPower(power);
-                    extendArm2.setPower(power);
+                    double pid = controller.calculate(eaInches1, slidesTARGET);
+                    double rawPower = pid + ff;
+                    double syncError = eaInches1 - eaInches2;
+                    double correction = syncError * K;
+                    extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
+                    extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
                     // check if we are at the target by 50 encoders
-                    if (Math.abs(eaCpos1 - slidesTARGET) < 50) {
+                    if (Math.abs(eaInches1 - slidesTARGET) < 1) {
                         extendArmState = extendArmStates.PRESET_REACHED;
                     }
                 }
@@ -299,7 +361,7 @@ public class MainV5 extends LinearOpMode {
                 // humanPlayer pos
                 if (gamepad1.b) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = MainV5.presets.humanPlayer.extendArm != -1.0 ? MainV5.presets.humanPlayer.extendArm : eaCpos1;
+                    slidesTARGET = MainV5.presets.humanPlayer.extendArm != -1.0 ? MainV5.presets.humanPlayer.extendArm : eaInches1;
                     subArmCpos = MainV5.presets.humanPlayer.subArm != -1.0 ? MainV5.presets.humanPlayer.subArm : subArmCpos;
                     clawCpos2 = MainV5.presets.humanPlayer.claw2 != -1.0 ? MainV5.presets.humanPlayer.claw2 : clawCpos2;
                     wristCpos2 = MainV5.presets.humanPlayer.wrist2 != -1.0 ? MainV5.presets.humanPlayer.wrist2 : wristCpos2;
@@ -344,7 +406,7 @@ public class MainV5 extends LinearOpMode {
                 // high basket pos
                 if (gamepad2.y) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = MainV5.presets.highBasket.extendArm != -1.0 ? MainV5.presets.highBasket.extendArm : eaCpos1;
+                    slidesTARGET = MainV5.presets.highBasket.extendArm != -1.0 ? MainV5.presets.highBasket.extendArm : eaInches1;
                     subArmCpos = MainV5.presets.highBasket.subArm != -1.0 ? MainV5.presets.highBasket.subArm : subArmCpos;
                     clawCpos2 = MainV5.presets.highBasket.claw2 != -1.0 ? MainV5.presets.highBasket.claw2 : clawCpos2;
                     wristCpos2 = MainV5.presets.highBasket.wrist2 != -1.0 ? MainV5.presets.highBasket.wrist2 : wristCpos2;
@@ -357,7 +419,7 @@ public class MainV5 extends LinearOpMode {
                 // low basket pos
                 if (gamepad2.a) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = MainV5.presets.lowBasket.extendArm != -1.0 ? MainV5.presets.lowBasket.extendArm : eaCpos1;
+                    slidesTARGET = MainV5.presets.lowBasket.extendArm != -1.0 ? MainV5.presets.lowBasket.extendArm : eaInches1;
                     subArmCpos = MainV5.presets.lowBasket.subArm != -1.0 ? MainV5.presets.lowBasket.subArm : subArmCpos;
                     clawCpos2 = MainV5.presets.lowBasket.claw2 != -1.0 ? MainV5.presets.lowBasket.claw2 : clawCpos2;
                     wristCpos2 = MainV5.presets.lowBasket.wrist2 != -1.0 ? MainV5.presets.lowBasket.wrist2 : wristCpos2;
@@ -370,7 +432,7 @@ public class MainV5 extends LinearOpMode {
                 // transition pos
                 if (gamepad2.x) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = MainV5.presets.transition.extendArm != -1.0 ? MainV5.presets.transition.extendArm : eaCpos1;
+                    slidesTARGET = MainV5.presets.transition.extendArm != -1.0 ? MainV5.presets.transition.extendArm : eaInches1;
                     subArmCpos = MainV5.presets.transition.subArm != -1.0 ? MainV5.presets.transition.subArm : subArmCpos;
                     clawCpos2 = MainV5.presets.transition.claw2 != -1.0 ? MainV5.presets.transition.claw2 : clawCpos2;
                     wristCpos2 = MainV5.presets.transition.wrist2 != -1.0 ? MainV5.presets.transition.wrist2 : wristCpos2;
@@ -383,7 +445,7 @@ public class MainV5 extends LinearOpMode {
                 // specimen pos
                 if (gamepad2.b) {
                     // use correction code cuz its easier fr fr
-                    slidesTARGET = MainV5.presets.specimen.extendArm != -1.0 ? MainV5.presets.specimen.extendArm : eaCpos1;
+                    slidesTARGET = MainV5.presets.specimen.extendArm != -1.0 ? MainV5.presets.specimen.extendArm : eaInches1;
                     subArmCpos = MainV5.presets.specimen.subArm != -1.0 ? MainV5.presets.specimen.subArm : subArmCpos;
                     clawCpos2 = MainV5.presets.specimen.claw2 != -1.0 ? MainV5.presets.specimen.claw2 : clawCpos2;
                     wristCpos2 = MainV5.presets.specimen.wrist2 != -1.0 ? MainV5.presets.specimen.wrist2 : wristCpos2;
@@ -442,12 +504,12 @@ public class MainV5 extends LinearOpMode {
                 telemetry.addData("extendArmState", extendArmState);
                 telemetry.addData("PIDF", "P: " + PIDTuneSlides.P + " I: " + PIDTuneSlides.I + " D: " + PIDTuneSlides.D + " F: " + PIDTuneSlides.F);
                 telemetry.addData("target", slidesTARGET);
-                telemetry.addData("eaCpos1", eaCpos1);
-                telemetry.addData("eaCpos2", eaCpos2);
+                telemetry.addData("eaCpos1", eaInches1);
+                telemetry.addData("eaCpos2", eaInches2);
                 telemetry.addData("eaPower", power);
-                telemetry.addData("preset error1", Math.abs(slidesTARGET - eaCpos1));
-                telemetry.addData("preset error2", Math.abs(slidesTARGET - eaCpos2));
-                telemetry.addData("preset errorAvg", (Math.abs(slidesTARGET - eaCpos1) + Math.abs(slidesTARGET - eaCpos2)) / 2);
+                telemetry.addData("preset error1", Math.abs(slidesTARGET - eaInches1));
+                telemetry.addData("preset error2", Math.abs(slidesTARGET - eaInches2));
+                telemetry.addData("preset errorAvg", (Math.abs(slidesTARGET - eaInches1) + Math.abs(slidesTARGET - eaInches2)) / 2);
                 telemetry.addData("DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
                 telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
                 telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
@@ -463,6 +525,10 @@ public class MainV5 extends LinearOpMode {
                 telemetry.addData("triggersR?", gamepad1.right_trigger);
                 telemetry.addData("triggersL?", gamepad1.left_trigger);
                 telemetry.addData("Red side?", redSide);
+                telemetry.addData("isResetting", isResetting);
+                telemetry.addData("Timer", resetTimer.milliseconds());
+                telemetry.addData("MotorPower1", extendArm1.getPower());
+                telemetry.addData("MotorPower2", extendArm2.getPower());
                 telemetry.update();
             }
         }
