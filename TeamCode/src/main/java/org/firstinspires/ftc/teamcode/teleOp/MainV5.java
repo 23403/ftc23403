@@ -69,14 +69,17 @@ public class MainV5 extends LinearOpMode {
     // misc
     public static boolean redSide = true;
     public static int extendArmSpeed = 100;
-    public static double wheelSpeed = 1;
+    public static double wheelSpeedMax = 1;
+    public static double wheelSpeedMin = 0.4;
+    public static double wheelSpeed = wheelSpeedMax;
     public static double rotationalSpeed = 0.2;
     // odometry
     public static boolean odoDrive = true;
     // extend arm
     public static double slidesTARGET = 0;
-    public static int eaLimitHigh = 36;
-    public static int eaLimitLow = 0;
+    public static double eaLimitHigh = 36;
+    public static double eaLimitLow = 0;
+    public static double eaSlowdownThreshold = eaLimitHigh/2;
     public static boolean eaCorrection = true;
     private static extendArmStates extendArmState = extendArmStates.FLOATING;
     ElapsedTime resetTimer = new ElapsedTime();
@@ -237,6 +240,7 @@ public class MainV5 extends LinearOpMode {
                     rightFront.setPower(rightFrontPower);
                     rightRear.setPower(rightBackPower);
                 } else {
+                    follower.setMaxPower(wheelSpeed);
                     follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
                     follower.update();
                 }
@@ -493,6 +497,19 @@ public class MainV5 extends LinearOpMode {
                 } else if (gamepad1.left_trigger > 0) {
                     rotationalCpos -= rotationalSpeed;
                     if (rotationalCpos < 0.2) rotationalCpos = 0.2;
+                }
+                // extendArm slowdown
+                if (eaInches1 >= eaLimitHigh / 2) {
+                    double ratio = (eaLimitHigh - eaInches1) / (eaLimitHigh - (eaLimitHigh / 2));
+                    wheelSpeed = wheelSpeedMin + ratio * (wheelSpeedMax - wheelSpeedMin);
+                } else {
+                    wheelSpeed = wheelSpeedMax;
+                }
+                // subArm slowdown
+                if (subArmCpos < 0.35) {
+                    double subArmRatio = subArmCpos / 0.35;  // 1 when at 0.35, 0 when at 0
+                    double adjustedSpeed = wheelSpeedMin + subArmRatio * (wheelSpeed - wheelSpeedMin);
+                    wheelSpeed = Math.max(wheelSpeedMin, Math.min(adjustedSpeed, wheelSpeed));
                 }
                 // telemetry
                 telemetry.addData("extendArmState", extendArmState);
