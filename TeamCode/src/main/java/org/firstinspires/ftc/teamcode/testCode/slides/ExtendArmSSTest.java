@@ -22,7 +22,7 @@ public class ExtendArmSSTest extends LinearOpMode {
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         ExtendArmSS extendArmSS = new ExtendArmSS(extendArm1, extendArm2);
         // reset slides
-        extendArmSS.resetSlidesINIT();
+        extendArmSS.resetSlidesINIT.schedule();
         // telemetry
         telemetry.addData("currentState", extendArmSS.getCurrentState());
         telemetry.addData("raw power", extendArmSS.getRawPower());
@@ -39,6 +39,8 @@ public class ExtendArmSSTest extends LinearOpMode {
                 }
                 // update
                 extendArmSS.update(gamepad1.dpad_up, gamepad1.dpad_down);
+                // reset slides 0 pos
+                extendArmSS.resetSlides();
                 // telemetry
                 telemetry.addData("currentState", extendArmSS.getCurrentState());
                 telemetry.addData("raw power", extendArmSS.getRawPower());

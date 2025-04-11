@@ -7,7 +7,12 @@ import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.command.Command;
+import com.arcrobotics.ftclib.command.InstantCommand;
+import com.arcrobotics.ftclib.command.SequentialCommandGroup;
+import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -22,8 +27,8 @@ import xyz.nin1275.utils.Timer;
 @Config("ExtendArm Subsystem CONFIG")
 public class ExtendArmSS {
     // hardware
-    private final DcMotorEx extendArm1;
-    private final DcMotorEx extendArm2;
+    private DcMotorEx extendArm1;
+    private DcMotorEx extendArm2;
     private final PIDController controller;
     private final ElapsedTime resetTimer = new ElapsedTime();
     // constants
@@ -111,33 +116,35 @@ public class ExtendArmSS {
                 extendArm2.setPower(ff);
                 currentState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
                 break;
+            case WAITING_FOR_RESET_CONFIRMATION:
+                if (resetTimer.milliseconds() > 200 && Math.abs(pos1 - eaLimitLow) < lowPosOFFSET) {
+                    resetTimer.reset();
+                    currentState = extendArmStates.RESETTING_ZERO_POS;
+                }
+                break;
+            case RESETTING_ZERO_POS:
+                if (resetTimer.milliseconds() < 200) {
+                    extendArm1.setPower(-0.4);
+                    extendArm2.setPower(-0.4);
+                } else {
+                    extendArm1.setPower(0);
+                    extendArm2.setPower(0);
+                    Motors.resetEncoders(List.of(extendArm1, extendArm2));
+                    Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                    currentState = extendArmStates.LOW_POS;
+                }
+                break;
         }
         // checkers
         if (Math.abs(pos1 - eaLimitHigh) < highPosOFFSET && currentState != extendArmStates.MOVING_TO_PRESET) {
             currentState = extendArmStates.MAX_POS;
-        } else if (Math.abs(pos1 - eaLimitLow) < lowPosOFFSET && currentState != extendArmStates.MOVING_TO_PRESET && currentState != extendArmStates.RESETTING_ZERO_POS && currentState != extendArmStates.ZERO_POS_RESET && currentState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+        } else if (Math.abs(pos1 - eaLimitLow) < lowPosOFFSET
+                && currentState != extendArmStates.MOVING_TO_PRESET
+                && currentState != extendArmStates.RESETTING_ZERO_POS
+                && currentState != extendArmStates.LOW_POS
+                && currentState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
             currentState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
             resetTimer.reset();
-        }
-        // pre resetting slides pos
-        if (currentState == extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-            if (resetTimer.milliseconds() > 200 && Math.abs(pos1 - eaLimitLow) < lowPosOFFSET) {
-                currentState = extendArmStates.RESETTING_ZERO_POS;
-                resetTimer.reset();
-            }
-        }
-        // reset slides 0 pos
-        if (currentState == extendArmStates.RESETTING_ZERO_POS) {
-            if (resetTimer.milliseconds() < 200) {
-                extendArm1.setPower(-0.4);
-                extendArm2.setPower(-0.4);
-            } else {
-                extendArm1.setPower(0);
-                extendArm2.setPower(0);
-                Motors.resetEncoders(List.of(extendArm1, extendArm2));
-                Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-                currentState = extendArmStates.ZERO_POS_RESET;
-            }
         }
     }
     // setters
@@ -184,14 +191,29 @@ public class ExtendArmSS {
         }
         return targetPower;
     }
-    public void resetSlidesINIT() {
-        resetTimer.reset();
-        while (resetTimer.milliseconds() < 500) {
-            extendArm1.setPower(-0.3);
-            extendArm2.setPower(-0.3);
+    public Command resetSlidesINIT = new SequentialCommandGroup(
+            new InstantCommand(() -> {
+                resetTimer.reset();
+                extendArm1.setPower(-0.3);
+                extendArm2.setPower(-0.3);
+            }),
+            new WaitCommand(500),
+            new InstantCommand(() -> {
+                extendArm1.setPower(0);
+                extendArm2.setPower(0);
+                Motors.resetEncoders(List.of(extendArm1, extendArm2));
+                Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                resetTimer.reset();
+            })
+    );
+    public void resetSlides() {
+        if (currentState != extendArmStates.RESETTING_ZERO_POS
+                && currentState != extendArmStates.LOW_POS
+                && currentState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION
+                && currentState != extendArmStates.MOVING_TO_PRESET
+                && currentState != extendArmStates.MAX_POS && currentState != extendArmStates.MANUAL_MOVEMENT) {
+            currentState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
+            resetTimer.reset();
         }
-        Motors.resetEncoders(List.of(extendArm1, extendArm2));
-        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        resetTimer.reset();
     }
 }
