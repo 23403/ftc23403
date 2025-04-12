@@ -86,7 +86,7 @@ public class AutoTESTING extends OpMode {
      */
 
     /** line positions */
-    private final Pose startPos = new Pose(-9, 63.4, Math.toRadians(-90)); // start Pos
+    private static final Pose startPos = new Pose(9, 63.4, Math.toRadians(0)); // start Pos
     /** different modes */
     private Path preload;
     /** path name */
@@ -96,97 +96,102 @@ public class AutoTESTING extends OpMode {
     /** points */
     /* line1 */
     public static CustomPedroPathing.beizerLine preloadPoints = new CustomPedroPathing.beizerLine(
-            10.6,
-            32.2,
-            -9,
-            63.4,
-            -90,
-            -90
+            38.4,
+            84,
+            startPos.getX(),
+            startPos.getY(),
+            startPos.getHeading(),
+            0
     );
     /* line2 */
     public static CustomPedroPathing.beizerLine grabSpecimen1Points = new CustomPedroPathing.beizerLine(
-            -46,
-            54.8,
+            17.3,
+            35.8,
             preloadPoints.endPointX,
             preloadPoints.endPointY,
             preloadPoints.getEndHeading(),
-            -90
+            0
     );
     /* line3 */
-    public static CustomPedroPathing.beizerLine grabSpecimen2Points = new CustomPedroPathing.beizerLine(
-            -46,
-            55.6,
+    public static CustomPedroPathing.beizerCurve grabSpecimen2Points = new CustomPedroPathing.beizerCurve(
             grabSpecimen1Points.endPointX,
             grabSpecimen1Points.endPointY,
+            28.7,
+            86.58,
+            38.4,
+            83,
             grabSpecimen1Points.getEndHeading(),
-            -90
+            0
     );
     /* line4 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
-            2.8,
-            31.2,
+    public static CustomPedroPathing.beizerCurve scoreSpecimen1Points = new CustomPedroPathing.beizerCurve(
             grabSpecimen2Points.endPointX,
             grabSpecimen2Points.endPointY,
+            List.of(4.5, 87.9),
+            List.of(17.04, 37.9),
+            53.5,
+            28.9,
             grabSpecimen2Points.getEndHeading(),
-            -90
+            0
     );
     /* line5 */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
+    public static CustomPedroPathing.beizerLine moveToPushLoc1Points = new CustomPedroPathing.beizerLine(
+            17.6,
+            28.9,
             scoreSpecimen1Points.endPointX,
             scoreSpecimen1Points.endPointY,
-            List.of(0.0),
-            List.of(0.0),
-            2.8,
-            31.2,
             scoreSpecimen1Points.getEndHeading(),
-            -90
+            0
     );
+
     /* line6 */
-    public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
-            -47.3,
-            54.6,
+    public static CustomPedroPathing.beizerCurve pushBlock1Points = new CustomPedroPathing.beizerCurve(
             moveToPushLoc1Points.endPointX,
             moveToPushLoc1Points.endPointY,
+            68.2,
+            27.4,
+            50.8,
+            19.6,
             moveToPushLoc1Points.getEndHeading(),
-            -90
+            0
     );
     /* line7 */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc2Points = new CustomPedroPathing.beizerCurve(
+    public static CustomPedroPathing.beizerLine moveToPushLoc2Points = new CustomPedroPathing.beizerLine(
+            17.6,
+            19.6,
             pushBlock1Points.endPointX,
             pushBlock1Points.endPointY,
-            List.of(0.0),
-            List.of(0.0),
-            -59.3,
-            19.7,
             pushBlock1Points.getEndHeading(),
-            -90
+            0
     );
     /* line8 */
-    public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
-            -59.3,
-            54.6,
+    public static CustomPedroPathing.beizerCurve pushBlock2Points = new CustomPedroPathing.beizerCurve(
             moveToPushLoc2Points.endPointX,
             moveToPushLoc2Points.endPointY,
+            58.8,
+            17.5,
+            49,
+            10,
             moveToPushLoc2Points.getEndHeading(),
-            -90
+            0
     );
     /* line9 */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc3Points = new CustomPedroPathing.beizerCurve(
+    public static CustomPedroPathing.beizerLine moveToPushLoc3Points = new CustomPedroPathing.beizerLine(
+            13.1,
+            10,
             pushBlock2Points.endPointX,
             pushBlock2Points.endPointY,
+            pushBlock2Points.getEndHeading(),
+            0
+    );
+    /* line10 */
+    public static CustomPedroPathing.beizerCurve pushBlock3Points = new CustomPedroPathing.beizerCurve(
+            moveToPushLoc3Points.endPointX,
+            moveToPushLoc3Points.endPointY,
             List.of(0.0),
             List.of(0.0),
             -65.9,
             20.5,
-            pushBlock2Points.getEndHeading(),
-            -90
-    );
-    /* line10 */
-    public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
-            -64.6,
-            57.7,
-            moveToPushLoc3Points.endPointX,
-            moveToPushLoc3Points.endPointY,
             moveToPushLoc3Points.getEndHeading(),
             -90
     );
@@ -332,68 +337,61 @@ public class AutoTESTING extends OpMode {
                 .build();
         /* line3 */
         grabSpecimen2 = follower.pathBuilder()
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         grabSpecimen2Points.getStartPoint(),
+                        grabSpecimen2Points.getMiddlePoint(),
                         grabSpecimen2Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen2Points.getStartHeading()), Math.toRadians(grabSpecimen2Points.getEndHeading()))
                 .build();
         /* line4 */
         scoreSpecimen1 = follower.pathBuilder()
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         scoreSpecimen1Points.getStartPoint(),
+                        scoreSpecimen1Points.getMiddlePoint(0),
+                        scoreSpecimen1Points.getMiddlePoint(1),
                         scoreSpecimen1Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen1Points.getStartHeading()), Math.toRadians(scoreSpecimen1Points.getEndHeading()))
                 .build();
         /* line5 */
         moveToPushLoc1 = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         moveToPushLoc1Points.getStartPoint(),
-                        moveToPushLoc1Points.getMiddlePoint(0),
-                        moveToPushLoc1Points.getMiddlePoint(0),
-                        moveToPushLoc1Points.getMiddlePoint(1),
-                        moveToPushLoc1Points.getMiddlePoint(1),
                         moveToPushLoc1Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc1Points.getStartHeading()), Math.toRadians(moveToPushLoc1Points.getEndHeading()))
                 .build();
         /* line6 */
         pushBlock1 = follower.pathBuilder()
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         pushBlock1Points.getStartPoint(),
+                        pushBlock1Points.getMiddlePoint(),
                         pushBlock1Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(pushBlock1Points.getStartHeading()), Math.toRadians(pushBlock1Points.getEndHeading()))
                 .build();
         /* line7 */
         moveToPushLoc2 = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         moveToPushLoc2Points.getStartPoint(),
-                        moveToPushLoc2Points.getMiddlePoint(0),
-                        moveToPushLoc2Points.getMiddlePoint(0),
-                        moveToPushLoc2Points.getMiddlePoint(1),
-                        moveToPushLoc2Points.getMiddlePoint(1),
                         moveToPushLoc2Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc2Points.getStartHeading()), Math.toRadians(moveToPushLoc2Points.getEndHeading()))
                 .build();
         /* line8 */
         pushBlock2 = follower.pathBuilder()
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         pushBlock2Points.getStartPoint(),
+                        pushBlock2Points.getMiddlePoint(),
                         pushBlock2Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(pushBlock2Points.getStartHeading()), Math.toRadians(pushBlock2Points.getEndHeading()))
                 .build();
         /* line9 */
         moveToPushLoc3 = follower.pathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         moveToPushLoc3Points.getStartPoint(),
-                        moveToPushLoc3Points.getMiddlePoint(0),
-                        moveToPushLoc3Points.getMiddlePoint(0),
-                        moveToPushLoc3Points.getMiddlePoint(1),
-                        moveToPushLoc3Points.getMiddlePoint(1),
                         moveToPushLoc3Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc3Points.getStartHeading()), Math.toRadians(moveToPushLoc3Points.getEndHeading()))

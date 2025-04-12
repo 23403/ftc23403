@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode.auto;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.localization.constants.ThreeWheelIMUConstants;
@@ -14,18 +16,19 @@ import com.qualcomm.robotcore.hardware.IMU;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
-@Config("Auto Testing")
+@Config("Auto pos tracking")
 @Autonomous(name = "Position tracking odometry", group = ".test_ftc23403")
 public class posTracking extends OpMode {
     private DashboardPoseTracker dashboardPoseTracker;
     private PoseUpdater poseUpdater;
-    public static double startPosX = -9;
+    public static double startPosX = 9;
     public static double startPosY = 63.4;
-    public static double startPosRotation = -90;
+    public static double startPosRotation = 0;
     private final Pose startPos = new Pose(startPosX, startPosY, Math.toRadians(startPosRotation)); // start Pos
 
     @Override
     public void init() {
+        telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         Constants.setConstants(FConstants.class, LConstants.class);
         hardwareMap.get(IMU.class, ThreeWheelIMUConstants.IMU_HardwareMapName).resetYaw();
         poseUpdater = new PoseUpdater(hardwareMap);

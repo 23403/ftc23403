@@ -93,25 +93,25 @@ public class MainV5 extends LinearOpMode {
                 -1.0,
                 0.0,
                 -1.0,
-                0.6,
-                0.92,
+                0.4,
+                0.97,
                 -1.0);
         public static CustomPresets highBasket = new CustomPresets(
-                2500,
+                35,
                 -1.0,
-                -1.0,
-                0.4,
                 -1.0,
                 1.0,
+                -1.0,
+                0.6,
                 0.8,
                 -1.0);
         public static CustomPresets lowBasket = new CustomPresets(
-                1300,
+                16.5,
                 -1.0,
-                -1.0,
-                0.4,
                 -1.0,
                 1.0,
+                -1.0,
+                0.6,
                 0.8,
                 -1.0);
         public static CustomPresets transition = new CustomPresets(
@@ -304,8 +304,8 @@ public class MainV5 extends LinearOpMode {
                     if (resetTimer.milliseconds() < 200) {
                         telemetry.addData("DEBUG", "1");
                         telemetry.update();
-                        extendArm1.setPower(-0.4);
-                        extendArm2.setPower(-0.4);
+                        extendArm1.setPower(-0.1);
+                        extendArm2.setPower(-0.1);
                     } else {
                         telemetry.addData("DEBUG", "2");
                         telemetry.update();
@@ -457,7 +457,16 @@ public class MainV5 extends LinearOpMode {
                 if (armCpos == presets.humanPlayer.arm && wristCpos1 == presets.humanPlayer.wrist1 && clawCpos1 == 1) {
                     Timer.wait(200);
                     if (moving && clawCpos1 == 1) {
-                        armCpos = presets.preScoreArmPos;
+                        // specimen preset
+                        slidesTARGET = MainV5.presets.specimen.extendArm != -1.0 ? MainV5.presets.specimen.extendArm : eaInches1;
+                        subArmCpos = MainV5.presets.specimen.subArm != -1.0 ? MainV5.presets.specimen.subArm : subArmCpos;
+                        clawCpos2 = MainV5.presets.specimen.claw2 != -1.0 ? MainV5.presets.specimen.claw2 : clawCpos2;
+                        wristCpos2 = MainV5.presets.specimen.wrist2 != -1.0 ? MainV5.presets.specimen.wrist2 : wristCpos2;
+                        wristCpos1 = MainV5.presets.specimen.wrist1 != -1.0 ? MainV5.presets.specimen.wrist1 : wristCpos1;
+                        clawCpos1 = MainV5.presets.specimen.claw1 != -1.0 ? MainV5.presets.specimen.claw1 : clawCpos1;
+                        armCpos = MainV5.presets.specimen.arm != -1.0 ? MainV5.presets.specimen.arm : armCpos;
+                        rotationalCpos = MainV5.presets.specimen.rotational != -1.0 ? MainV5.presets.specimen.rotational : rotationalCpos;
+                        extendArmState = extendArmStates.MOVING_TO_PRESET;
                     }
                 }
                 // claws
