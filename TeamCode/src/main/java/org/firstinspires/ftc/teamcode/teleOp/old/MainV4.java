@@ -5,7 +5,7 @@
  * started recoding at 3/4/25  @  5:34 pm
  * robot v4 finished building at 3/14/25
  */
-package org.firstinspires.ftc.teamcode.teleOp;
+package org.firstinspires.ftc.teamcode.teleOp.old;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -39,7 +39,7 @@ import xyz.nin1275.utils.Sensor;
 import xyz.nin1275.utils.Timer;
 
 @Config("MainV4")
-@TeleOp(name="Main v4", group=".ftc23403")
+@TeleOp(name="Main v4", group="old_ftc23403")
 public class MainV4 extends LinearOpMode {
     /**
      * @TODO have odometry driving working

@@ -68,7 +68,6 @@ public class MainV5 extends LinearOpMode {
     public static double rotationalCpos = 0.5;
     // misc
     public static boolean redSide = true;
-    public static int extendArmSpeed = 100;
     public static double wheelSpeedMax = 1;
     public static double wheelSpeedMin = 0.4;
     public static double wheelSpeed = wheelSpeedMax;
@@ -492,18 +491,16 @@ public class MainV5 extends LinearOpMode {
                     rotationalCpos -= rotationalSpeed;
                     if (rotationalCpos < 0.2) rotationalCpos = 0.2;
                 }
-                // extendArm slowdown
+                // extendArm and subArm slowdown
                 if (eaInches1 >= eaLimitHigh / 2) {
                     double ratio = (eaLimitHigh - eaInches1) / (eaLimitHigh - (eaLimitHigh / 2));
                     wheelSpeed = wheelSpeedMin + ratio * (wheelSpeedMax - wheelSpeedMin);
-                } else {
-                    wheelSpeed = wheelSpeedMax;
-                }
-                // subArm slowdown
-                if (subArmCpos < 0.35) {
+                } else if (subArmCpos < 0.35) {
                     double subArmRatio = subArmCpos / 0.35;  // 1 when at 0.35, 0 when at 0
                     double adjustedSpeed = wheelSpeedMin + subArmRatio * (wheelSpeed - wheelSpeedMin);
                     wheelSpeed = Math.max(wheelSpeedMin, Math.min(adjustedSpeed, wheelSpeed));
+                } else {
+                    wheelSpeed = wheelSpeedMax;
                 }
                 // telemetry
                 telemetry.addData("extendArmState", extendArmState);

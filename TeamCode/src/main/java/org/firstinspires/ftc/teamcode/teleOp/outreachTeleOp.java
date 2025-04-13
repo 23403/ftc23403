@@ -4,9 +4,11 @@
  * made for outreach moments when the people need to drive the robot
  * based off of MainV5 but simpiler
  * started at 4/10/25  @  11:29 am
- */
+***/
 package org.firstinspires.ftc.teamcode.teleOp;
 
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
@@ -47,7 +49,7 @@ public class outreachTeleOp extends LinearOpMode {
     /**
      * Outreach Tele-Op BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
-     */
+    **/
     // servos
     public static double wristCpos1 = 0;
     public static double clawCpos1 = 1;
@@ -59,7 +61,6 @@ public class outreachTeleOp extends LinearOpMode {
     public static double rotationalCpos = 0.5;
     // misc
     public static boolean redSide = true;
-    public static int extendArmSpeed = 100;
     public static double wheelSpeedMax = 0.7;
     public static double wheelSpeedMin = 0.4;
     public static double wheelSpeed = wheelSpeedMax;
@@ -73,7 +74,6 @@ public class outreachTeleOp extends LinearOpMode {
     public static boolean eaCorrection = true;
     private static extendArmStates extendArmState = extendArmStates.FLOATING;
     ElapsedTime resetTimer = new ElapsedTime();
-    boolean isResetting = false;
     @Override
     public void runOpMode() {
         // hardware
@@ -190,14 +190,10 @@ public class outreachTeleOp extends LinearOpMode {
                 int eaTicks1 = extendArm1.getCurrentPosition();
                 int eaTicks2 = extendArm2.getCurrentPosition();
                 // Convert ticks to inches
-                // counts per revolution
-                double CPR = 384.16;
-                // vars
-                double ff = eaCorrection ? F : 0;
-                // how far the arm travels linearly per motor revolution
-                double INCHES_PER_REV = 4.8;
                 double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
                 double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
+                // vars
+                double ff = eaCorrection ? F : 0;
                 // controls
                 if (gamepad2.dpad_up && eaInches1 < eaLimitHigh) {
                     double pid = controller.calculate(eaInches1, eaLimitHigh);
@@ -426,18 +422,16 @@ public class outreachTeleOp extends LinearOpMode {
                     rotationalCpos -= rotationalSpeed;
                     if (rotationalCpos < 0.2) rotationalCpos = 0.2;
                 }
-                // extendArm slowdown
+                // extendArm and subArm slowdown
                 if (eaInches1 >= eaLimitHigh / 2) {
                     double ratio = (eaLimitHigh - eaInches1) / (eaLimitHigh - (eaLimitHigh / 2));
                     wheelSpeed = wheelSpeedMin + ratio * (wheelSpeedMax - wheelSpeedMin);
-                } else {
-                    wheelSpeed = wheelSpeedMax;
-                }
-                // subArm slowdown
-                if (subArmCpos < 0.35) {
+                } else if (subArmCpos < 0.35) {
                     double subArmRatio = subArmCpos / 0.35;  // 1 when at 0.35, 0 when at 0
                     double adjustedSpeed = wheelSpeedMin + subArmRatio * (wheelSpeed - wheelSpeedMin);
                     wheelSpeed = Math.max(wheelSpeedMin, Math.min(adjustedSpeed, wheelSpeed));
+                } else {
+                    wheelSpeed = wheelSpeedMax;
                 }
                 // telemetry
                 telemetry.addData("BEASTKIT", "Team 23403!");
