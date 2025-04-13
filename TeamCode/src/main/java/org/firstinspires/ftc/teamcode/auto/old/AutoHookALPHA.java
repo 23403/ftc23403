@@ -15,6 +15,7 @@ import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -33,6 +34,7 @@ import pedroPathing.constants.LConstants;
  * @version 2.0, 2/15/25
  */
 
+@Disabled
 @Config("Auto Hook alpha")
 @Autonomous (name = "Auto Hook alpha", group = "ftc23403")
 public class AutoHookALPHA extends OpMode {

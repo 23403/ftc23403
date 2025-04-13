@@ -12,6 +12,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -38,6 +39,7 @@ import xyz.nin1275.MetroLib;
  * @version 3.0, 2/16/25
  */
 
+@Disabled
 @Config("Auto Hook beta")
 @Autonomous(name = "Auto Hook beta", group = ".ftc23403")
 public class AutoHookBETA extends OpMode {

@@ -11,6 +11,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -39,6 +40,7 @@ import xyz.nin1275.MetroLib;
  * @version 1.0, 2/16/25
  */
 
+@Disabled
 @Config("Auto Baskets beta")
 @Autonomous(name = "Auto Baskets beta", group = ".ftc23403")
 public class AutoBasketsBETA extends OpMode {

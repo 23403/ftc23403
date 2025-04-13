@@ -10,6 +10,7 @@ import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -27,6 +28,7 @@ import pedroPathing.constants.LConstants;
  * @version 1.2, 2/7/25
  */
 
+@Disabled
 @Autonomous(name = "Auto Hook", group = ".ftc23403")
 public class AutoHookOdometry extends OpMode {
     private Follower follower;
