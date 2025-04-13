@@ -4,10 +4,13 @@
  * coding from scratch because i hate my old code
  * based off of MainV4 but better and advancer
  * started recoding at 4/4/25  @  7:55 pm
+ * finished recoding at 4/12/25 @ 4:26 pm
  * robot v5 finished building at 4/9/25
- */
+***/
 package org.firstinspires.ftc.teamcode.teleOp;
 
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
@@ -32,7 +35,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
-import org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.enums.extendArmStates;
 
@@ -56,7 +58,7 @@ public class MainV5 extends LinearOpMode {
      * @TODO get all the finite state machines working in here gang
      * MAIN V5 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
-    */
+    **/
     // servos
     public static double wristCpos1 = 0;
     public static double clawCpos1 = 1;
@@ -74,22 +76,20 @@ public class MainV5 extends LinearOpMode {
     public static double wheelSpeed = wheelSpeedMax;
     public static double rotationalSpeed = 0.2;
     // odometry
-    public static boolean odoDrive = true;
+    public static boolean odoDrive = false;
     // extend arm
     public static double slidesTARGET = 0;
     public static double eaLimitHigh = 36;
     public static double eaLimitLow = 0;
-    public static double eaSlowdownThreshold = eaLimitHigh/2;
     public static boolean eaCorrection = true;
     private static extendArmStates extendArmState = extendArmStates.FLOATING;
     ElapsedTime resetTimer = new ElapsedTime();
     // presets
     @Config("MainV5 Presets")
     public static class presets {
-        public static double preScoreArmPos = 0.3;
         public static CustomPresets humanPlayer = new CustomPresets(
                 eaLimitLow,
-                1.0,
+                -1.0,
                 -1.0,
                 0.0,
                 -1.0,
@@ -137,7 +137,7 @@ public class MainV5 extends LinearOpMode {
     public void runOpMode() {
         // hardware
         Follower follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
-        PIDController controller = new PIDController(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
+        PIDController controller = new PIDController(Math.sqrt(P), I, D);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -154,11 +154,10 @@ public class MainV5 extends LinearOpMode {
         // ea
         Servo arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
-        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x axon
+        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
         // sa
         Servo submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
-        Servo submersibleArm2 = hardwareMap.get(Servo.class, "subArm2"); // 1x axon
-        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 20kg
+        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 25kg
         Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
         // limits
@@ -250,14 +249,10 @@ public class MainV5 extends LinearOpMode {
                 int eaTicks1 = extendArm1.getCurrentPosition();
                 int eaTicks2 = extendArm2.getCurrentPosition();
                 // Convert ticks to inches
-                // counts per revolution
-                double CPR = 384.16;
-                // vars
-                double ff = eaCorrection ? F : 0;
-                // how far the arm travels linearly per motor revolution
-                double INCHES_PER_REV = 4.8;
                 double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
                 double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
+                // vars
+                double ff = eaCorrection ? F : 0;
                 // controls
                 if (gamepad2.dpad_up && eaInches1 < eaLimitHigh) {
                     double pid = controller.calculate(eaInches1, eaLimitHigh);
@@ -285,16 +280,12 @@ public class MainV5 extends LinearOpMode {
                 if (Math.abs(eaInches1 - eaLimitHigh) < 1 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
                     extendArmState = extendArmStates.MAX_POS;
                 } else if (Math.abs(eaInches1 - eaLimitLow) < 2 && extendArmState != extendArmStates.MOVING_TO_PRESET && extendArmState != extendArmStates.RESETTING_ZERO_POS && extendArmState != extendArmStates.ZERO_POS_RESET && extendArmState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-                    telemetry.addData("DEBUG", "4");
-                    telemetry.update();
                     extendArmState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
                     resetTimer.reset();
                 }
                 // pre resetting slides pos
                 if (extendArmState == extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
                     if (resetTimer.milliseconds() > 200 && Math.abs(eaInches1 - eaLimitLow) < 2) {
-                        telemetry.addData("DEBUG", "3");
-                        telemetry.update();
                         extendArmState = extendArmStates.RESETTING_ZERO_POS;
                         resetTimer.reset();
                     }
@@ -302,13 +293,9 @@ public class MainV5 extends LinearOpMode {
                 // reset slides 0 pos
                 if (extendArmState == extendArmStates.RESETTING_ZERO_POS) {
                     if (resetTimer.milliseconds() < 200) {
-                        telemetry.addData("DEBUG", "1");
-                        telemetry.update();
                         extendArm1.setPower(-0.1);
                         extendArm2.setPower(-0.1);
                     } else {
-                        telemetry.addData("DEBUG", "2");
-                        telemetry.update();
                         extendArm1.setPower(0);
                         extendArm2.setPower(0);
                         Motors.resetEncoders(List.of(extendArm1, extendArm2));
@@ -522,7 +509,7 @@ public class MainV5 extends LinearOpMode {
                 }
                 // telemetry
                 telemetry.addData("extendArmState", extendArmState);
-                telemetry.addData("PIDF", "P: " + PIDTuneSlides.P + " I: " + PIDTuneSlides.I + " D: " + PIDTuneSlides.D + " F: " + PIDTuneSlides.F);
+                telemetry.addData("PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
                 telemetry.addData("target", slidesTARGET);
                 telemetry.addData("eaCpos1", eaInches1);
                 telemetry.addData("eaCpos2", eaInches2);
@@ -541,12 +528,10 @@ public class MainV5 extends LinearOpMode {
                 telemetry.addData("Arm Position:", arm.getPosition());
                 telemetry.addData("Sweeper Position:", sweeper.getPosition());
                 telemetry.addData("Rotation Position:", rotation.getPosition());
-                telemetry.addData("triggersR?", gamepad1.right_trigger);
-                telemetry.addData("triggersL?", gamepad1.left_trigger);
                 telemetry.addData("Red side?", redSide);
-                telemetry.addData("Timer", resetTimer.milliseconds());
-                telemetry.addData("MotorPower1", extendArm1.getPower());
-                telemetry.addData("MotorPower2", extendArm2.getPower());
+                telemetry.addData("slides reset timer", resetTimer.milliseconds());
+                telemetry.addData("extendArm1 Power", extendArm1.getPower());
+                telemetry.addData("extendArm2 Power", extendArm2.getPower());
                 telemetry.update();
             }
         }

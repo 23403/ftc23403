@@ -30,7 +30,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
-import org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides;
 import org.firstinspires.ftc.teamcode.variables.enums.extendArmStates;
 
 import java.util.List;
@@ -61,14 +60,16 @@ public class outreachTeleOp extends LinearOpMode {
     // misc
     public static boolean redSide = true;
     public static int extendArmSpeed = 100;
-    public static double wheelSpeed = 0.7;
+    public static double wheelSpeedMax = 0.7;
+    public static double wheelSpeedMin = 0.4;
+    public static double wheelSpeed = wheelSpeedMax;
     public static double rotationalSpeed = 0.2;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
     public static double slidesTARGET = 0;
-    public static int eaLimitHigh = 36;
-    public static int eaLimitLow = 0;
+    public static double eaLimitHigh = 36;
+    public static double eaLimitLow = 0;
     public static boolean eaCorrection = true;
     private static extendArmStates extendArmState = extendArmStates.FLOATING;
     ElapsedTime resetTimer = new ElapsedTime();
@@ -77,7 +78,7 @@ public class outreachTeleOp extends LinearOpMode {
     public void runOpMode() {
         // hardware
         Follower follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
-        PIDController controller = new PIDController(Math.sqrt(PIDTuneSlides.P), PIDTuneSlides.I, PIDTuneSlides.D);
+        PIDController controller = new PIDController(Math.sqrt(P), I, D);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
@@ -94,11 +95,10 @@ public class outreachTeleOp extends LinearOpMode {
         // ea
         Servo arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
-        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x axon
+        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
         // sa
         Servo submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
-        Servo submersibleArm2 = hardwareMap.get(Servo.class, "subArm2"); // 1x axon
-        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 20kg
+        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 25kg
         Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
         // limits
@@ -180,6 +180,7 @@ public class outreachTeleOp extends LinearOpMode {
                     rightFront.setPower(rightFrontPower);
                     rightRear.setPower(rightBackPower);
                 } else {
+                    follower.setMaxPower(wheelSpeed);
                     follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
                     follower.update();
                 }
@@ -224,16 +225,12 @@ public class outreachTeleOp extends LinearOpMode {
                 if (Math.abs(eaInches1 - eaLimitHigh) < 1 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
                     extendArmState = extendArmStates.MAX_POS;
                 } else if (Math.abs(eaInches1 - eaLimitLow) < 2 && extendArmState != extendArmStates.MOVING_TO_PRESET && extendArmState != extendArmStates.RESETTING_ZERO_POS && extendArmState != extendArmStates.ZERO_POS_RESET && extendArmState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-                    telemetry.addData("DEBUG", "4");
-                    telemetry.update();
                     extendArmState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
                     resetTimer.reset();
                 }
                 // pre resetting slides pos
                 if (extendArmState == extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
                     if (resetTimer.milliseconds() > 200 && Math.abs(eaInches1 - eaLimitLow) < 2) {
-                        telemetry.addData("DEBUG", "3");
-                        telemetry.update();
                         extendArmState = extendArmStates.RESETTING_ZERO_POS;
                         resetTimer.reset();
                     }
@@ -241,13 +238,9 @@ public class outreachTeleOp extends LinearOpMode {
                 // reset slides 0 pos
                 if (extendArmState == extendArmStates.RESETTING_ZERO_POS) {
                     if (resetTimer.milliseconds() < 200) {
-                        telemetry.addData("DEBUG", "1");
-                        telemetry.update();
-                        extendArm1.setPower(-0.4);
-                        extendArm2.setPower(-0.4);
+                        extendArm1.setPower(-0.1);
+                        extendArm2.setPower(-0.1);
                     } else {
-                        telemetry.addData("DEBUG", "2");
-                        telemetry.update();
                         extendArm1.setPower(0);
                         extendArm2.setPower(0);
                         Motors.resetEncoders(List.of(extendArm1, extendArm2));
@@ -396,7 +389,16 @@ public class outreachTeleOp extends LinearOpMode {
                 if (armCpos == MainV5.presets.humanPlayer.arm && wristCpos1 == MainV5.presets.humanPlayer.wrist1 && clawCpos1 == 1) {
                     Timer.wait(200);
                     if (moving && clawCpos1 == 1) {
-                        armCpos = MainV5.presets.preScoreArmPos;
+                        // specimen preset
+                        slidesTARGET = MainV5.presets.specimen.extendArm != -1.0 ? MainV5.presets.specimen.extendArm : eaInches1;
+                        subArmCpos = MainV5.presets.specimen.subArm != -1.0 ? MainV5.presets.specimen.subArm : subArmCpos;
+                        clawCpos2 = MainV5.presets.specimen.claw2 != -1.0 ? MainV5.presets.specimen.claw2 : clawCpos2;
+                        wristCpos2 = MainV5.presets.specimen.wrist2 != -1.0 ? MainV5.presets.specimen.wrist2 : wristCpos2;
+                        wristCpos1 = MainV5.presets.specimen.wrist1 != -1.0 ? MainV5.presets.specimen.wrist1 : wristCpos1;
+                        clawCpos1 = MainV5.presets.specimen.claw1 != -1.0 ? MainV5.presets.specimen.claw1 : clawCpos1;
+                        armCpos = MainV5.presets.specimen.arm != -1.0 ? MainV5.presets.specimen.arm : armCpos;
+                        rotationalCpos = MainV5.presets.specimen.rotational != -1.0 ? MainV5.presets.specimen.rotational : rotationalCpos;
+                        extendArmState = extendArmStates.MOVING_TO_PRESET;
                     }
                 }
                 // claws
@@ -423,6 +425,19 @@ public class outreachTeleOp extends LinearOpMode {
                 } else if (gamepad1.left_trigger > 0) {
                     rotationalCpos -= rotationalSpeed;
                     if (rotationalCpos < 0.2) rotationalCpos = 0.2;
+                }
+                // extendArm slowdown
+                if (eaInches1 >= eaLimitHigh / 2) {
+                    double ratio = (eaLimitHigh - eaInches1) / (eaLimitHigh - (eaLimitHigh / 2));
+                    wheelSpeed = wheelSpeedMin + ratio * (wheelSpeedMax - wheelSpeedMin);
+                } else {
+                    wheelSpeed = wheelSpeedMax;
+                }
+                // subArm slowdown
+                if (subArmCpos < 0.35) {
+                    double subArmRatio = subArmCpos / 0.35;  // 1 when at 0.35, 0 when at 0
+                    double adjustedSpeed = wheelSpeedMin + subArmRatio * (wheelSpeed - wheelSpeedMin);
+                    wheelSpeed = Math.max(wheelSpeedMin, Math.min(adjustedSpeed, wheelSpeed));
                 }
                 // telemetry
                 telemetry.addData("BEASTKIT", "Team 23403!");
