@@ -52,10 +52,8 @@ import xyz.nin1275.utils.Timer;
 @TeleOp(name="Main v5", group=".ftc23403")
 public class MainV5 extends LinearOpMode {
     /**
-     * @TODO finish all the presets PROPERLY FOR ONCE GODDAMNIT
      * @TODO get limelight working in here
      * @TODO add color sensor shit
-     * @TODO get all the finite state machines working in here gang
      * MAIN V5 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
     **/
