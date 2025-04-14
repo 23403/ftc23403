@@ -88,6 +88,29 @@ public class FiveSpecimenAuto extends OpMode {
     private double slidesTARGET = 0;
     private static extendArmStates extendArmState = extendArmStates.FLOATING;
     ElapsedTime resetTimer = new ElapsedTime();
+    // Get current positions
+    int eaTicks1 = 0;
+    int eaTicks2 = 0;
+    // Convert ticks to inches
+    double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
+    double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
+    /* preload lines */
+    boolean preloadStarted = false;
+    boolean grabSpecimen1Started = false;
+    boolean scoreSpecimen1Started = false;
+    boolean moveToPushLoc1Started = false;
+    boolean pushBlock1Started = false;
+    boolean moveToPushLoc2Started = false;
+    boolean pushBlock2Started = false;
+    boolean moveToPushLoc3Started = false;
+    boolean pushBlock3Started = false;
+    boolean scoreSpecimen2Started = false;
+    boolean grabSpecimen2Started = false;
+    boolean scoreSpecimen3Started = false;
+    boolean grabSpecimen3Started = false;
+    boolean scoreSpecimen4Started = false;
+    boolean pushSpecimensStarted = false;
+    boolean parkStarted = false;
 
     /** different modes **/
     private Path preload;
@@ -117,7 +140,7 @@ public class FiveSpecimenAuto extends OpMode {
     /* line3 */
     public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
             36.85,
-            36.35,
+            63.35,
             grabSpecimen1Points.endPointX,
             grabSpecimen1Points.endPointY,
             grabSpecimen1Points.getEndHeading(),
@@ -386,242 +409,251 @@ public class FiveSpecimenAuto extends OpMode {
     /** movements **/
     public void autonomousPathUpdate() {
         switch (pathState) {
-            case 0: /* line1 */
-                follower.followPath(preload,true);
-                // movements
-                extendArmMove(5.8);
-                wrist1(0.6);
-                arm(0.23);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    extendArmMove(7);
-                    // if we scored
-                    if (extendArmState == extendArmStates.PRESET_REACHED) {
-                        // open claw first
+            case 0:
+                if (!preloadStarted) {
+                    extendArmMove(5.8);
+                    wrist1(0.6);
+                    arm(0.23);
+                    follower.followPath(preload, false);
+                    preloadStarted = true;
+                }
+                if (!follower.isBusy() && extendArmState == extendArmStates.PRESET_REACHED) {
+                    if (Math.abs(eaInches1 - 18.3) > 2) {
+                        extendArmMove(19);
+                    } else if (Math.abs(eaInches1 - 19) <= 2) {
                         claw1(0);
-                        // next path
                         Timer.wait(pauses);
                         setPathState(1);
                     }
                 }
                 break;
-            case 1: /* line2 */
-                follower.followPath(grabSpecimen1,true);
-                // movements
-                extendArmMove(0);
-                wrist1(0.4);
-                arm(0.97);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // close claw first
+
+            case 1:
+                if (!grabSpecimen1Started) {
+                    extendArmMove(0);
+                    wrist1(0.4);
+                    arm(0.97);
+                    follower.followPath(grabSpecimen1, true);
                     claw1(1);
-                    // next path
+                    grabSpecimen1Started = true;
+                }
+                if (!follower.isBusy()) {
                     Timer.wait(pauses);
                     setPathState(2);
                 }
                 break;
-            case 2: /* line3 */
-                follower.followPath(scoreSpecimen1,true);
-                // movements
-                extendArmMove(5.8);
-                wrist1(0.6);
-                arm(0.23);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    extendArmMove(7);
-                    // if we scored
-                    if (extendArmState == extendArmStates.PRESET_REACHED) {
-                        // open claw first
+
+            case 2:
+                if (!scoreSpecimen1Started) {
+                    extendArmMove(5.8);
+                    wrist1(0.6);
+                    arm(0.23);
+                    follower.followPath(scoreSpecimen1, false);
+                    scoreSpecimen1Started = true;
+                }
+                if (!follower.isBusy() && extendArmState == extendArmStates.PRESET_REACHED) {
+                    if (Math.abs(eaInches1 - 18.3) > 2) {
+                        extendArmMove(19);
+                    } else if (Math.abs(eaInches1 - 19) <= 2) {
                         claw1(0);
-                        // next path
                         Timer.wait(pauses);
                         setPathState(3);
                     }
                 }
                 break;
-            case 3: /* line4 */
-                follower.followPath(moveToPushLoc1,true);
-                // movements
-                extendArmMove(0);
-                submersibleArm(1);
-                wrist2(0.9);
-                wrist1(0.5);
-                arm(0.18);
-                rotation(0.52);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // next path
+
+            case 3:
+                if (!moveToPushLoc1Started) {
+                    extendArmMove(0);
+                    submersibleArm(1);
+                    wrist2(0.9);
+                    wrist1(0.5);
+                    arm(0.18);
+                    rotation(0.52);
+                    follower.followPath(moveToPushLoc1, true);
+                    moveToPushLoc1Started = true;
+                }
+                if (!follower.isBusy()) {
                     Timer.wait(pauses);
                     setPathState(4);
                 }
                 break;
-            case 4: /* line5 */
-                follower.followPath(pushBlock1,true);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // next path
+
+            case 4:
+                if (!pushBlock1Started) {
+                    follower.followPath(pushBlock1, true);
+                    pushBlock1Started = true;
+                }
+                if (!follower.isBusy()) {
                     Timer.wait(pauses);
                     setPathState(5);
                 }
                 break;
-            case 5: /* line6 */
-                follower.followPath(moveToPushLoc2,true);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // next path
+
+            case 5:
+                if (!moveToPushLoc2Started) {
+                    follower.followPath(moveToPushLoc2, true);
+                    moveToPushLoc2Started = true;
+                }
+                if (!follower.isBusy()) {
                     Timer.wait(pauses);
                     setPathState(6);
                 }
                 break;
-            case 6: /* line7 */
-                follower.followPath(pushBlock2,true);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // next path
+
+            case 6:
+                if (!pushBlock2Started) {
+                    follower.followPath(pushBlock2, true);
+                    pushBlock2Started = true;
+                }
+                if (!follower.isBusy()) {
                     Timer.wait(pauses);
                     setPathState(7);
                 }
                 break;
-            case 7: /* line8 */
-                follower.followPath(moveToPushLoc3,true);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // next path
+
+            case 7:
+                if (!moveToPushLoc3Started) {
+                    follower.followPath(moveToPushLoc3, true);
+                    moveToPushLoc3Started = true;
+                }
+                if (!follower.isBusy()) {
                     Timer.wait(pauses);
                     setPathState(8);
                 }
                 break;
-            case 8: /* line9 */
-                follower.followPath(pushBlock3,true);
-                // movements
-                extendArmMove(0);
-                wrist1(0.4);
-                arm(0.97);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // close claw first
+
+            case 8:
+                if (!pushBlock3Started) {
+                    extendArmMove(0);
+                    wrist1(0.4);
+                    arm(0.97);
+                    follower.followPath(pushBlock3, true);
                     claw1(1);
-                    // next path
+                    pushBlock3Started = true;
+                }
+                if (!follower.isBusy()) {
                     Timer.wait(pauses);
                     setPathState(9);
                 }
                 break;
-            case 9: /* line10 */
-                follower.followPath(scoreSpecimen2,true);
-                // movements
-                extendArmMove(5.8);
-                wrist1(0.6);
-                arm(0.23);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    extendArmMove(7);
-                    // if we scored
-                    if (extendArmState == extendArmStates.PRESET_REACHED) {
-                        // open claw first
+
+            case 9:
+                if (!scoreSpecimen2Started) {
+                    extendArmMove(5.8);
+                    wrist1(0.6);
+                    arm(0.23);
+                    follower.followPath(scoreSpecimen2, false);
+                    scoreSpecimen2Started = true;
+                }
+                if (!follower.isBusy() && extendArmState == extendArmStates.PRESET_REACHED) {
+                    if (Math.abs(eaInches1 - 18.3) > 2) {
+                        extendArmMove(19);
+                    } else if (Math.abs(eaInches1 - 19) <= 2) {
                         claw1(0);
-                        // next path
                         Timer.wait(pauses);
                         setPathState(10);
                     }
                 }
                 break;
-            case 10: /* line11 */
-                follower.followPath(grabSpecimen2,true);
-                // movements
-                extendArmMove(0);
-                wrist1(0.4);
-                arm(0.97);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // close claw first
+
+            case 10:
+                if (!grabSpecimen2Started) {
+                    extendArmMove(0);
+                    wrist1(0.4);
+                    arm(0.97);
+                    follower.followPath(grabSpecimen2, true);
                     claw1(1);
-                    // next path
+                    grabSpecimen2Started = true;
+                }
+                if (!follower.isBusy()) {
                     Timer.wait(pauses);
                     setPathState(11);
                 }
                 break;
-            case 11: /* line12 */
-                follower.followPath(scoreSpecimen3,true);
-                // movements
-                extendArmMove(5.8);
-                wrist1(0.6);
-                arm(0.23);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    extendArmMove(7);
-                    // if we scored
-                    if (extendArmState == extendArmStates.PRESET_REACHED) {
-                        // open claw first
+
+            case 11:
+                if (!scoreSpecimen3Started) {
+                    extendArmMove(5.8);
+                    wrist1(0.6);
+                    arm(0.23);
+                    follower.followPath(scoreSpecimen3, false);
+                    scoreSpecimen3Started = true;
+                }
+                if (!follower.isBusy() && extendArmState == extendArmStates.PRESET_REACHED) {
+                    if (Math.abs(eaInches1 - 18.3) > 2) {
+                        extendArmMove(19);
+                    } else if (Math.abs(eaInches1 - 19) <= 2) {
                         claw1(0);
-                        // next path
                         Timer.wait(pauses);
                         setPathState(12);
                     }
                 }
                 break;
-            case 12: /* line13 */
-                follower.followPath(grabSpecimen3,true);
-                // movements
-                extendArmMove(0);
-                wrist1(0.4);
-                arm(0.97);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // close claw first
+
+            case 12:
+                if (!grabSpecimen3Started) {
+                    extendArmMove(0);
+                    wrist1(0.4);
+                    arm(0.97);
+                    follower.followPath(grabSpecimen3, true);
                     claw1(1);
-                    // next path
+                    grabSpecimen3Started = true;
+                }
+                if (!follower.isBusy()) {
                     Timer.wait(pauses);
                     setPathState(13);
                 }
                 break;
-            case 13: /* line14 */
-                follower.followPath(scoreSpecimen4,true);
-                // movements
-                extendArmMove(5.8);
-                wrist1(0.6);
-                arm(0.23);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    extendArmMove(7);
-                    // if we scored
-                    if (extendArmState == extendArmStates.PRESET_REACHED) {
-                        // open claw first
+
+            case 13:
+                if (!scoreSpecimen4Started) {
+                    extendArmMove(5.8);
+                    wrist1(0.6);
+                    arm(0.23);
+                    follower.followPath(scoreSpecimen4, false);
+                    scoreSpecimen4Started = true;
+                }
+                if (!follower.isBusy() && extendArmState == extendArmStates.PRESET_REACHED) {
+                    if (Math.abs(eaInches1 - 18.3) > 2) {
+                        extendArmMove(19);
+                    } else if (Math.abs(eaInches1 - 19) <= 2) {
                         claw1(0);
-                        // next path
                         Timer.wait(pauses);
                         setPathState(14);
                     }
                 }
                 break;
-            case 14: /* line15 */
-                follower.followPath(pushSpecimens,true);
-                // movements
-                extendArmMove(0);
-                wrist1(0.4);
-                arm(0.97);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // close claw first
+
+            case 14:
+                if (!pushSpecimensStarted) {
+                    extendArmMove(0);
+                    wrist1(0.4);
+                    arm(0.97);
+                    follower.followPath(pushSpecimens, true);
                     claw1(1);
-                    // next path
+                    pushSpecimensStarted = true;
+                }
+                if (!follower.isBusy()) {
                     Timer.wait(pauses);
                     setPathState(15);
                 }
                 break;
-            case 15: /* line16 */
-                follower.followPath(park,true);
-                // movements
-                extendArmMove(0);
-                wrist2(0.5);
-                wrist1(0.5);
-                arm(0.18);
-                claw2(1);
-                rotation(0.52);
-                Timer.wait(500);
-                submersibleArm(0);
-                // if we made it there
-                if(!follower.isBusy()) {
-                    // next path
+
+            case 15:
+                if (!parkStarted) {
+                    extendArmMove(0);
+                    wrist2(0.5);
+                    wrist1(0.5);
+                    arm(0.18);
+                    claw2(1);
+                    rotation(0.52);
+                    Timer.wait(500);
+                    submersibleArm(0);
+                    follower.followPath(park, true);
+                    parkStarted = true;
+                }
+                if (!follower.isBusy()) {
                     setPathState(-1);
                 }
                 break;
@@ -699,7 +731,12 @@ public class FiveSpecimenAuto extends OpMode {
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
         submersibleArm1.scaleRange(0.45, 1);
+        // extendArm
+        Motors.resetEncoders(List.of(extendArm1, extendArm2));
+        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        resetTimer.reset();
         // starting pos
+        claw1.setPosition(1);
         claw1(1);
         // movement
         pathTimer = new com.pedropathing.util.Timer();
@@ -741,11 +778,11 @@ public class FiveSpecimenAuto extends OpMode {
         // extendArm code
         controller.setPID(Math.sqrt(P), I, D);
         // Get current positions
-        int eaTicks1 = extendArm1.getCurrentPosition();
-        int eaTicks2 = extendArm2.getCurrentPosition();
+        eaTicks1 = extendArm1.getCurrentPosition();
+        eaTicks2 = extendArm2.getCurrentPosition();
         // Convert ticks to inches
-        double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
-        double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
+        eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
+        eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
         // vars
         double ff = F;
         if (Math.abs(eaInches1 - 0) > 2 && (extendArmState == extendArmStates.PRESET_REACHED || extendArmState == extendArmStates.ZERO_POS_RESET ||  extendArmState == extendArmStates.MAX_POS)) {
@@ -793,6 +830,7 @@ public class FiveSpecimenAuto extends OpMode {
             }
         }
         // telemetry for debugging
+        telemetry.addData("currentState", extendArmState);
         telemetry.addData("PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
         telemetry.addData("target", slidesTARGET);
         telemetry.addData("eaCpos1", eaInches1);

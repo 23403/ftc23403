@@ -193,6 +193,8 @@ public class MainV5 extends LinearOpMode {
             extendArm1.setPower(-0.4);
             extendArm2.setPower(-0.4);
         }
+        extendArm1.setPower(0);
+        extendArm2.setPower(0);
         Motors.resetEncoders(List.of(extendArm1, extendArm2));
         Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         resetTimer.reset();
