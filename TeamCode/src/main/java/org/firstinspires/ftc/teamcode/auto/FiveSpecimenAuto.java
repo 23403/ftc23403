@@ -45,7 +45,7 @@ import xyz.nin1275.utils.Calibrate;
 /**
  * BeastKit V5 auto
  * Started code  @  4/13/25  @  3:30 pm
- * Expected to finish code  @  4/15/25
+ * Expected to finish code  @  4/16/25
  * It is a 5 specimen auto with park. It hangs a preloaded specimen and then hang another specimen then push the 3 samples from the ground and hang them.
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
  * @version 1.3, 4/13/25
@@ -56,7 +56,7 @@ import xyz.nin1275.utils.Calibrate;
 public class FiveSpecimenAuto extends OpMode {
     private Follower follower;
     private com.pedropathing.util.Timer pathTimer, opmodeTimer;
-    public static double speed = 1;
+    public static double speed = 0.7;
     public static Integer pauses = 500;
     private DashboardPoseTracker dashboardPoseTracker;
     private PoseUpdater poseUpdater;
@@ -150,17 +150,17 @@ public class FiveSpecimenAuto extends OpMode {
     public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
             scoreSpecimen1Points.endPointX,
             scoreSpecimen1Points.endPointY,
-            List.of(17.94, 16.9),
-            List.of(16.9, 45.2),
+            List.of(27.5, 60.0),
+            List.of(21.8, 45.1),
             54.74,
-            30.05,
+            28,
             scoreSpecimen1Points.getEndHeading(),
             0
     );
     /* line5 */
     public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
             17.6,
-            30.05,
+            28,
             moveToPushLoc1Points.endPointX,
             moveToPushLoc1Points.endPointY,
             moveToPushLoc1Points.getEndHeading(),
@@ -191,16 +191,16 @@ public class FiveSpecimenAuto extends OpMode {
             pushBlock2Points.endPointX,
             pushBlock2Points.endPointY,
             58.29,
-            21.9,
+            22.5,
             54.05,
-            11.2,
+            11.8,
             pushBlock2Points.getEndHeading(),
             0
     );
     /* line9 */
     public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
             17.33,
-            11.2,
+            11.8,
             moveToPushLoc3Points.endPointX,
             moveToPushLoc3Points.endPointY,
             moveToPushLoc3Points.getEndHeading(),
@@ -263,11 +263,13 @@ public class FiveSpecimenAuto extends OpMode {
             0
     );
     /* line16 */
-    public static CustomPedroPathing.beizerLine parkPoints = new CustomPedroPathing.beizerLine(
-            16.8,
-            49.23,
+    public static CustomPedroPathing.beizerCurve parkPoints = new CustomPedroPathing.beizerCurve(
             pushSpecimensPoints.endPointX,
             pushSpecimensPoints.endPointY,
+            27.2,
+            69.3,
+            16.8,
+            49.23,
             pushSpecimensPoints.getEndHeading(),
             -130
     );

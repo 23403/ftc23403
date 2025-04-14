@@ -40,7 +40,7 @@ import xyz.nin1275.utils.Calibrate;
  */
 
 @Config("Auto Testing")
-@Autonomous(name = "Auto Testing", group = ".ftc23403")
+@Autonomous(name = "Auto Testing", group = "tools_ftc23403")
 public class AutoTESTING extends OpMode {
     private Follower follower;
     private com.pedropathing.util.Timer pathTimer, opmodeTimer;

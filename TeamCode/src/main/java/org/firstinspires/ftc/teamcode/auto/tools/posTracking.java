@@ -17,7 +17,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 
 @Config("Auto pos tracking")
-@Autonomous(name = "Position tracking odometry", group = ".test_ftc23403")
+@Autonomous(name = "Position tracking odometry", group = "tools_ftc23403")
 public class posTracking extends OpMode {
     private DashboardPoseTracker dashboardPoseTracker;
     private PoseUpdater poseUpdater;
