@@ -1,120 +1,66 @@
-package org.firstinspires.ftc.teamcode.subsystems.limelight;
+package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 
-@Config("Limelight Configuration")
+@Config("Limelight CONFIG")
 public class Limelight {
+    private Telemetry telemetry;
     private final Limelight3A limelight;
-    private final Servo wristServo;
-    private final Servo submersibleArm;
-    private Telemetry telemetry = null;
-    private LimelightState currentState = LimelightState.NO_SAMPLE_FOUND;
-    public static LimelightConfig config = new LimelightConfig(
-            0.5 / 27.0,
-            0.05,
-            1.0,
-            40,
-            20,
-            60);
-    public static double minDistance = 10.0;  // Closest distance
-    public static double maxDistance = 40.0;  // Farthest distance
+    private final Servo rotationServo;
+    private final Servo subArmServo;
 
-    public Limelight(Limelight3A limelight, Servo wristServo, Servo submersibleArm) {
-        this.limelight = limelight;
-        this.wristServo = wristServo;
-        this.submersibleArm = submersibleArm;
-    }
+    // Detection filtering
+    public static double minArea = 0.01;
 
-    public Limelight(Limelight3A limelight, Servo wristServo, Servo submersibleArm, Telemetry telemetry) {
-        this.limelight = limelight;
-        this.wristServo = wristServo;
-        this.submersibleArm = submersibleArm;
+    public Limelight(HardwareMap hardwareMap, Telemetry telemetry) {
+        limelight = hardwareMap.get(Limelight3A.class ,"limelight");
+        rotationServo = hardwareMap.get(Servo.class, "rotation");
+        subArmServo = hardwareMap.get(Servo.class, "subArm");
         this.telemetry = telemetry;
+        this.telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+        limelight.pipelineSwitch(0);
+        // Set physical range limits
+        rotationServo.scaleRange(0.43, 0.55);   // 0 = right, 1 = left
+        subArmServo.scaleRange(0.45, 1.0);      // 0 = extended, 1 = retracted
     }
 
-    public LimelightState getState() {
-        return currentState;
-    }
-
-    public void updateTelemetry(Telemetry telemetry) {
-        this.telemetry = telemetry;
-    }
-
-    public LimelightState search() {
+    public void update() {
         LLResult result = limelight.getLatestResult();
+        if (result != null && result.isValid() && result.getTa() > minArea) {
+            double tx = result.getTx();
+            double ta = result.getTa();
 
-        switch (currentState) {
-            case NO_SAMPLE_FOUND:
-                if (result != null && result.isValid()) {
-                    currentState = LimelightState.LOOKING_FOR_SAMPLE;
-                }
-                break;
+            // Map tx [-27, 27] → [0, 1] for rotation servo
+            double rotationPos = (tx + 27) / 54.0;
+            rotationPos = Range.clip(rotationPos, 0.0, 1.0);
+            rotationServo.setPosition(rotationPos);
 
-            case LOOKING_FOR_SAMPLE:
-                if (result.isValid()) {
-                    double ty = result.getTy();
-                    if (ty > -20) { // If we see a sample
-                        currentState = LimelightState.MOVING_TO_SAMPLE;
-                    }
-                } else {
-                    currentState = LimelightState.NO_SAMPLE_FOUND;
-                }
-                break;
+            // Map ta [0, 100] → subArm [0 = extended, 1 = retracted]
+            double subArmPos = 1.0 - (ta / 100.0);
+            subArmPos = Range.clip(subArmPos, 0.0, 1.0);
+            subArmServo.setPosition(subArmPos);
 
-            case MOVING_TO_SAMPLE:
-                if (result.isValid()) {
-                    double tx = result.getTx(); // Left/Right offset
-                    double ty = result.getTy(); // Vertical angle
-
-                    // ---- Calculate Distance ----
-                    double angleToGoalDegrees = Limelight.config.LIMELIGHT_MOUNT_ANGLE_DEGREES + ty;
-                    double angleToGoalRadians = Math.toRadians(angleToGoalDegrees);
-                    double distanceFromLimelightToGoalInches =
-                            (Limelight.config.TARGET_HEIGHT_INCHES - Limelight.config.LIMELIGHT_LENS_HEIGHT_INCHES) / Math.tan(angleToGoalRadians);
-
-                    // ---- Wrist Rotation (tx to servo position) ----
-                    double kRotationFactor = 0.5 / 27.0;
-                    double wristPosition = 0.5 + (tx * kRotationFactor);
-                    wristPosition = Math.max(0, Math.min(1, wristPosition));
-                    wristServo.setPosition(wristPosition);
-
-                    // ---- Slide Extension (using distance) ----
-                    double slidePosition = 1.0 - ((distanceFromLimelightToGoalInches - minDistance) / (maxDistance - minDistance)) * (1.0 - 0.45);
-                    slidePosition = Math.max(0.45, Math.min(1.0, slidePosition));
-                    submersibleArm.setPosition(slidePosition);
-
-                    if (distanceFromLimelightToGoalInches < 12.0) { // Close enough to grab
-                        currentState = LimelightState.SAMPLE_REACHED;
-                    }
-                } else {
-                    currentState = LimelightState.LOOKING_FOR_SAMPLE;
-                }
-                break;
-
-            case SAMPLE_REACHED:
-                // Keep wrist and slides in place, wait for grab command
-                break;
+            telemetry.addData("isRunning", limelight.isRunning());
+            telemetry.addData("latest result", limelight.getLatestResult());
+            telemetry.addData("status", limelight.getStatus());
+            telemetry.addData("isConnected", limelight.isConnected());
+            telemetry.addData("Limelight Target", "Visible");
+            telemetry.addData("tx", tx);
+            telemetry.addData("ta", ta);
+            telemetry.addData("Rotation Pos", rotationPos);
+            telemetry.addData("SubArm Pos", subArmPos);
+        } else {
+            telemetry.addData("Limelight", "No target detected");
         }
-
-        // ---- Debugging Telemetry ----
-        if (telemetry != null) {
-            telemetry.addData("State", currentState);
-            telemetry.addData("Valid Target", result != null && result.isValid());
-            if (result != null && result.isValid()) {
-                telemetry.addData("tx (Target X)", result.getTx());
-                telemetry.addData("ta (Target Area)", result.getTa());
-            }
-            telemetry.addData("Wrist Servo", wristServo.getPosition());
-            telemetry.addData("Slide Servo", submersibleArm.getPosition());
-            telemetry.update();
-        }
-
-        // return
-        return getState();
+        telemetry.update();
     }
 }

@@ -33,7 +33,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
 import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.enums.extendArmStates;
@@ -176,7 +175,6 @@ public class MainV5 extends LinearOpMode {
         // breaks
         Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear));
         // misc
-        Limelight limelight = new Limelight(limelight3A, wrist2, submersibleArm1, telemetry);
         gamepad1.setLedColor(0, 255, 0, -1);
         gamepad2.setLedColor(255, 0, 255, -1);
         claw1.setPosition(clawCpos1);
@@ -192,6 +190,8 @@ public class MainV5 extends LinearOpMode {
         while (resetTimer.milliseconds() < 500) {
             extendArm1.setPower(-0.4);
             extendArm2.setPower(-0.4);
+            telemetry.addData("RESETTING", "0 POS!");
+            telemetry.update();
         }
         extendArm1.setPower(0);
         extendArm2.setPower(0);
@@ -360,7 +360,7 @@ public class MainV5 extends LinearOpMode {
                     // use correction code cuz its easier fr fr
                     slidesTARGET = 0;
                     subArmCpos = 1;
-                    if (limelight.search() == LimelightState.SAMPLE_REACHED) {
+                    if (true) {
                         wristCpos2 = 0.1;
                         Timer.wait(300);
                         claw2.setPosition(0.55);

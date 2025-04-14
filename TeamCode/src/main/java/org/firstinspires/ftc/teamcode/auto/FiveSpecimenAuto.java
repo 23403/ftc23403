@@ -411,7 +411,7 @@ public class FiveSpecimenAuto extends OpMode {
     /** movements **/
     public void autonomousPathUpdate() {
         switch (pathState) {
-            case 0:
+            case 0: /* line1 */
                 if (!preloadStarted) {
                     extendArmMove(5.8);
                     wrist1(0.6);
@@ -429,14 +429,12 @@ public class FiveSpecimenAuto extends OpMode {
                     }
                 }
                 break;
-
-            case 1:
+            case 1: /* line2 */
                 if (!grabSpecimen1Started) {
                     extendArmMove(0);
                     wrist1(0.4);
                     arm(0.97);
-                    follower.followPath(grabSpecimen1, true);
-                    claw1(1);
+                    follower.followPath(grabSpecimen1, false);
                     grabSpecimen1Started = true;
                 }
                 if (!follower.isBusy()) {
@@ -444,9 +442,9 @@ public class FiveSpecimenAuto extends OpMode {
                     setPathState(2);
                 }
                 break;
-
-            case 2:
+            case 2: /* line3 */
                 if (!scoreSpecimen1Started) {
+                    claw1(1);
                     extendArmMove(5.8);
                     wrist1(0.6);
                     arm(0.23);
@@ -463,8 +461,7 @@ public class FiveSpecimenAuto extends OpMode {
                     }
                 }
                 break;
-
-            case 3:
+            case 3: /* line4 */
                 if (!moveToPushLoc1Started) {
                     extendArmMove(0);
                     submersibleArm(1);
@@ -480,8 +477,7 @@ public class FiveSpecimenAuto extends OpMode {
                     setPathState(4);
                 }
                 break;
-
-            case 4:
+            case 4: /* line5 */
                 if (!pushBlock1Started) {
                     follower.followPath(pushBlock1, true);
                     pushBlock1Started = true;
@@ -491,8 +487,7 @@ public class FiveSpecimenAuto extends OpMode {
                     setPathState(5);
                 }
                 break;
-
-            case 5:
+            case 5: /* line6 */
                 if (!moveToPushLoc2Started) {
                     follower.followPath(moveToPushLoc2, true);
                     moveToPushLoc2Started = true;
@@ -502,8 +497,7 @@ public class FiveSpecimenAuto extends OpMode {
                     setPathState(6);
                 }
                 break;
-
-            case 6:
+            case 6: /* line7 */
                 if (!pushBlock2Started) {
                     follower.followPath(pushBlock2, true);
                     pushBlock2Started = true;
@@ -513,8 +507,7 @@ public class FiveSpecimenAuto extends OpMode {
                     setPathState(7);
                 }
                 break;
-
-            case 7:
+            case 7: /* line8 */
                 if (!moveToPushLoc3Started) {
                     follower.followPath(moveToPushLoc3, true);
                     moveToPushLoc3Started = true;
@@ -524,14 +517,13 @@ public class FiveSpecimenAuto extends OpMode {
                     setPathState(8);
                 }
                 break;
-
-            case 8:
+            case 8: /* line9 */
                 if (!pushBlock3Started) {
                     extendArmMove(0);
                     wrist1(0.4);
                     arm(0.97);
-                    follower.followPath(pushBlock3, true);
-                    claw1(1);
+                    follower.followPath(pushBlock3, false);
+                    claw1(0);
                     pushBlock3Started = true;
                 }
                 if (!follower.isBusy()) {
@@ -539,9 +531,9 @@ public class FiveSpecimenAuto extends OpMode {
                     setPathState(9);
                 }
                 break;
-
-            case 9:
+            case 9: /* line10 */
                 if (!scoreSpecimen2Started) {
+                    claw1(1);
                     extendArmMove(5.8);
                     wrist1(0.6);
                     arm(0.23);
@@ -558,14 +550,12 @@ public class FiveSpecimenAuto extends OpMode {
                     }
                 }
                 break;
-
-            case 10:
+            case 10: /* line11 */
                 if (!grabSpecimen2Started) {
                     extendArmMove(0);
                     wrist1(0.4);
                     arm(0.97);
-                    follower.followPath(grabSpecimen2, true);
-                    claw1(1);
+                    follower.followPath(grabSpecimen2, false);
                     grabSpecimen2Started = true;
                 }
                 if (!follower.isBusy()) {
@@ -573,9 +563,9 @@ public class FiveSpecimenAuto extends OpMode {
                     setPathState(11);
                 }
                 break;
-
-            case 11:
+            case 11: /* line12 */
                 if (!scoreSpecimen3Started) {
+                    claw1(1);
                     extendArmMove(5.8);
                     wrist1(0.6);
                     arm(0.23);
@@ -592,14 +582,12 @@ public class FiveSpecimenAuto extends OpMode {
                     }
                 }
                 break;
-
-            case 12:
+            case 12: /* line13 */
                 if (!grabSpecimen3Started) {
                     extendArmMove(0);
                     wrist1(0.4);
                     arm(0.97);
-                    follower.followPath(grabSpecimen3, true);
-                    claw1(1);
+                    follower.followPath(grabSpecimen3, false);
                     grabSpecimen3Started = true;
                 }
                 if (!follower.isBusy()) {
@@ -607,9 +595,9 @@ public class FiveSpecimenAuto extends OpMode {
                     setPathState(13);
                 }
                 break;
-
-            case 13:
+            case 13: /* line14 */
                 if (!scoreSpecimen4Started) {
+                    claw1(1);
                     extendArmMove(5.8);
                     wrist1(0.6);
                     arm(0.23);
@@ -626,8 +614,7 @@ public class FiveSpecimenAuto extends OpMode {
                     }
                 }
                 break;
-
-            case 14:
+            case 14: /* line15 */
                 if (!pushSpecimensStarted) {
                     extendArmMove(0);
                     wrist1(0.4);
@@ -641,9 +628,9 @@ public class FiveSpecimenAuto extends OpMode {
                     setPathState(15);
                 }
                 break;
-
-            case 15:
+            case 15: /* line16 */
                 if (!parkStarted) {
+                    claw1(0);
                     extendArmMove(0);
                     wrist2(0.5);
                     wrist1(0.5);
@@ -652,7 +639,7 @@ public class FiveSpecimenAuto extends OpMode {
                     rotation(0.52);
                     Timer.wait(500);
                     submersibleArm(0);
-                    follower.followPath(park, true);
+                    follower.followPath(park, false);
                     parkStarted = true;
                 }
                 if (!follower.isBusy()) {

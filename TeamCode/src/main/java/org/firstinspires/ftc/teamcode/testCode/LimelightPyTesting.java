@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightPy;
 
-@Config("Limelight Testing")
-@TeleOp(name = "Limelight Test", group = "test_ftc23403")
-public class LimelightTesting extends LinearOpMode {
+@Config("Limelight Py Testing")
+@TeleOp(name = "Limelight Py Test", group = "test_ftc23403")
+public class LimelightPyTesting extends LinearOpMode {
     public static boolean updateLimelight = true;
     public static boolean limelightTelemetry = false;
     @Override

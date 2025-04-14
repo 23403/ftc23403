@@ -21,8 +21,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.teamcode.subsystems.limelight.Limelight;
-import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
 import org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
@@ -188,7 +186,6 @@ public class MainV4 extends LinearOpMode {
         extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         // misc
-        Limelight limelight = new Limelight(limelightMap, wrist2, submersibleArm1, telemetry);
         limelightMap.setPollRateHz(100); // update 100 times a second
         limelightMap.start();
         GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
@@ -211,7 +208,6 @@ public class MainV4 extends LinearOpMode {
                 // variables
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 // misc
-                limelight.updateTelemetry(telemetry);
                 // servos
                 wrist1.setPosition(wristCpos1);
                 wrist2.setPosition(wristCpos2);
@@ -314,7 +310,7 @@ public class MainV4 extends LinearOpMode {
                     // use correction code cuz its easier fr fr
                     slidesTARGET = 0;
                     subArmCpos = 1;
-                    if (limelight.search() == LimelightState.SAMPLE_REACHED) {
+                    if (true) {
                         wristCpos2 = 0.1;
                         Timer.wait(300);
                         claw2.setPosition(0.55);
