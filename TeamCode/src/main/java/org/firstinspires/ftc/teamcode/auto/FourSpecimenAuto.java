@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
+import static org.firstinspires.ftc.teamcode.teleOp.MainV5.eaLimitHigh;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
-import static org.firstinspires.ftc.teamcode.teleOp.MainV5.eaLimitHigh;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
@@ -21,9 +21,6 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
-
-import xyz.nin1275.utils.Motors;
-import xyz.nin1275.utils.Timer;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -41,19 +38,21 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
 import xyz.nin1275.utils.Calibrate;
+import xyz.nin1275.utils.Motors;
+import xyz.nin1275.utils.Timer;
 
 /**
  * BeastKit V5 auto
  * Started code  @  4/13/25  @  3:30 pm
- * Expected to finish code  @  4/16/25
- * It is a 5 specimen auto with park. It hangs a preloaded specimen and then hang another specimen then push the 3 samples from the ground and hang them.
+ * Finished code  @  4/16/25  @  4:57 pm
+ * It is a 4 specimen auto with park. It hangs a preloaded specimen and then hang another specimen then push the 3 samples from the ground and hangs 2 of them.
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
  * @version 1.3, 4/13/25
 **/
 
-@Config("5 Spec Auto")
-@Autonomous(name = "5+0", group = ".ftc23403")
-public class FiveSpecimenAuto extends OpMode {
+@Config("4 Spec Auto")
+@Autonomous(name = "4+0", group = ".ftc23403")
+public class FourSpecimenAuto extends OpMode {
     private Follower follower;
     private com.pedropathing.util.Timer pathTimer, opmodeTimer;
     public static double speed = 1;

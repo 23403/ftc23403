@@ -9,7 +9,9 @@ import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHE
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
 
+import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
+import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -293,7 +295,8 @@ public class P2P extends OpMode {
         MetroLib.setConstants(MConstants.class);
         Calibrate.Auto.clearEverything();
         hardwareMap.get(IMU.class, ThreeWheelIMUConstants.IMU_HardwareMapName).resetYaw();
-        controller = new PIDController(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
+        controller = new PIDController(Math.sqrt(P), I, D);
+        telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         // motors
         extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
@@ -302,11 +305,11 @@ public class P2P extends OpMode {
         // ea
         arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
         wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
-        claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x axon
+        claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
         // sa
         submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
         submersibleArm2 = hardwareMap.get(Servo.class, "subArm2"); // 1x axon
-        wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 20kg
+        wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 25kg
         claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
         // directions
@@ -317,13 +320,16 @@ public class P2P extends OpMode {
         wrist2.scaleRange(0, 0.8);
         rotation.scaleRange(0.43, 0.55);
         arm.scaleRange(0.12, 1);
-        wrist1.scaleRange(0.2, 1);
-        claw1.scaleRange(0.4, 0.8);
+        wrist1.scaleRange(0, 0.6);
+        claw1.scaleRange(0, 0.4);
         submersibleArm1.scaleRange(0.45, 1);
         // extendArm
         Motors.resetEncoders(List.of(extendArm1, extendArm2));
         Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         resetTimer.reset();
+        // starting pos
+        claw1.setPosition(1);
+        claw1(1);
         // movement
         pathTimer = new com.pedropathing.util.Timer();
         opmodeTimer = new com.pedropathing.util.Timer();
