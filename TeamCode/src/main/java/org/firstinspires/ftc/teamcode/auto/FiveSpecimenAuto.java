@@ -215,18 +215,6 @@ public class FiveSpecimenAuto extends OpMode {
             pushBlock3Points.getEndHeading(),
             0
     );
-    /*
-    public static CustomPedroPathing.beizerCurve scoreSpecimen2Points = new CustomPedroPathing.beizerCurve(
-            pushBlock3Points.endPointX,
-            pushBlock3Points.endPointY,
-            35.85,
-            65.35,
-            35.85,
-            66.55,
-            pushBlock3Points.getEndHeading(),
-            0
-    );
-    */
     /* line11 */
     public static CustomPedroPathing.beizerLine grabSpecimen2Points = new CustomPedroPathing.beizerLine(
             18.5,
@@ -274,13 +262,13 @@ public class FiveSpecimenAuto extends OpMode {
     );
     /* line16 */
     public static CustomPedroPathing.beizerCurve parkPoints = new CustomPedroPathing.beizerCurve(
-            scoreSpecimen3Points.endPointX,
-            scoreSpecimen3Points.endPointY,
+            scoreSpecimen4Points.endPointX,
+            scoreSpecimen4Points.endPointY,
             27.2,
             69.3,
             16.8,
             49.23,
-            scoreSpecimen3Points.getEndHeading(),
+            scoreSpecimen4Points.getEndHeading(),
             -130
     );
     /** create paths **/
@@ -584,7 +572,7 @@ public class FiveSpecimenAuto extends OpMode {
                         extendArmMove(19);
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
                         claw1(0);
-                        setPathState(15);
+                        setPathState(12);
                     }
                 }
                 break;
