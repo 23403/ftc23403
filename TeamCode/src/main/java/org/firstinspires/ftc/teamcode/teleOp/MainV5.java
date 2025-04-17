@@ -69,7 +69,7 @@ public class MainV5 extends LinearOpMode {
     public static double wheelSpeedMax = 1;
     public static double wheelSpeedMinEA = 0.4;
     public static double wheelSpeedMinSA = 0.8;
-    public static double wheelSpeed = wheelSpeedMax;
+    private double wheelSpeed = wheelSpeedMax;
     public static double rotationalSpeed = 0.2;
     // odometry
     public static boolean odoDrive = false;

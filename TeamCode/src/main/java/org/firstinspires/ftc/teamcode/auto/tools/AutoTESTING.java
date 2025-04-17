@@ -644,6 +644,8 @@ public class AutoTESTING extends OpMode {
         }
         // telemetry for debugging
         telemetry.addData("currentState", extendArmState);
+        telemetry.addData("extendArm1 Power", extendArm1.getPower());
+        telemetry.addData("extendArm2 Power", extendArm2.getPower());
         telemetry.addData("PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
         telemetry.addData("target", slidesTARGET);
         telemetry.addData("eaCpos1", eaInches1);
