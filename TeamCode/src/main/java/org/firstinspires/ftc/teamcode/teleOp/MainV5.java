@@ -33,7 +33,6 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
-import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.enums.extendArmStates;
 
@@ -68,7 +67,8 @@ public class MainV5 extends LinearOpMode {
     // misc
     public static boolean redSide = true;
     public static double wheelSpeedMax = 1;
-    public static double wheelSpeedMin = 0.4;
+    public static double wheelSpeedMinEA = 0.4;
+    public static double wheelSpeedMinSA = 0.8;
     public static double wheelSpeed = wheelSpeedMax;
     public static double rotationalSpeed = 0.2;
     // odometry
@@ -496,11 +496,11 @@ public class MainV5 extends LinearOpMode {
                 // extendArm and subArm slowdown
                 if (eaInches1 >= eaLimitHigh / 2) {
                     double ratio = (eaLimitHigh - eaInches1) / (eaLimitHigh - (eaLimitHigh / 2));
-                    wheelSpeed = wheelSpeedMin + ratio * (wheelSpeedMax - wheelSpeedMin);
+                    wheelSpeed = wheelSpeedMinEA + ratio * (wheelSpeedMax - wheelSpeedMinEA);
                 } else if (subArmCpos < 0.35) {
                     double subArmRatio = subArmCpos / 0.35;  // 1 when at 0.35, 0 when at 0
-                    double adjustedSpeed = wheelSpeedMin + subArmRatio * (wheelSpeed - wheelSpeedMin);
-                    wheelSpeed = Math.max(wheelSpeedMin, Math.min(adjustedSpeed, wheelSpeed));
+                    double adjustedSpeed = wheelSpeedMinSA + subArmRatio * (wheelSpeed - wheelSpeedMinSA);
+                    wheelSpeed = Math.max(wheelSpeedMinSA, Math.min(adjustedSpeed, wheelSpeed));
                 } else {
                     wheelSpeed = wheelSpeedMax;
                 }
