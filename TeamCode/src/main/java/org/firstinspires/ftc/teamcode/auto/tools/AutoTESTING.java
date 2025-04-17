@@ -321,7 +321,7 @@ public class AutoTESTING extends OpMode {
                         parkPoints.getStartPoint(),
                         parkPoints.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(parkPoints.getStartHeading()), Math.toRadians(parkPoints.getEndHeading()))
+                .setConstantHeadingInterpolation(Math.toRadians(parkPoints.getEndHeading()))
                 .build();
     }
     /** movements **/
