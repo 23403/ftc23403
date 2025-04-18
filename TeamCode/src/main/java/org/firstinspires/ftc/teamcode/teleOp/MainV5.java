@@ -23,6 +23,9 @@ import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
+import com.pedropathing.localization.PoseUpdater;
+import com.pedropathing.util.DashboardPoseTracker;
+import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -186,11 +189,21 @@ public class MainV5 extends LinearOpMode {
             follower.setStartingPose(new Pose(0,0,0));
         }
         Calibrate.Auto.clearEverything();
+        // Draw the robot on the dashboard
+        PoseUpdater poseUpdater = new PoseUpdater(hardwareMap);
+        if (Calibrate.Auto.getLastKnownPos() != null) {
+            poseUpdater.setStartingPose(Calibrate.Auto.getLastKnownPos());
+        } else {
+            poseUpdater.setStartingPose(new Pose(0,0,0));
+        }
+        DashboardPoseTracker dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
+        Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
+        Drawing.sendPacket();
         resetTimer.reset();
         while (resetTimer.milliseconds() < 500) {
             extendArm1.setPower(-0.4);
             extendArm2.setPower(-0.4);
-            telemetry.addData("RESETTING", "0 POS!");
+            telemetry.addLine("RESETTING 0 POS!");
             telemetry.update();
         }
         extendArm1.setPower(0);
@@ -199,7 +212,7 @@ public class MainV5 extends LinearOpMode {
         Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         resetTimer.reset();
         // telemetry
-        telemetry.addData("INIT", "DONE!");
+        telemetry.addLine("INIT DONE!");
         telemetry.update();
         waitForStart();
         if (opModeIsActive()) {
@@ -504,6 +517,12 @@ public class MainV5 extends LinearOpMode {
                 } else {
                     wheelSpeed = wheelSpeedMax;
                 }
+                // Draw the robot on the dashboard
+                poseUpdater.update();
+                dashboardPoseTracker.update();
+                Drawing.drawPoseHistory(dashboardPoseTracker, "#4CAF50");
+                Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
+                Drawing.sendPacket();
                 // telemetry
                 telemetry.addData("extendArmState", extendArmState);
                 telemetry.addData("PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
