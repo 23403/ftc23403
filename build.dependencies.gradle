@@ -4,6 +4,7 @@ repositories {
     maven { url = 'https://maven.brott.dev/' }
     maven { url= 'https://maven.pedropathing.com/' }
     maven { url = 'https://repo.nicevape.lol/output/' }
+    maven { url = "https://mymaven.bylazar.com/releases" }
 }
 
 dependencies {
@@ -21,4 +22,5 @@ dependencies {
     implementation 'com.pedropathing:pedro:1.0.9' // pedropathing
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.16' // ftc dashboard
     implementation 'xyz.nin1275:metrolib:0.2.0-dev' // MetroLib
+    implementation "com.bylazar:ftcontrol:0.2.1" // ftcontrol
 }

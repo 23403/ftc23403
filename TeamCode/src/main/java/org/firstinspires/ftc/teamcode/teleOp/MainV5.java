@@ -21,6 +21,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.arcrobotics.ftclib.controller.PIDController;
+import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.localization.PoseUpdater;
@@ -49,6 +50,7 @@ import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Sensor;
 import xyz.nin1275.utils.Timer;
 
+@Configurable
 @Config("MainV5")
 @TeleOp(name="Main v5", group=".ftc23403")
 public class MainV5 extends LinearOpMode {
