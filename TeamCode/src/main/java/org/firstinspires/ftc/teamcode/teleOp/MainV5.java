@@ -28,6 +28,7 @@ import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
@@ -39,6 +40,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
+import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 import org.firstinspires.ftc.teamcode.variables.enums.PresetStates;
 
@@ -156,6 +158,12 @@ public class MainV5 extends LinearOpMode {
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+        LynxUtils.initLynx(hardwareMap);
+        // gamepads
+        Gamepad currentGamepad1 = new Gamepad();
+        Gamepad currentGamepad2 = new Gamepad();
+        Gamepad previousGamepad1 = new Gamepad();
+        Gamepad previousGamepad2 = new Gamepad();
         // motors
         DcMotorEx leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         DcMotorEx leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
@@ -192,13 +200,11 @@ public class MainV5 extends LinearOpMode {
         sweeper.setDirection(Servo.Direction.REVERSE);
         // breaks
         Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear));
+        // colors
+        gamepad1.setLedColor(0, 255, 255, -1);
+        gamepad2.setLedColor(0, 255, 0, -1);
+        LynxUtils.setLynxColor(true, true, 255, 0, 255);
         // misc
-        gamepad1.setLedColor(0, 255, 0, -1);
-        gamepad2.setLedColor(255, 0, 255, -1);
-        Gamepad currentGamepad1 = new Gamepad();
-        Gamepad currentGamepad2 = new Gamepad();
-        Gamepad previousGamepad1 = new Gamepad();
-        Gamepad previousGamepad2 = new Gamepad();
         claw1.setPosition(clawCpos1);
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
@@ -218,6 +224,7 @@ public class MainV5 extends LinearOpMode {
         DashboardPoseTracker dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();
+        // reset slides 0 pos
         resetTimer.reset();
         while (resetTimer.milliseconds() < 500) {
             extendArm1.setPower(-0.4);
