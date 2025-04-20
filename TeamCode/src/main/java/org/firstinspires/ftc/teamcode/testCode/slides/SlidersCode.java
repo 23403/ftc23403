@@ -2,13 +2,14 @@ package org.firstinspires.ftc.teamcode.testCode.slides;
 
 
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.variables.ConfigVariables;
 
-
+@Disabled
 @TeleOp(name="Sliders test", group="test_ftc23403")
 public class SlidersCode extends LinearOpMode {
     @Override

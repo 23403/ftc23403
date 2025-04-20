@@ -1,19 +1,8 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
-
-import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.command.Command;
-import com.arcrobotics.ftclib.command.InstantCommand;
-import com.arcrobotics.ftclib.command.SequentialCommandGroup;
-import com.arcrobotics.ftclib.command.WaitCommand;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.variables.enums.extendArmStates;
@@ -23,197 +12,298 @@ import java.util.List;
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Timer;
 
-@Config("ExtendArm Subsystem CONFIG")
 public class ExtendArmSS {
-    // hardware
-    private DcMotorEx extendArm1;
-    private DcMotorEx extendArm2;
+    private final DcMotorEx extendArm1, extendArm2;
+    private final DcMotorEx extendArm;
+    private final boolean isDualMotor;
     private final PIDController controller;
     private final ElapsedTime resetTimer = new ElapsedTime();
-    // constants
-    public static double CPR = 384.16;
-    public static double INCHES_PER_REV = 6.2832;
-    private boolean eaCorrection = true;
-    // limits
-    public static double eaLimitHigh = Double.MAX_VALUE;
-    public static double eaLimitLow = Double.MAX_VALUE;
-    // OFFSETS
-    public static double lowPosOFFSET = 2;
-    public static double highPosOFFSET = 1;
-    public static double presetOFFSET = 1;
-    // motion profiling stuff
-    private double lastPower = 0;
-    public static double rampSpeed = 0.05;
-    // stuff
-    double pid;
-    private double rawPower;
-    private double syncError;
-    double correction;
-    private extendArmStates currentState;
-    private double targetInches = 0;
-    private boolean moveUp = false;
+    private final double CPR;
+    private final double INCHES_PER_REV;
+    private double eaLimitHigh;
+    private double eaLimitLow;
+    private boolean eaCorrection;
+    private double K;
+    private double F;
+    private double slidesTARGET = 0;
+    private extendArmStates extendArmState = extendArmStates.FLOATING;
+    private double inches1 = 0;
+    private double inches2 = 0;
+    private double inches = 0;
 
     // init
-    public ExtendArmSS(DcMotorEx extendArm1, DcMotorEx extendArm2) {
-        this.extendArm1 = extendArm1;
-        this.extendArm2 = extendArm2;
-        extendArm2.setDirection(DcMotorSimple.Direction.REVERSE);
+    public ExtendArmSS(DcMotorEx motor1, DcMotorEx motor2, PIDController controller, double K, double F, double cpr, double inchesPerRev, double limitHigh, double limitLow, boolean correctionEnabled) {
+        this.extendArm1 = motor1;
+        this.extendArm2 = motor2;
+        this.extendArm = null;
+        this.controller = controller;
+        this.CPR = cpr;
+        this.INCHES_PER_REV = inchesPerRev;
+        this.eaLimitHigh = limitHigh;
+        this.eaLimitLow = limitLow;
+        this.eaCorrection = correctionEnabled;
+        this.K = K;
+        this.F = F;
+        this.isDualMotor = true;
+        // init stuff
+        resetTimer.reset();
+        while (resetTimer.milliseconds() < 500) {
+            extendArm1.setPower(-0.4);
+            extendArm2.setPower(-0.4);
+        }
+        extendArm1.setPower(0);
+        extendArm2.setPower(0);
         Motors.resetEncoders(List.of(extendArm1, extendArm2));
         Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-        // Init PID controller
-        controller = new PIDController(0, 0, 0);
-        controller.setPID(Math.sqrt(P), I, D);
-        currentState = extendArmStates.FLOATING;
+        resetTimer.reset();
     }
-    // main
-    public void update(boolean up, boolean down) {
-        controller.setPID(Math.sqrt(P), I, D);
-        // Get current positions in inches
-        double pos1 = ticksToInches(extendArm1.getCurrentPosition());
-        double pos2 = ticksToInches(extendArm2.getCurrentPosition());
-        // Determine Force Feedback based on position
-        double ff = (eaCorrection && Math.abs(pos1 - eaLimitLow) > lowPosOFFSET) ? F : 0;
-        // controls
-        if (up) {
-            moveUp = true;
-            currentState = extendArmStates.MANUAL_MOVEMENT;
-        } else if (down) {
-            moveUp = false;
-            currentState = extendArmStates.MANUAL_MOVEMENT;
-        } else if (Math.abs(pos1 - eaLimitLow) > 2 && currentState != extendArmStates.MOVING_TO_PRESET) {
-            currentState = extendArmStates.FORCE_FEED_BACK;
+    public ExtendArmSS(DcMotorEx motor1, DcMotorEx motor2, PIDController controller, double K, double F, double cpr, double inchesPerRev) {
+        this.extendArm1 = motor1;
+        this.extendArm2 = motor2;
+        this.extendArm = null;
+        this.controller = controller;
+        this.CPR = cpr;
+        this.INCHES_PER_REV = inchesPerRev;
+        this.eaLimitHigh = Double.MAX_VALUE;
+        this.eaLimitLow = Double.MIN_VALUE;
+        this.eaCorrection = true;
+        this.K = K;
+        this.F = F;
+        this.isDualMotor = true;
+        // init stuff
+        resetTimer.reset();
+        while (resetTimer.milliseconds() < 500) {
+            extendArm1.setPower(-0.4);
+            extendArm2.setPower(-0.4);
         }
-        // States handling
-        switch (currentState) {
-            case MANUAL_MOVEMENT:
-                pid = controller.calculate(pos1, moveUp ? eaLimitHigh : eaLimitLow);
-                rawPower = pid + ff;
-                syncError = pos1 - pos2;
-                correction = syncError * K;
-                extendArm1.setPower(Math.max(-1, Math.min(1, motionProfilePower(rawPower)))); // leader
-                extendArm2.setPower(Math.max(-1, Math.min(1, (motionProfilePower(rawPower) + correction)))); // follower with correction
-                break;
-            case MOVING_TO_PRESET:
-                pid = controller.calculate(pos1, targetInches);
-                rawPower = pid + ff;
-                syncError = pos1 - pos2;
-                correction = syncError * K;
-                extendArm1.setPower(Math.max(-1, Math.min(1, motionProfilePower(rawPower)))); // leader
-                extendArm2.setPower(Math.max(-1, Math.min(1, (motionProfilePower(rawPower) + correction)))); // follower with correction
-                // check if we are at the target by an inch
-                if (Math.abs(pos1 - targetInches) < presetOFFSET) {
-                    currentState = extendArmStates.PRESET_REACHED;
-                }
-                break;
-            case PRESET_REACHED:
+        extendArm1.setPower(0);
+        extendArm2.setPower(0);
+        Motors.resetEncoders(List.of(extendArm1, extendArm2));
+        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        resetTimer.reset();
+    }
+    public ExtendArmSS(DcMotorEx motor, PIDController controller, double K, double F, double cpr, double inchesPerRev, double limitHigh, double limitLow, boolean correctionEnabled) {
+        this.extendArm1 = null;
+        this.extendArm2 = null;
+        this.extendArm = motor;
+        this.controller = controller;
+        this.CPR = cpr;
+        this.INCHES_PER_REV = inchesPerRev;
+        this.eaLimitHigh = limitHigh;
+        this.eaLimitLow = limitLow;
+        this.eaCorrection = correctionEnabled;
+        this.K = K;
+        this.F = F;
+        this.isDualMotor = false;
+        // init stuff
+        resetTimer.reset();
+        while (resetTimer.milliseconds() < 500) {
+            extendArm.setPower(-0.4);
+        }
+        extendArm.setPower(0);
+        Motors.resetEncoders(extendArm);
+        Motors.setMode(extendArm, DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        resetTimer.reset();
+    }
+    public ExtendArmSS(DcMotorEx motor, PIDController controller, double K, double F, double cpr, double inchesPerRev) {
+        this.extendArm1 = null;
+        this.extendArm2 = null;
+        this.extendArm = motor;
+        this.controller = controller;
+        this.CPR = cpr;
+        this.INCHES_PER_REV = inchesPerRev;
+        this.eaLimitHigh = Double.MAX_VALUE;
+        this.eaLimitLow = Double.MIN_VALUE;
+        this.eaCorrection = true;
+        this.K = K;
+        this.F = F;
+        this.isDualMotor = false;
+        // init stuff
+        resetTimer.reset();
+        while (resetTimer.milliseconds() < 500) {
+            extendArm.setPower(-0.4);
+        }
+        extendArm.setPower(0);
+        Motors.resetEncoders(extendArm);
+        Motors.setMode(extendArm, DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        resetTimer.reset();
+    }
+    // loop
+    public void update(Gamepad gamepad) {
+        controller.setPID(Math.sqrt(controller.getP()), controller.getI(), controller.getD());
+        // vars
+        double ff = eaCorrection ? F : 0;
+        // logic
+        if (isDualMotor) {
+            // get current positions
+            int ticks1 = extendArm1.getCurrentPosition();
+            int ticks2 = extendArm2.getCurrentPosition();
+            // convert to inches
+            inches1 = (ticks1 / CPR) * INCHES_PER_REV;
+            inches2 = (ticks2 / CPR) * INCHES_PER_REV;
+            // vars
+            boolean movingUp = gamepad.dpad_up && inches1 < eaLimitHigh;
+            boolean movingDown = gamepad.dpad_down && inches1 > eaLimitLow;
+            // controls
+            if (movingUp || movingDown) {
+                double target = movingUp ? eaLimitHigh : eaLimitLow;
+                double pid = controller.calculate(inches1, target);
+                double rawPower = pid + ff;
+                double correction = (inches1 - inches2) * K;
+                extendArm1.setPower(clamp(rawPower));
+                extendArm2.setPower(clamp(rawPower + correction));
+                extendArmState = extendArmStates.MANUAL_MOVEMENT;
+            } else if (Math.abs(inches1 - eaLimitLow) > 2 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
                 extendArm1.setPower(ff);
                 extendArm2.setPower(ff);
-                Timer.wait(500);
-                currentState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
-                break;
-            case FORCE_FEED_BACK:
-                extendArm1.setPower(ff);
-                extendArm2.setPower(ff);
-                currentState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
-                break;
-            case WAITING_FOR_RESET_CONFIRMATION:
-                if (resetTimer.milliseconds() > 200 && Math.abs(pos1 - eaLimitLow) < lowPosOFFSET) {
+                if (extendArmState == extendArmStates.PRESET_REACHED) Timer.wait(500);
+                extendArmState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
+            }
+            // states
+            if (Math.abs(inches1 - eaLimitHigh) < 1 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
+                extendArmState = extendArmStates.MAX_POS;
+            } else if (Math.abs(inches1 - eaLimitLow) < 2 &&
+                    extendArmState != extendArmStates.MOVING_TO_PRESET &&
+                    extendArmState != extendArmStates.RESETTING_ZERO_POS &&
+                    extendArmState != extendArmStates.ZERO_POS_RESET &&
+                    extendArmState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                extendArmState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
+                resetTimer.reset();
+            }
+            // pre resetting slides pos
+            if (extendArmState == extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                if (resetTimer.milliseconds() > 200 && Math.abs(inches1 - eaLimitLow) < 2) {
+                    extendArmState = extendArmStates.RESETTING_ZERO_POS;
                     resetTimer.reset();
-                    currentState = extendArmStates.RESETTING_ZERO_POS;
                 }
-                break;
-            case RESETTING_ZERO_POS:
+            }
+            // reset slides 0 pos
+            if (extendArmState == extendArmStates.RESETTING_ZERO_POS) {
                 if (resetTimer.milliseconds() < 200) {
-                    extendArm1.setPower(-0.4);
-                    extendArm2.setPower(-0.4);
+                    extendArm1.setPower(-0.1);
+                    extendArm2.setPower(-0.1);
                 } else {
                     extendArm1.setPower(0);
                     extendArm2.setPower(0);
                     Motors.resetEncoders(List.of(extendArm1, extendArm2));
                     Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-                    currentState = extendArmStates.LOW_POS;
+                    extendArmState = extendArmStates.ZERO_POS_RESET;
                 }
-                break;
-        }
-        // checkers
-        if (Math.abs(pos1 - eaLimitHigh) < highPosOFFSET && currentState != extendArmStates.MOVING_TO_PRESET) {
-            currentState = extendArmStates.MAX_POS;
-        } else if (Math.abs(pos1 - eaLimitLow) < lowPosOFFSET
-                && currentState != extendArmStates.MOVING_TO_PRESET
-                && currentState != extendArmStates.RESETTING_ZERO_POS
-                && currentState != extendArmStates.LOW_POS
-                && currentState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-            currentState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
-            resetTimer.reset();
+            }
+            // preset controls
+            if (extendArmState == extendArmStates.MOVING_TO_PRESET) {
+                double pid = controller.calculate(inches1, slidesTARGET);
+                double rawPower = pid + ff;
+                double correction = (inches1 - inches2) * K;
+                extendArm1.setPower(clamp(rawPower));
+                extendArm2.setPower(clamp(rawPower + correction));
+                if (Math.abs(inches1 - slidesTARGET) < 1) extendArmState = extendArmStates.PRESET_REACHED;
+            }
+        } else {
+            // get current positions
+            int ticks = extendArm.getCurrentPosition();
+            // convert to inches
+            inches = (ticks / CPR) * INCHES_PER_REV;
+            // vars
+            boolean movingUp = gamepad.dpad_up && inches < eaLimitHigh;
+            boolean movingDown = gamepad.dpad_down && inches > eaLimitLow;
+            // controls
+            if (movingUp || movingDown) {
+                double target = movingUp ? eaLimitHigh : eaLimitLow;
+                double pid = controller.calculate(inches, target);
+                double rawPower = pid + ff;
+                extendArm.setPower(clamp(rawPower));
+                extendArmState = extendArmStates.MANUAL_MOVEMENT;
+            } else if (Math.abs(inches - eaLimitLow) > 2 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
+                extendArm.setPower(ff);
+                if (extendArmState == extendArmStates.PRESET_REACHED) Timer.wait(500);
+                extendArmState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
+            }
+            // states
+            if (Math.abs(inches - eaLimitHigh) < 1 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
+                extendArmState = extendArmStates.MAX_POS;
+            } else if (Math.abs(inches - eaLimitLow) < 2 &&
+                    extendArmState != extendArmStates.MOVING_TO_PRESET &&
+                    extendArmState != extendArmStates.RESETTING_ZERO_POS &&
+                    extendArmState != extendArmStates.ZERO_POS_RESET &&
+                    extendArmState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                extendArmState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
+                resetTimer.reset();
+            }
+            // pre resetting slides pos
+            if (extendArmState == extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                if (resetTimer.milliseconds() > 200 && Math.abs(inches - eaLimitLow) < 2) {
+                    extendArmState = extendArmStates.RESETTING_ZERO_POS;
+                    resetTimer.reset();
+                }
+            }
+            // reset slides 0 pos
+            if (extendArmState == extendArmStates.RESETTING_ZERO_POS) {
+                if (resetTimer.milliseconds() < 200) {
+                    extendArm.setPower(-0.1);
+                } else {
+                    extendArm.setPower(0);
+                    Motors.resetEncoders(extendArm);
+                    Motors.setMode(extendArm, DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                    extendArmState = extendArmStates.ZERO_POS_RESET;
+                }
+            }
+            // preset controls
+            if (extendArmState == extendArmStates.MOVING_TO_PRESET) {
+                double pid = controller.calculate(inches, slidesTARGET);
+                double rawPower = pid + ff;
+                extendArm.setPower(clamp(rawPower));
+                if (Math.abs(inches - slidesTARGET) < 1) extendArmState = extendArmStates.PRESET_REACHED;
+            }
         }
     }
     // setters
-    public void setLimits(double limitLow, double limitHigh) {
-        eaLimitLow = limitLow;
-        eaLimitHigh = limitHigh;
+    public void setEaCorrection(boolean eaCorrection) {
+        this.eaCorrection = eaCorrection;
     }
-    public void setEaCorrection(boolean correction) {
-        this.eaCorrection = correction;
+    public void setLimits(double highLimit, double lowLimit) {
+        this.eaLimitHigh = highLimit;
+        this.eaLimitLow = lowLimit;
     }
-    public void preset(double targetInches) {
-        this.targetInches = targetInches;
-        currentState = extendArmStates.MOVING_TO_PRESET;
+    public void moveTo(double target) {
+        this.slidesTARGET = target;
+        extendArmState = extendArmStates.MOVING_TO_PRESET;
     }
-    // getters
-    public extendArmStates getCurrentState() {
-        return currentState;
+    public void updatePIDKFValues(double p, double i, double d, double K, double F) {
+        controller.setPID(Math.sqrt(p), i, d);
+        this.K = K;
+        this.F = F;
     }
-    public double getTargetInches() {
-        return targetInches;
+    // debugging values
+    public double getInches1() {
+        return inches1;
     }
-    public double getRawPower() {
-        return rawPower;
+    public double getInches2() {
+        return inches2;
     }
-    public double getSyncError() {
-        return syncError;
+    public double getInches() {
+        return inches;
+    }
+    public double getTarget() {
+        return slidesTARGET;
+    }
+    public extendArmStates getState() {
+        return extendArmState;
+    }
+    public double getPower1() {
+        return extendArm1.getPower();
+    }
+    public double getPower2() {
+        return extendArm2.getPower();
+    }
+    public double getPower() {
+        return extendArm.getPower();
     }
     public ElapsedTime getResetTimer() {
         return resetTimer;
     }
     // utils
-    public double ticksToInches(int ticks) {
-        return (ticks / CPR) * INCHES_PER_REV;
-    }
-    private double motionProfilePower(double power) {
-        lastPower = smoothRamp(lastPower, power, rampSpeed);
-        return smoothRamp(lastPower, rawPower, rampSpeed);
-    }
-    private double smoothRamp(double lastPower, double targetPower, double speed) {
-        if (targetPower > lastPower) {
-            return Math.min(lastPower + speed, targetPower);
-        } else if (targetPower < lastPower) {
-            return Math.max(lastPower - speed, targetPower);
-        }
-        return targetPower;
-    }
-    public Command resetSlidesINIT = new SequentialCommandGroup(
-            new InstantCommand(() -> {
-                resetTimer.reset();
-                extendArm1.setPower(-0.3);
-                extendArm2.setPower(-0.3);
-            }),
-            new WaitCommand(500),
-            new InstantCommand(() -> {
-                extendArm1.setPower(0);
-                extendArm2.setPower(0);
-                Motors.resetEncoders(List.of(extendArm1, extendArm2));
-                Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-                resetTimer.reset();
-            })
-    );
-    public void resetSlides() {
-        if (currentState != extendArmStates.RESETTING_ZERO_POS
-                && currentState != extendArmStates.LOW_POS
-                && currentState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION
-                && currentState != extendArmStates.MOVING_TO_PRESET
-                && currentState != extendArmStates.MAX_POS && currentState != extendArmStates.MANUAL_MOVEMENT) {
-            currentState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
-            resetTimer.reset();
-        }
+    private double clamp(double val) {
+        return Math.max(-1, Math.min(1, val));
     }
 }

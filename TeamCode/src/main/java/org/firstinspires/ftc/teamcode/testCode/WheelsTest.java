@@ -1,17 +1,13 @@
 package org.firstinspires.ftc.teamcode.testCode;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 @TeleOp(name="Wheels Test", group="test_ftc23403")
 public class WheelsTest extends OpMode {
     private DcMotor leftFront, leftBack, rightFront, rightBack;
-    private double wheelSpeed = 1.0; // Default to full speed
 
     @Override
     public void init() {
@@ -37,6 +33,8 @@ public class WheelsTest extends OpMode {
         double turn = gamepad1.right_stick_x;  // Rotation
 
         // Calculate motor power
+        // Default to full speed
+        double wheelSpeed = 1.0;
         double leftFrontPower = (drive + strafe + turn) * wheelSpeed;
         double leftBackPower = (drive - strafe + turn) * wheelSpeed;
         double rightFrontPower = (drive - strafe - turn) * wheelSpeed;

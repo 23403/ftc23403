@@ -1,11 +1,13 @@
 package org.firstinspires.ftc.teamcode.testCode;
 
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import org.firstinspires.ftc.teamcode.variables.old.VariablesOld;
 
+@Disabled
 @TeleOp(name="Main Test", group="test_ftc23403")
 public class MainTest extends LinearOpMode {
 
