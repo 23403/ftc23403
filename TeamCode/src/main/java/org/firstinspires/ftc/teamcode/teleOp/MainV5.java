@@ -408,8 +408,12 @@ public class MainV5 extends LinearOpMode {
                         extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                         presetState = PresetStates.NO_PRESET;
                         break;
+                    case SCORE_SPECIMEN:
+                        if (Math.abs(eaInches1 - MainV5.presets.scoreSpecimen.extendArm != -1.0 ? MainV5.presets.scoreSpecimen.extendArm : eaInches1) <= 2) {
+                            presetState = PresetStates.HUMAN_PLAYER;
+                        }
+                        break;
                 }
-
                 /**
                  * GAMEPAD 1
                  *   X / ▢         - Grab sample using limelight
@@ -430,7 +434,7 @@ public class MainV5 extends LinearOpMode {
                  *                \\.          .'
                  *                  \\________/
                 */
-                // humanPlayer pos
+                // humanPlayer preset
                 if (gamepad1.b) {
                     presetState = PresetStates.HUMAN_PLAYER;
                 }
@@ -442,9 +446,9 @@ public class MainV5 extends LinearOpMode {
                     if (true) {
                         wristCpos2 = 0.1;
                         Timer.wait(300);
-                        claw2.setPosition(0.55);
-                        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
+                        claw2.setPosition(1);
                     }
+                    extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                 }
                 /**
                  * GAMEPAD 2
@@ -466,19 +470,19 @@ public class MainV5 extends LinearOpMode {
                  *                \\.          .'
                  *                  \\________/
                 */
-                // high basket pos
+                // high basket preset
                 if (gamepad2.y) {
                     presetState = PresetStates.HIGH_BASKET;
                 }
-                // low basket pos
+                // low basket preset
                 if (gamepad2.a) {
                     presetState = PresetStates.LOW_BASKET;
                 }
-                // transition pos
+                // transition preset
                 if (gamepad2.x) {
                     presetState = PresetStates.TRANSITION;
                 }
-                // specimen pos
+                // specimen preset
                 if (currentGamepad2.b && !previousGamepad2.b) {
                     switch (presetState) {
                         case NO_PRESET:
@@ -505,29 +509,21 @@ public class MainV5 extends LinearOpMode {
                             extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                             presetState = PresetStates.SCORE_SPECIMEN;
                             break;
-                        case SCORE_SPECIMEN:
-                            if (Math.abs(eaInches1 - MainV5.presets.scoreSpecimen.extendArm != -1.0 ? MainV5.presets.scoreSpecimen.extendArm : eaInches1) <= 2) {
-                                presetState = PresetStates.HUMAN_PLAYER;
-                            }
-                            break;
                     }
                 }
                 // auto move arm to score when we pickup from human player
-                if (armCpos == MainV5.presets.humanPlayer.arm && wristCpos1 == MainV5.presets.humanPlayer.wrist1 && clawCpos1 == 1) {
-                    Timer.wait(200);
-                    if (moving && clawCpos1 == 1) {
-                        // specimen preset
-                        slidesTARGET = MainV5.presets.preSpecimen.extendArm != -1.0 ? MainV5.presets.preSpecimen.extendArm : eaInches1;
-                        subArmCpos = MainV5.presets.preSpecimen.subArm != -1.0 ? MainV5.presets.preSpecimen.subArm : subArmCpos;
-                        clawCpos2 = MainV5.presets.preSpecimen.claw2 != -1.0 ? MainV5.presets.preSpecimen.claw2 : clawCpos2;
-                        wristCpos2 = MainV5.presets.preSpecimen.wrist2 != -1.0 ? MainV5.presets.preSpecimen.wrist2 : wristCpos2;
-                        wristCpos1 = MainV5.presets.preSpecimen.wrist1 != -1.0 ? MainV5.presets.preSpecimen.wrist1 : wristCpos1;
-                        clawCpos1 = MainV5.presets.preSpecimen.claw1 != -1.0 ? MainV5.presets.preSpecimen.claw1 : clawCpos1;
-                        armCpos = MainV5.presets.preSpecimen.arm != -1.0 ? MainV5.presets.preSpecimen.arm : armCpos;
-                        rotationalCpos = MainV5.presets.preSpecimen.rotational != -1.0 ? MainV5.presets.preSpecimen.rotational : rotationalCpos;
-                        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
-                        presetState = PresetStates.PRE_SPECIMEN_SCORE;
-                    }
+                if (armCpos == MainV5.presets.humanPlayer.arm && wristCpos1 == MainV5.presets.humanPlayer.wrist1 && clawCpos1 == 1 && moving) {
+                    // specimen preset
+                    slidesTARGET = MainV5.presets.preSpecimen.extendArm != -1.0 ? MainV5.presets.preSpecimen.extendArm : eaInches1;
+                    subArmCpos = MainV5.presets.preSpecimen.subArm != -1.0 ? MainV5.presets.preSpecimen.subArm : subArmCpos;
+                    clawCpos2 = MainV5.presets.preSpecimen.claw2 != -1.0 ? MainV5.presets.preSpecimen.claw2 : clawCpos2;
+                    wristCpos2 = MainV5.presets.preSpecimen.wrist2 != -1.0 ? MainV5.presets.preSpecimen.wrist2 : wristCpos2;
+                    wristCpos1 = MainV5.presets.preSpecimen.wrist1 != -1.0 ? MainV5.presets.preSpecimen.wrist1 : wristCpos1;
+                    clawCpos1 = MainV5.presets.preSpecimen.claw1 != -1.0 ? MainV5.presets.preSpecimen.claw1 : clawCpos1;
+                    armCpos = MainV5.presets.preSpecimen.arm != -1.0 ? MainV5.presets.preSpecimen.arm : armCpos;
+                    rotationalCpos = MainV5.presets.preSpecimen.rotational != -1.0 ? MainV5.presets.preSpecimen.rotational : rotationalCpos;
+                    extendArmState = ExtendArmStates.MOVING_TO_PRESET;
+                    presetState = PresetStates.PRE_SPECIMEN_SCORE;
                 }
                 // claws
                 if (gamepad2.left_trigger > 0 || gamepad2.right_bumper) {
@@ -553,11 +549,11 @@ public class MainV5 extends LinearOpMode {
                 }
                 // arm
                 if (gamepad2.right_stick_y > 0.3) {
-                    armCpos = 0.8;
-                    wristCpos1 = 1;
-                } else if (gamepad2.right_stick_y < -0.3) {
-                    armCpos = 0.92;
+                    armCpos = 0.23;
                     wristCpos1 = 0.6;
+                } else if (gamepad2.right_stick_y < -0.3) {
+                    armCpos = 0.96;
+                    wristCpos1 = 0.42;
                 }
                 // rotate
                 if (gamepad1.right_trigger > 0) {

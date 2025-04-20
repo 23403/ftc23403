@@ -453,7 +453,6 @@ public class FourSpecimenAuto extends OpMode {
                     moveToPushLoc3Started = true;
                 }
                 if (!follower.isBusy()) {
-                    Timer.wait(pauses);
                     setPathState(8);
                 }
                 break;

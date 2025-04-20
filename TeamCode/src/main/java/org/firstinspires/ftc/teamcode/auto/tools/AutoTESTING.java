@@ -269,29 +269,34 @@ public class AutoTESTING extends OpMode {
                         moveToPushLoc1Points.getMiddlePoint(1),
                         moveToPushLoc1Points.getEndPoint()
                 ))
+                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc1Points.getStartHeading()), Math.toRadians(moveToPushLoc1Points.getEndHeading()))
                 .addPath(new BezierLine(
                         pushBlock1Points.getStartPoint(),
                         pushBlock1Points.getEndPoint()
                 ))
+                .setLinearHeadingInterpolation(Math.toRadians(pushBlock1Points.getStartHeading()), Math.toRadians(pushBlock1Points.getEndHeading()))
                 .addPath(new BezierCurve(
                         moveToPushLoc2Points.getStartPoint(),
                         moveToPushLoc2Points.getMiddlePoint(),
                         moveToPushLoc2Points.getEndPoint()
                 ))
+                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc2Points.getStartHeading()), Math.toRadians(moveToPushLoc2Points.getEndHeading()))
                 .addPath(new BezierLine(
                         pushBlock2Points.getStartPoint(),
                         pushBlock2Points.getEndPoint()
                 ))
+                .setLinearHeadingInterpolation(Math.toRadians(pushBlock2Points.getStartHeading()), Math.toRadians(pushBlock2Points.getEndHeading()))
                 .addPath(new BezierCurve(
                         moveToPushLoc3Points.getStartPoint(),
                         moveToPushLoc3Points.getMiddlePoint(),
                         moveToPushLoc3Points.getEndPoint()
                 ))
+                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc3Points.getStartHeading()), Math.toRadians(moveToPushLoc3Points.getEndHeading()))
                 .addPath(new BezierLine(
                         pushBlock3Points.getStartPoint(),
                         pushBlock3Points.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen1Points.getStartHeading()), Math.toRadians(pushBlock3Points.getEndHeading()))
+                .setLinearHeadingInterpolation(Math.toRadians(pushBlock3Points.getStartHeading()), Math.toRadians(pushBlock3Points.getEndHeading()))
                 .build();
         /* line5 */
         scoreSpecimen2 = follower.pathBuilder()

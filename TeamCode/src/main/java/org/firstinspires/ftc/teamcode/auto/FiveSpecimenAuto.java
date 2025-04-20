@@ -405,7 +405,7 @@ public class FiveSpecimenAuto extends OpMode {
                         parkPoints.getStartPoint(),
                         parkPoints.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(parkPoints.getStartHeading()), Math.toRadians(parkPoints.getEndHeading()))
+                .setConstantHeadingInterpolation(Math.toRadians(parkPoints.endHeading))
                 .build();
     }
     /** movements **/
@@ -509,7 +509,6 @@ public class FiveSpecimenAuto extends OpMode {
                     moveToPushLoc3Started = true;
                 }
                 if (!follower.isBusy()) {
-                    Timer.wait(pauses);
                     setPathState(8);
                 }
                 break;
