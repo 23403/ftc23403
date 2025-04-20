@@ -15,10 +15,10 @@ public class LynxUtils {
     // methods
     public static void initLynx(HardwareMap hardwareMap) {
         for (LynxModule module : hardwareMap.getAll(LynxModule.class)) {
-            if (module.isParent()) {
+            if (module.getRevProductNumber() != 0x311152 && module.getRevProductNumber() != 0x111855) {
                 controlHub = module;
                 validControlHub = true;
-            } else if (!module.isParent()) {
+            } else if (module.getRevProductNumber() == 0x311152 && module.getRevProductNumber() != 0x111855) {
                 expansionHub = module;
                 validExpansionHub = true;
             } else {
