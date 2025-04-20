@@ -513,7 +513,7 @@ public class MainV5 extends LinearOpMode {
                     }
                 }
                 // auto move arm to score when we pickup from human player
-                if (armCpos == presets.humanPlayer.arm && wristCpos1 == presets.humanPlayer.wrist1 && clawCpos1 == 1) {
+                if (armCpos == MainV5.presets.humanPlayer.arm && wristCpos1 == MainV5.presets.humanPlayer.wrist1 && clawCpos1 == 1) {
                     Timer.wait(200);
                     if (moving && clawCpos1 == 1) {
                         // specimen preset
