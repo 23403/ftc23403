@@ -30,8 +30,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.subsystems.limelight.LimelightState;
-import org.firstinspires.ftc.teamcode.variables.enums.extendArmStates;
+import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 
 import java.util.List;
 
@@ -71,7 +70,7 @@ public class outreachTeleOp extends LinearOpMode {
     public static double eaLimitHigh = 36;
     public static double eaLimitLow = 0;
     public static boolean eaCorrection = true;
-    private static extendArmStates extendArmState = extendArmStates.FLOATING;
+    private static ExtendArmStates extendArmState = ExtendArmStates.FLOATING;
     ElapsedTime resetTimer = new ElapsedTime();
     @Override
     public void runOpMode() {
@@ -200,7 +199,7 @@ public class outreachTeleOp extends LinearOpMode {
                     double correction = syncError * K;
                     extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
                     extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
-                    extendArmState = extendArmStates.MANUAL_MOVEMENT;
+                    extendArmState = ExtendArmStates.MANUAL_MOVEMENT;
                 } else if (gamepad2.dpad_down && eaInches1 > eaLimitLow) {
                     double pid = controller.calculate(eaInches1, eaLimitLow);
                     double rawPower = pid + ff;
@@ -208,29 +207,29 @@ public class outreachTeleOp extends LinearOpMode {
                     double correction = syncError * K;
                     extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
                     extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
-                    extendArmState = extendArmStates.MANUAL_MOVEMENT;
-                } else if (Math.abs(eaInches1 - eaLimitLow) > 2 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
+                    extendArmState = ExtendArmStates.MANUAL_MOVEMENT;
+                } else if (Math.abs(eaInches1 - eaLimitLow) > 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
                     extendArm1.setPower(ff);
                     extendArm2.setPower(ff);
-                    if (extendArmState == extendArmStates.PRESET_REACHED) Timer.wait(500);
-                    extendArmState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
+                    if (extendArmState == ExtendArmStates.PRESET_REACHED) Timer.wait(500);
+                    extendArmState = eaCorrection ? ExtendArmStates.FORCE_FEED_BACK : ExtendArmStates.FLOATING;
                 }
                 // states
-                if (Math.abs(eaInches1 - eaLimitHigh) < 1 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
-                    extendArmState = extendArmStates.MAX_POS;
-                } else if (Math.abs(eaInches1 - eaLimitLow) < 2 && extendArmState != extendArmStates.MOVING_TO_PRESET && extendArmState != extendArmStates.RESETTING_ZERO_POS && extendArmState != extendArmStates.ZERO_POS_RESET && extendArmState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-                    extendArmState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
+                if (Math.abs(eaInches1 - eaLimitHigh) < 1 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
+                    extendArmState = ExtendArmStates.MAX_POS;
+                } else if (Math.abs(eaInches1 - eaLimitLow) < 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET && extendArmState != ExtendArmStates.RESETTING_ZERO_POS && extendArmState != ExtendArmStates.ZERO_POS_RESET && extendArmState != ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                    extendArmState = ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION;
                     resetTimer.reset();
                 }
                 // pre resetting slides pos
-                if (extendArmState == extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                if (extendArmState == ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
                     if (resetTimer.milliseconds() > 200 && Math.abs(eaInches1 - eaLimitLow) < 2) {
-                        extendArmState = extendArmStates.RESETTING_ZERO_POS;
+                        extendArmState = ExtendArmStates.RESETTING_ZERO_POS;
                         resetTimer.reset();
                     }
                 }
                 // reset slides 0 pos
-                if (extendArmState == extendArmStates.RESETTING_ZERO_POS) {
+                if (extendArmState == ExtendArmStates.RESETTING_ZERO_POS) {
                     if (resetTimer.milliseconds() < 200) {
                         extendArm1.setPower(-0.1);
                         extendArm2.setPower(-0.1);
@@ -239,11 +238,11 @@ public class outreachTeleOp extends LinearOpMode {
                         extendArm2.setPower(0);
                         Motors.resetEncoders(List.of(extendArm1, extendArm2));
                         Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-                        extendArmState = extendArmStates.ZERO_POS_RESET;
+                        extendArmState = ExtendArmStates.ZERO_POS_RESET;
                     }
                 }
                 // preset controls
-                if (extendArmState == extendArmStates.MOVING_TO_PRESET) {
+                if (extendArmState == ExtendArmStates.MOVING_TO_PRESET) {
                     double pid = controller.calculate(eaInches1, slidesTARGET);
                     double rawPower = pid + ff;
                     double syncError = eaInches1 - eaInches2;
@@ -252,7 +251,7 @@ public class outreachTeleOp extends LinearOpMode {
                     extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
                     // check if we are at the target by 50 encoders
                     if (Math.abs(eaInches1 - slidesTARGET) < 1) {
-                        extendArmState = extendArmStates.PRESET_REACHED;
+                        extendArmState = ExtendArmStates.PRESET_REACHED;
                     }
                 }
                 // submersibleArm code
@@ -293,7 +292,7 @@ public class outreachTeleOp extends LinearOpMode {
                     clawCpos1 = MainV5.presets.humanPlayer.claw1 != -1.0 ? MainV5.presets.humanPlayer.claw1 : clawCpos1;
                     armCpos = MainV5.presets.humanPlayer.arm != -1.0 ? MainV5.presets.humanPlayer.arm : armCpos;
                     rotationalCpos = MainV5.presets.humanPlayer.rotational != -1.0 ? MainV5.presets.humanPlayer.rotational : rotationalCpos;
-                    extendArmState = extendArmStates.MOVING_TO_PRESET;
+                    extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                 }
                 // limelight grabbing
                 if (gamepad1.x) {
@@ -304,7 +303,7 @@ public class outreachTeleOp extends LinearOpMode {
                         wristCpos2 = 0.1;
                         Timer.wait(300);
                         claw2.setPosition(0.55);
-                        extendArmState = extendArmStates.MOVING_TO_PRESET;
+                        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                     }
                 }
                 /**
@@ -338,7 +337,7 @@ public class outreachTeleOp extends LinearOpMode {
                     clawCpos1 = MainV5.presets.highBasket.claw1 != -1.0 ? MainV5.presets.highBasket.claw1 : clawCpos1;
                     armCpos = MainV5.presets.highBasket.arm != -1.0 ? MainV5.presets.highBasket.arm : armCpos;
                     rotationalCpos = MainV5.presets.highBasket.rotational != -1.0 ? MainV5.presets.highBasket.rotational : rotationalCpos;
-                    extendArmState = extendArmStates.MOVING_TO_PRESET;
+                    extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                 }
                 // low basket pos
                 if (gamepad2.a) {
@@ -351,7 +350,7 @@ public class outreachTeleOp extends LinearOpMode {
                     clawCpos1 = MainV5.presets.lowBasket.claw1 != -1.0 ? MainV5.presets.lowBasket.claw1 : clawCpos1;
                     armCpos = MainV5.presets.lowBasket.arm != -1.0 ? MainV5.presets.lowBasket.arm : armCpos;
                     rotationalCpos = MainV5.presets.lowBasket.rotational != -1.0 ? MainV5.presets.lowBasket.rotational : rotationalCpos;
-                    extendArmState = extendArmStates.MOVING_TO_PRESET;
+                    extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                 }
                 // transition pos
                 if (gamepad2.x) {
@@ -364,7 +363,7 @@ public class outreachTeleOp extends LinearOpMode {
                     clawCpos1 = MainV5.presets.transition.claw1 != -1.0 ? MainV5.presets.transition.claw1 : clawCpos1;
                     armCpos = MainV5.presets.transition.arm != -1.0 ? MainV5.presets.transition.arm : armCpos;
                     rotationalCpos = MainV5.presets.transition.rotational != -1.0 ? MainV5.presets.transition.rotational : rotationalCpos;
-                    extendArmState = extendArmStates.MOVING_TO_PRESET;
+                    extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                 }
                 // specimen pos
                 if (gamepad2.b) {
@@ -377,7 +376,7 @@ public class outreachTeleOp extends LinearOpMode {
                     clawCpos1 = MainV5.presets.specimen.claw1 != -1.0 ? MainV5.presets.specimen.claw1 : clawCpos1;
                     armCpos = MainV5.presets.specimen.arm != -1.0 ? MainV5.presets.specimen.arm : armCpos;
                     rotationalCpos = MainV5.presets.specimen.rotational != -1.0 ? MainV5.presets.specimen.rotational : rotationalCpos;
-                    extendArmState = extendArmStates.MOVING_TO_PRESET;
+                    extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                 }
                 // auto move arm to score when we pickup from human player
                 if (armCpos == MainV5.presets.humanPlayer.arm && wristCpos1 == MainV5.presets.humanPlayer.wrist1 && clawCpos1 == 1) {
@@ -392,7 +391,7 @@ public class outreachTeleOp extends LinearOpMode {
                         clawCpos1 = MainV5.presets.specimen.claw1 != -1.0 ? MainV5.presets.specimen.claw1 : clawCpos1;
                         armCpos = MainV5.presets.specimen.arm != -1.0 ? MainV5.presets.specimen.arm : armCpos;
                         rotationalCpos = MainV5.presets.specimen.rotational != -1.0 ? MainV5.presets.specimen.rotational : rotationalCpos;
-                        extendArmState = extendArmStates.MOVING_TO_PRESET;
+                        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                     }
                 }
                 // claws

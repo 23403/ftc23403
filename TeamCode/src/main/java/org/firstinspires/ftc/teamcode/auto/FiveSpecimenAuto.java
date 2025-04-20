@@ -35,7 +35,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.CustomPedroPathing;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
-import org.firstinspires.ftc.teamcode.variables.enums.extendArmStates;
+import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 
 import java.util.List;
 
@@ -88,7 +88,7 @@ public class FiveSpecimenAuto extends OpMode {
     private DcMotorEx extendArm1;
     private DcMotorEx extendArm2;
     private double slidesTARGET = 0;
-    private static extendArmStates extendArmState = extendArmStates.FLOATING;
+    private static ExtendArmStates extendArmState = ExtendArmStates.FLOATING;
     ElapsedTime resetTimer = new ElapsedTime();
     // Get current positions
     int eaTicks1 = 0;
@@ -420,7 +420,7 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(preload, false);
                     preloadStarted = true;
                 }
-                if (!follower.isBusy() && extendArmState == extendArmStates.PRESET_REACHED) {
+                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         extendArmMove(19);
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
@@ -452,7 +452,7 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(scoreSpecimen1, false);
                     scoreSpecimen1Started = true;
                 }
-                if (!follower.isBusy() && extendArmState == extendArmStates.PRESET_REACHED) {
+                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         extendArmMove(19);
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
@@ -537,7 +537,7 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(scoreSpecimen2, false);
                     scoreSpecimen2Started = true;
                 }
-                if (!follower.isBusy() && extendArmState == extendArmStates.PRESET_REACHED) {
+                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         extendArmMove(19);
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
@@ -569,7 +569,7 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(scoreSpecimen3, false);
                     scoreSpecimen3Started = true;
                 }
-                if (!follower.isBusy() && extendArmState == extendArmStates.PRESET_REACHED) {
+                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         extendArmMove(19);
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
@@ -601,7 +601,7 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(scoreSpecimen4, false);
                     scoreSpecimen4Started = true;
                 }
-                if (!follower.isBusy() && extendArmState == extendArmStates.PRESET_REACHED) {
+                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         extendArmMove(19);
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
@@ -647,7 +647,7 @@ public class FiveSpecimenAuto extends OpMode {
     /** movements logic **/
     private void extendArmMove(double pos) {
         slidesTARGET = pos;
-        extendArmState = extendArmStates.MOVING_TO_PRESET;
+        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
     }
     // servos
     private void claw1(double pos) {
@@ -770,26 +770,26 @@ public class FiveSpecimenAuto extends OpMode {
         eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
         // vars
         double ff = F;
-        if (Math.abs(eaInches1 - 0) > 2 && (extendArmState == extendArmStates.PRESET_REACHED || extendArmState == extendArmStates.ZERO_POS_RESET ||  extendArmState == extendArmStates.MAX_POS)) {
+        if (Math.abs(eaInches1 - 0) > 2 && (extendArmState == ExtendArmStates.PRESET_REACHED || extendArmState == ExtendArmStates.ZERO_POS_RESET ||  extendArmState == ExtendArmStates.MAX_POS)) {
             extendArm1.setPower(ff);
             extendArm2.setPower(ff);
         }
         // states
-        if (Math.abs(eaInches1 - eaLimitHigh) < 1 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
-            extendArmState = extendArmStates.MAX_POS;
-        } else if (Math.abs(eaInches1 - 0) < 2 && extendArmState != extendArmStates.MOVING_TO_PRESET && extendArmState != extendArmStates.RESETTING_ZERO_POS && extendArmState != extendArmStates.ZERO_POS_RESET && extendArmState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-            extendArmState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
+        if (Math.abs(eaInches1 - eaLimitHigh) < 1 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
+            extendArmState = ExtendArmStates.MAX_POS;
+        } else if (Math.abs(eaInches1 - 0) < 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET && extendArmState != ExtendArmStates.RESETTING_ZERO_POS && extendArmState != ExtendArmStates.ZERO_POS_RESET && extendArmState != ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+            extendArmState = ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION;
             resetTimer.reset();
         }
         // pre resetting slides pos
-        if (extendArmState == extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+        if (extendArmState == ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
             if (resetTimer.milliseconds() > 200 && Math.abs(eaInches1 - 0) < 2) {
-                extendArmState = extendArmStates.RESETTING_ZERO_POS;
+                extendArmState = ExtendArmStates.RESETTING_ZERO_POS;
                 resetTimer.reset();
             }
         }
         // reset slides 0 pos
-        if (extendArmState == extendArmStates.RESETTING_ZERO_POS) {
+        if (extendArmState == ExtendArmStates.RESETTING_ZERO_POS) {
             if (resetTimer.milliseconds() < 200) {
                 extendArm1.setPower(-0.1);
                 extendArm2.setPower(-0.1);
@@ -798,11 +798,11 @@ public class FiveSpecimenAuto extends OpMode {
                 extendArm2.setPower(0);
                 Motors.resetEncoders(List.of(extendArm1, extendArm2));
                 Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-                extendArmState = extendArmStates.ZERO_POS_RESET;
+                extendArmState = ExtendArmStates.ZERO_POS_RESET;
             }
         }
         // preset controls
-        if (extendArmState == extendArmStates.MOVING_TO_PRESET) {
+        if (extendArmState == ExtendArmStates.MOVING_TO_PRESET) {
             double pid = controller.calculate(eaInches1, slidesTARGET);
             double rawPower = pid + ff;
             double syncError = eaInches1 - eaInches2;
@@ -811,7 +811,7 @@ public class FiveSpecimenAuto extends OpMode {
             extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
             // check if we are at the target by 50 encoders
             if (Math.abs(eaInches1 - slidesTARGET) < 1) {
-                extendArmState = extendArmStates.PRESET_REACHED;
+                extendArmState = ExtendArmStates.PRESET_REACHED;
             }
         }
         // telemetry for debugging

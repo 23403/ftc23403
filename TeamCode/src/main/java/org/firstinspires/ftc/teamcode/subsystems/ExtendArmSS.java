@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.variables.enums.extendArmStates;
+import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 
 import java.util.List;
 
@@ -26,7 +26,7 @@ public class ExtendArmSS {
     private double K;
     private double F;
     private double slidesTARGET = 0;
-    private extendArmStates extendArmState = extendArmStates.FLOATING;
+    private ExtendArmStates extendArmState = ExtendArmStates.FLOATING;
     private double inches1 = 0;
     private double inches2 = 0;
     private double inches = 0;
@@ -152,33 +152,33 @@ public class ExtendArmSS {
                 double correction = (inches1 - inches2) * K;
                 extendArm1.setPower(clamp(rawPower));
                 extendArm2.setPower(clamp(rawPower + correction));
-                extendArmState = extendArmStates.MANUAL_MOVEMENT;
-            } else if (Math.abs(inches1 - eaLimitLow) > 2 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
+                extendArmState = ExtendArmStates.MANUAL_MOVEMENT;
+            } else if (Math.abs(inches1 - eaLimitLow) > 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
                 extendArm1.setPower(ff);
                 extendArm2.setPower(ff);
-                if (extendArmState == extendArmStates.PRESET_REACHED) Timer.wait(500);
-                extendArmState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
+                if (extendArmState == ExtendArmStates.PRESET_REACHED) Timer.wait(500);
+                extendArmState = eaCorrection ? ExtendArmStates.FORCE_FEED_BACK : ExtendArmStates.FLOATING;
             }
             // states
-            if (Math.abs(inches1 - eaLimitHigh) < 1 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
-                extendArmState = extendArmStates.MAX_POS;
+            if (Math.abs(inches1 - eaLimitHigh) < 1 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
+                extendArmState = ExtendArmStates.MAX_POS;
             } else if (Math.abs(inches1 - eaLimitLow) < 2 &&
-                    extendArmState != extendArmStates.MOVING_TO_PRESET &&
-                    extendArmState != extendArmStates.RESETTING_ZERO_POS &&
-                    extendArmState != extendArmStates.ZERO_POS_RESET &&
-                    extendArmState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-                extendArmState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
+                    extendArmState != ExtendArmStates.MOVING_TO_PRESET &&
+                    extendArmState != ExtendArmStates.RESETTING_ZERO_POS &&
+                    extendArmState != ExtendArmStates.ZERO_POS_RESET &&
+                    extendArmState != ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                extendArmState = ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION;
                 resetTimer.reset();
             }
             // pre resetting slides pos
-            if (extendArmState == extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+            if (extendArmState == ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
                 if (resetTimer.milliseconds() > 200 && Math.abs(inches1 - eaLimitLow) < 2) {
-                    extendArmState = extendArmStates.RESETTING_ZERO_POS;
+                    extendArmState = ExtendArmStates.RESETTING_ZERO_POS;
                     resetTimer.reset();
                 }
             }
             // reset slides 0 pos
-            if (extendArmState == extendArmStates.RESETTING_ZERO_POS) {
+            if (extendArmState == ExtendArmStates.RESETTING_ZERO_POS) {
                 if (resetTimer.milliseconds() < 200) {
                     extendArm1.setPower(-0.1);
                     extendArm2.setPower(-0.1);
@@ -187,17 +187,17 @@ public class ExtendArmSS {
                     extendArm2.setPower(0);
                     Motors.resetEncoders(List.of(extendArm1, extendArm2));
                     Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-                    extendArmState = extendArmStates.ZERO_POS_RESET;
+                    extendArmState = ExtendArmStates.ZERO_POS_RESET;
                 }
             }
             // preset controls
-            if (extendArmState == extendArmStates.MOVING_TO_PRESET) {
+            if (extendArmState == ExtendArmStates.MOVING_TO_PRESET) {
                 double pid = controller.calculate(inches1, slidesTARGET);
                 double rawPower = pid + ff;
                 double correction = (inches1 - inches2) * K;
                 extendArm1.setPower(clamp(rawPower));
                 extendArm2.setPower(clamp(rawPower + correction));
-                if (Math.abs(inches1 - slidesTARGET) < 1) extendArmState = extendArmStates.PRESET_REACHED;
+                if (Math.abs(inches1 - slidesTARGET) < 1) extendArmState = ExtendArmStates.PRESET_REACHED;
             }
         } else {
             // get current positions
@@ -213,47 +213,47 @@ public class ExtendArmSS {
                 double pid = controller.calculate(inches, target);
                 double rawPower = pid + ff;
                 extendArm.setPower(clamp(rawPower));
-                extendArmState = extendArmStates.MANUAL_MOVEMENT;
-            } else if (Math.abs(inches - eaLimitLow) > 2 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
+                extendArmState = ExtendArmStates.MANUAL_MOVEMENT;
+            } else if (Math.abs(inches - eaLimitLow) > 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
                 extendArm.setPower(ff);
-                if (extendArmState == extendArmStates.PRESET_REACHED) Timer.wait(500);
-                extendArmState = eaCorrection ? extendArmStates.FORCE_FEED_BACK : extendArmStates.FLOATING;
+                if (extendArmState == ExtendArmStates.PRESET_REACHED) Timer.wait(500);
+                extendArmState = eaCorrection ? ExtendArmStates.FORCE_FEED_BACK : ExtendArmStates.FLOATING;
             }
             // states
-            if (Math.abs(inches - eaLimitHigh) < 1 && extendArmState != extendArmStates.MOVING_TO_PRESET) {
-                extendArmState = extendArmStates.MAX_POS;
+            if (Math.abs(inches - eaLimitHigh) < 1 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
+                extendArmState = ExtendArmStates.MAX_POS;
             } else if (Math.abs(inches - eaLimitLow) < 2 &&
-                    extendArmState != extendArmStates.MOVING_TO_PRESET &&
-                    extendArmState != extendArmStates.RESETTING_ZERO_POS &&
-                    extendArmState != extendArmStates.ZERO_POS_RESET &&
-                    extendArmState != extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-                extendArmState = extendArmStates.WAITING_FOR_RESET_CONFIRMATION;
+                    extendArmState != ExtendArmStates.MOVING_TO_PRESET &&
+                    extendArmState != ExtendArmStates.RESETTING_ZERO_POS &&
+                    extendArmState != ExtendArmStates.ZERO_POS_RESET &&
+                    extendArmState != ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                extendArmState = ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION;
                 resetTimer.reset();
             }
             // pre resetting slides pos
-            if (extendArmState == extendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+            if (extendArmState == ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
                 if (resetTimer.milliseconds() > 200 && Math.abs(inches - eaLimitLow) < 2) {
-                    extendArmState = extendArmStates.RESETTING_ZERO_POS;
+                    extendArmState = ExtendArmStates.RESETTING_ZERO_POS;
                     resetTimer.reset();
                 }
             }
             // reset slides 0 pos
-            if (extendArmState == extendArmStates.RESETTING_ZERO_POS) {
+            if (extendArmState == ExtendArmStates.RESETTING_ZERO_POS) {
                 if (resetTimer.milliseconds() < 200) {
                     extendArm.setPower(-0.1);
                 } else {
                     extendArm.setPower(0);
                     Motors.resetEncoders(extendArm);
                     Motors.setMode(extendArm, DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
-                    extendArmState = extendArmStates.ZERO_POS_RESET;
+                    extendArmState = ExtendArmStates.ZERO_POS_RESET;
                 }
             }
             // preset controls
-            if (extendArmState == extendArmStates.MOVING_TO_PRESET) {
+            if (extendArmState == ExtendArmStates.MOVING_TO_PRESET) {
                 double pid = controller.calculate(inches, slidesTARGET);
                 double rawPower = pid + ff;
                 extendArm.setPower(clamp(rawPower));
-                if (Math.abs(inches - slidesTARGET) < 1) extendArmState = extendArmStates.PRESET_REACHED;
+                if (Math.abs(inches - slidesTARGET) < 1) extendArmState = ExtendArmStates.PRESET_REACHED;
             }
         }
     }
@@ -267,7 +267,7 @@ public class ExtendArmSS {
     }
     public void moveTo(double target) {
         this.slidesTARGET = target;
-        extendArmState = extendArmStates.MOVING_TO_PRESET;
+        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
     }
     public void updatePIDKFValues(double p, double i, double d, double K, double F) {
         controller.setPID(Math.sqrt(p), i, d);
@@ -287,7 +287,7 @@ public class ExtendArmSS {
     public double getTarget() {
         return slidesTARGET;
     }
-    public extendArmStates getState() {
+    public ExtendArmStates getState() {
         return extendArmState;
     }
     public double getPower1() {
