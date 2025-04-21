@@ -21,9 +21,6 @@ public class LynxUtils {
             } else if (module.getRevProductNumber() == 0x311152 && module.getRevProductNumber() != 0x111855) {
                 expansionHub = module;
                 validExpansionHub = true;
-            } else {
-                validControlHub = false;
-                validExpansionHub = false;
             }
         }
     }
