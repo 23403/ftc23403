@@ -70,7 +70,7 @@ public class outreachTeleOp extends LinearOpMode {
     // misc
     public static boolean redSide = true;
     public static boolean debugMode = true;
-    public static double wheelSpeedMax = 1;
+    public static double wheelSpeedMax = 0.7;
     public static double wheelSpeedMinEA = 0.4;
     public static double wheelSpeedMinSA = 0.8;
     private double wheelSpeed = wheelSpeedMax;
