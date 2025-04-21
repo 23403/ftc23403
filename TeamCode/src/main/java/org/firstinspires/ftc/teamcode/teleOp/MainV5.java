@@ -28,7 +28,6 @@ import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.ColorRangeSensor;
@@ -41,6 +40,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
+import org.firstinspires.ftc.teamcode.utils.TelemetryM;
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 import org.firstinspires.ftc.teamcode.variables.enums.PresetStates;
 
@@ -75,6 +75,7 @@ public class MainV5 extends LinearOpMode {
     public static double rotationalCpos = 0.5;
     // misc
     public static boolean redSide = true;
+    public static boolean debugMode = true;
     public static double wheelSpeedMax = 1;
     public static double wheelSpeedMinEA = 0.4;
     public static double wheelSpeedMinSA = 0.8;
@@ -157,6 +158,7 @@ public class MainV5 extends LinearOpMode {
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+        TelemetryM telemetryM = new TelemetryM(telemetry, debugMode);
         Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         LynxUtils.initLynx(hardwareMap);
         // gamepads
@@ -229,8 +231,8 @@ public class MainV5 extends LinearOpMode {
         while (resetTimer.milliseconds() < 500) {
             extendArm1.setPower(-0.4);
             extendArm2.setPower(-0.4);
-            telemetry.addLine("RESETTING 0 POS!");
-            telemetry.update();
+            telemetryM.addLine(true, "RESETTING 0 POS!");
+            telemetryM.update();
         }
         extendArm1.setPower(0);
         extendArm2.setPower(0);
@@ -238,8 +240,9 @@ public class MainV5 extends LinearOpMode {
         Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         resetTimer.reset();
         // telemetry
-        telemetry.addLine("INIT DONE!");
-        telemetry.update();
+        telemetryM.addLine("BEASTKIT Team 23403!");
+        telemetryM.addLine(true, "INIT DONE!");
+        telemetryM.update();
         waitForStart();
         if (opModeIsActive()) {
             follower.startTeleopDrive();
@@ -588,31 +591,33 @@ public class MainV5 extends LinearOpMode {
                 Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
                 Drawing.sendPacket();
                 // telemetry
-                telemetry.addData("extendArmState", extendArmState);
-                telemetry.addData("PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
-                telemetry.addData("target", slidesTARGET);
-                telemetry.addData("eaCpos1", eaInches1);
-                telemetry.addData("eaCpos2", eaInches2);
-                telemetry.addData("preset error1", Math.abs(slidesTARGET - eaInches1));
-                telemetry.addData("preset error2", Math.abs(slidesTARGET - eaInches2));
-                telemetry.addData("preset errorAvg", (Math.abs(slidesTARGET - eaInches1) + Math.abs(slidesTARGET - eaInches2)) / 2);
-                telemetry.addData("DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
-                telemetry.addData("DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
-                telemetry.addData("Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
-                telemetry.addData("Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
-                telemetry.addData("Submersible Arm Position1:", submersibleArm1.getPosition());
-                telemetry.addData("Wrist Position1:", wrist1.getPosition());
-                telemetry.addData("Wrist Position2:", wrist2.getPosition());
-                telemetry.addData("Claw Position1:", claw1.getPosition());
-                telemetry.addData("Claw Position2:", claw2.getPosition());
-                telemetry.addData("Arm Position:", arm.getPosition());
-                telemetry.addData("Sweeper Position:", sweeper.getPosition());
-                telemetry.addData("Rotation Position:", rotation.getPosition());
-                telemetry.addData("Red side?", redSide);
-                telemetry.addData("slides reset timer", resetTimer.milliseconds());
-                telemetry.addData("extendArm1 Power", extendArm1.getPower());
-                telemetry.addData("extendArm2 Power", extendArm2.getPower());
-                telemetry.update();
+                telemetryM.addLine("BEASTKIT Team 23403!");
+                telemetryM.addData(true, "extendArmState", extendArmState);
+                telemetryM.addData(true, "presetState", presetState);
+                telemetryM.addData(true, "PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
+                telemetryM.addData(true, "target", slidesTARGET);
+                telemetryM.addData(true, "eaCpos1", eaInches1);
+                telemetryM.addData(true, "eaCpos2", eaInches2);
+                telemetryM.addData(true, "preset error1", Math.abs(slidesTARGET - eaInches1));
+                telemetryM.addData(true, "preset error2", Math.abs(slidesTARGET - eaInches2));
+                telemetryM.addData(true, "preset errorAvg", (Math.abs(slidesTARGET - eaInches1) + Math.abs(slidesTARGET - eaInches2)) / 2);
+                telemetryM.addData(true, "DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
+                telemetryM.addData(true, "DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
+                telemetryM.addData(true, "Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
+                telemetryM.addData(true, "Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
+                telemetryM.addData(true, "Submersible Arm Position1:", submersibleArm1.getPosition());
+                telemetryM.addData(true, "Wrist Position1:", wrist1.getPosition());
+                telemetryM.addData(true, "Wrist Position2:", wrist2.getPosition());
+                telemetryM.addData(true, "Claw Position1:", claw1.getPosition());
+                telemetryM.addData(true, "Claw Position2:", claw2.getPosition());
+                telemetryM.addData(true, "Arm Position:", arm.getPosition());
+                telemetryM.addData(true, "Sweeper Position:", sweeper.getPosition());
+                telemetryM.addData(true, "Rotation Position:", rotation.getPosition());
+                telemetryM.addData(true, "Red side?", redSide);
+                telemetryM.addData(true, "slides reset timer", resetTimer.milliseconds());
+                telemetryM.addData(true, "extendArm1 Power", extendArm1.getPower());
+                telemetryM.addData(true, "extendArm2 Power", extendArm2.getPower());
+                telemetryM.update();
             }
         }
         if (isStopRequested()) {

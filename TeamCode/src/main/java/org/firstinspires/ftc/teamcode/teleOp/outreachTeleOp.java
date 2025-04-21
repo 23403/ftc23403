@@ -505,7 +505,7 @@ public class outreachTeleOp extends LinearOpMode {
                 Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
                 Drawing.sendPacket();
                 // telemetry
-                telemetry.addData("BEASTKIT", "Team 23403!");
+                telemetry.addLine("BEASTKIT Team 23403!");
                 telemetry.update();
             }
         }
