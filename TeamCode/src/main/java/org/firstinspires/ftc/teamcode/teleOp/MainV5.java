@@ -88,6 +88,10 @@ public class MainV5 extends LinearOpMode {
     public static double eaLimitHigh = 36;
     public static double eaLimitLow = 0;
     public static boolean eaCorrection = true;
+    public static int eaTicks1 = 0;
+    public static int eaTicks2 = 0;
+    public static double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
+    public static double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
     ElapsedTime resetTimer = new ElapsedTime();
     // states
     private static ExtendArmStates extendArmState = ExtendArmStates.FLOATING;
@@ -291,11 +295,11 @@ public class MainV5 extends LinearOpMode {
                 // extendArm code
                 controller.setPID(Math.sqrt(P), I, D);
                 // Get current positions
-                int eaTicks1 = extendArm1.getCurrentPosition();
-                int eaTicks2 = extendArm2.getCurrentPosition();
+                eaTicks1 = extendArm1.getCurrentPosition();
+                eaTicks2 = extendArm2.getCurrentPosition();
                 // Convert ticks to inches
-                double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
-                double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
+                eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
+                eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
                 // vars
                 double ff = eaCorrection ? F : 0;
                 // controls
@@ -369,61 +373,30 @@ public class MainV5 extends LinearOpMode {
                 }
                 // preset code
                 switch (presetState) {
-                    // use correction code cuz its easier fr fr
                     case HUMAN_PLAYER:
-                        slidesTARGET = MainV5.presets.humanPlayer.extendArm != -1.0 ? MainV5.presets.humanPlayer.extendArm : eaInches1;
-                        subArmCpos = MainV5.presets.humanPlayer.subArm != -1.0 ? MainV5.presets.humanPlayer.subArm : subArmCpos;
-                        clawCpos2 = MainV5.presets.humanPlayer.claw2 != -1.0 ? MainV5.presets.humanPlayer.claw2 : clawCpos2;
-                        wristCpos2 = MainV5.presets.humanPlayer.wrist2 != -1.0 ? MainV5.presets.humanPlayer.wrist2 : wristCpos2;
-                        wristCpos1 = MainV5.presets.humanPlayer.wrist1 != -1.0 ? MainV5.presets.humanPlayer.wrist1 : wristCpos1;
-                        clawCpos1 = MainV5.presets.humanPlayer.claw1 != -1.0 ? MainV5.presets.humanPlayer.claw1 : clawCpos1;
-                        armCpos = MainV5.presets.humanPlayer.arm != -1.0 ? MainV5.presets.humanPlayer.arm : armCpos;
-                        rotationalCpos = MainV5.presets.humanPlayer.rotational != -1.0 ? MainV5.presets.humanPlayer.rotational : rotationalCpos;
-                        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
+                        applyPreset(MainV5.presets.humanPlayer);
                         presetState = PresetStates.NO_PRESET;
                         break;
                     case HIGH_BASKET:
-                        slidesTARGET = MainV5.presets.highBasket.extendArm != -1.0 ? MainV5.presets.highBasket.extendArm : eaInches1;
-                        subArmCpos = MainV5.presets.highBasket.subArm != -1.0 ? MainV5.presets.highBasket.subArm : subArmCpos;
-                        clawCpos2 = MainV5.presets.highBasket.claw2 != -1.0 ? MainV5.presets.highBasket.claw2 : clawCpos2;
-                        wristCpos2 = MainV5.presets.highBasket.wrist2 != -1.0 ? MainV5.presets.highBasket.wrist2 : wristCpos2;
-                        wristCpos1 = MainV5.presets.highBasket.wrist1 != -1.0 ? MainV5.presets.highBasket.wrist1 : wristCpos1;
-                        clawCpos1 = MainV5.presets.highBasket.claw1 != -1.0 ? MainV5.presets.highBasket.claw1 : clawCpos1;
-                        armCpos = MainV5.presets.highBasket.arm != -1.0 ? MainV5.presets.highBasket.arm : armCpos;
-                        rotationalCpos = MainV5.presets.highBasket.rotational != -1.0 ? MainV5.presets.highBasket.rotational : rotationalCpos;
-                        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
+                        applyPreset(MainV5.presets.highBasket);
                         presetState = PresetStates.NO_PRESET;
                         break;
                     case LOW_BASKET:
-                        slidesTARGET = MainV5.presets.lowBasket.extendArm != -1.0 ? MainV5.presets.lowBasket.extendArm : eaInches1;
-                        subArmCpos = MainV5.presets.lowBasket.subArm != -1.0 ? MainV5.presets.lowBasket.subArm : subArmCpos;
-                        clawCpos2 = MainV5.presets.lowBasket.claw2 != -1.0 ? MainV5.presets.lowBasket.claw2 : clawCpos2;
-                        wristCpos2 = MainV5.presets.lowBasket.wrist2 != -1.0 ? MainV5.presets.lowBasket.wrist2 : wristCpos2;
-                        wristCpos1 = MainV5.presets.lowBasket.wrist1 != -1.0 ? MainV5.presets.lowBasket.wrist1 : wristCpos1;
-                        clawCpos1 = MainV5.presets.lowBasket.claw1 != -1.0 ? MainV5.presets.lowBasket.claw1 : clawCpos1;
-                        armCpos = MainV5.presets.lowBasket.arm != -1.0 ? MainV5.presets.lowBasket.arm : armCpos;
-                        rotationalCpos = MainV5.presets.lowBasket.rotational != -1.0 ? MainV5.presets.lowBasket.rotational : rotationalCpos;
-                        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
+                        applyPreset(MainV5.presets.lowBasket);
                         presetState = PresetStates.NO_PRESET;
                         break;
                     case TRANSITION:
-                        slidesTARGET = MainV5.presets.transition.extendArm != -1.0 ? MainV5.presets.transition.extendArm : eaInches1;
-                        subArmCpos = MainV5.presets.transition.subArm != -1.0 ? MainV5.presets.transition.subArm : subArmCpos;
-                        clawCpos2 = MainV5.presets.transition.claw2 != -1.0 ? MainV5.presets.transition.claw2 : clawCpos2;
-                        wristCpos2 = MainV5.presets.transition.wrist2 != -1.0 ? MainV5.presets.transition.wrist2 : wristCpos2;
-                        wristCpos1 = MainV5.presets.transition.wrist1 != -1.0 ? MainV5.presets.transition.wrist1 : wristCpos1;
-                        clawCpos1 = MainV5.presets.transition.claw1 != -1.0 ? MainV5.presets.transition.claw1 : clawCpos1;
-                        armCpos = MainV5.presets.transition.arm != -1.0 ? MainV5.presets.transition.arm : armCpos;
-                        rotationalCpos = MainV5.presets.transition.rotational != -1.0 ? MainV5.presets.transition.rotational : rotationalCpos;
-                        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
+                        applyPreset(MainV5.presets.transition);
                         presetState = PresetStates.NO_PRESET;
                         break;
                     case SCORE_SPECIMEN:
-                        if (Math.abs(eaInches1 - MainV5.presets.scoreSpecimen.extendArm != -1.0 ? MainV5.presets.scoreSpecimen.extendArm : eaInches1) <= 2) {
+                        double scoreTarget = MainV5.presets.scoreSpecimen.extendArm != -1.0 ? MainV5.presets.scoreSpecimen.extendArm : eaInches1;
+                        if (Math.abs(eaInches1 - scoreTarget) <= 2) {
                             presetState = PresetStates.HUMAN_PLAYER;
                         }
                         break;
                 }
+
                 /**
                  * GAMEPAD 1
                  *   X / ▢         - Grab sample using limelight
@@ -494,45 +467,17 @@ public class MainV5 extends LinearOpMode {
                 }
                 // specimen preset
                 if (currentGamepad2.b && !previousGamepad2.b) {
-                    switch (presetState) {
-                        case NO_PRESET:
-                            slidesTARGET = MainV5.presets.preSpecimen.extendArm != -1.0 ? MainV5.presets.preSpecimen.extendArm : eaInches1;
-                            subArmCpos = MainV5.presets.preSpecimen.subArm != -1.0 ? MainV5.presets.preSpecimen.subArm : subArmCpos;
-                            clawCpos2 = MainV5.presets.preSpecimen.claw2 != -1.0 ? MainV5.presets.preSpecimen.claw2 : clawCpos2;
-                            wristCpos2 = MainV5.presets.preSpecimen.wrist2 != -1.0 ? MainV5.presets.preSpecimen.wrist2 : wristCpos2;
-                            wristCpos1 = MainV5.presets.preSpecimen.wrist1 != -1.0 ? MainV5.presets.preSpecimen.wrist1 : wristCpos1;
-                            clawCpos1 = MainV5.presets.preSpecimen.claw1 != -1.0 ? MainV5.presets.preSpecimen.claw1 : clawCpos1;
-                            armCpos = MainV5.presets.preSpecimen.arm != -1.0 ? MainV5.presets.preSpecimen.arm : armCpos;
-                            rotationalCpos = MainV5.presets.preSpecimen.rotational != -1.0 ? MainV5.presets.preSpecimen.rotational : rotationalCpos;
-                            extendArmState = ExtendArmStates.MOVING_TO_PRESET;
-                            presetState = PresetStates.PRE_SPECIMEN_SCORE;
-                            break;
-                        case PRE_SPECIMEN_SCORE:
-                            slidesTARGET = MainV5.presets.scoreSpecimen.extendArm != -1.0 ? MainV5.presets.scoreSpecimen.extendArm : eaInches1;
-                            subArmCpos = MainV5.presets.scoreSpecimen.subArm != -1.0 ? MainV5.presets.scoreSpecimen.subArm : subArmCpos;
-                            clawCpos2 = MainV5.presets.scoreSpecimen.claw2 != -1.0 ? MainV5.presets.scoreSpecimen.claw2 : clawCpos2;
-                            wristCpos2 = MainV5.presets.scoreSpecimen.wrist2 != -1.0 ? MainV5.presets.scoreSpecimen.wrist2 : wristCpos2;
-                            wristCpos1 = MainV5.presets.scoreSpecimen.wrist1 != -1.0 ? MainV5.presets.scoreSpecimen.wrist1 : wristCpos1;
-                            clawCpos1 = MainV5.presets.scoreSpecimen.claw1 != -1.0 ? MainV5.presets.scoreSpecimen.claw1 : clawCpos1;
-                            armCpos = MainV5.presets.scoreSpecimen.arm != -1.0 ? MainV5.presets.scoreSpecimen.arm : armCpos;
-                            rotationalCpos = MainV5.presets.scoreSpecimen.rotational != -1.0 ? MainV5.presets.scoreSpecimen.rotational : rotationalCpos;
-                            extendArmState = ExtendArmStates.MOVING_TO_PRESET;
-                            presetState = PresetStates.SCORE_SPECIMEN;
-                            break;
+                    if (presetState == PresetStates.NO_PRESET) {
+                        applyPreset(MainV5.presets.preSpecimen);
+                        presetState = PresetStates.PRE_SPECIMEN_SCORE;
+                    } else if (presetState == PresetStates.PRE_SPECIMEN_SCORE) {
+                        applyPreset(MainV5.presets.scoreSpecimen);
+                        presetState = PresetStates.SCORE_SPECIMEN;
                     }
                 }
                 // auto move arm to score when we pickup from human player
                 if (armCpos == MainV5.presets.humanPlayer.arm && wristCpos1 == MainV5.presets.humanPlayer.wrist1 && clawCpos1 == 1 && moving) {
-                    // specimen preset
-                    slidesTARGET = MainV5.presets.preSpecimen.extendArm != -1.0 ? MainV5.presets.preSpecimen.extendArm : eaInches1;
-                    subArmCpos = MainV5.presets.preSpecimen.subArm != -1.0 ? MainV5.presets.preSpecimen.subArm : subArmCpos;
-                    clawCpos2 = MainV5.presets.preSpecimen.claw2 != -1.0 ? MainV5.presets.preSpecimen.claw2 : clawCpos2;
-                    wristCpos2 = MainV5.presets.preSpecimen.wrist2 != -1.0 ? MainV5.presets.preSpecimen.wrist2 : wristCpos2;
-                    wristCpos1 = MainV5.presets.preSpecimen.wrist1 != -1.0 ? MainV5.presets.preSpecimen.wrist1 : wristCpos1;
-                    clawCpos1 = MainV5.presets.preSpecimen.claw1 != -1.0 ? MainV5.presets.preSpecimen.claw1 : clawCpos1;
-                    armCpos = MainV5.presets.preSpecimen.arm != -1.0 ? MainV5.presets.preSpecimen.arm : armCpos;
-                    rotationalCpos = MainV5.presets.preSpecimen.rotational != -1.0 ? MainV5.presets.preSpecimen.rotational : rotationalCpos;
-                    extendArmState = ExtendArmStates.MOVING_TO_PRESET;
+                    applyPreset(MainV5.presets.preSpecimen);
                     presetState = PresetStates.PRE_SPECIMEN_SCORE;
                 }
                 // claws
@@ -626,5 +571,18 @@ public class MainV5 extends LinearOpMode {
             arm.getController().pwmDisable();
             submersibleArm1.getController().pwmDisable();
         }
+    }
+    // preset controls
+    public void applyPreset(CustomPresets preset) {
+        // use correction code cuz its easier fr fr
+        slidesTARGET = preset.extendArm != -1.0 ? preset.extendArm : eaInches1;
+        subArmCpos = preset.subArm != -1.0 ? preset.subArm : subArmCpos;
+        clawCpos2 = preset.claw2 != -1.0 ? preset.claw2 : clawCpos2;
+        wristCpos2 = preset.wrist2 != -1.0 ? preset.wrist2 : wristCpos2;
+        wristCpos1 = preset.wrist1 != -1.0 ? preset.wrist1 : wristCpos1;
+        clawCpos1 = preset.claw1 != -1.0 ? preset.claw1 : clawCpos1;
+        armCpos = preset.arm != -1.0 ? preset.arm : armCpos;
+        rotationalCpos = preset.rotational != -1.0 ? preset.rotational : rotationalCpos;
+        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
     }
 }
