@@ -49,7 +49,7 @@ import xyz.nin1275.utils.Timer;
  * Finished code  @  4/16/25  @  4:57 pm
  * It is a 4 specimen auto with park. It hangs a preloaded specimen and then hang another specimen then push the 3 samples from the ground and hangs 2 of them.
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
- * @version 1.3, 4/13/25
+ * @version 1.4, 4/23/25
 **/
 
 @Config("4 Spec Auto")
@@ -77,7 +77,7 @@ public class FourSpecimenAuto extends OpMode {
     public static double wristCpos1 = 0;
     public static double clawCpos1 = 1;
     public static double sweeperCpos = 1;
-    public static double wristCpos2 = 1;
+    public static double wristCpos2 = 0.9;
     public static double clawCpos2 = 0.5;
     public static double armCpos = 0.23;
     public static double subArmCpos = 1;
@@ -99,11 +99,8 @@ public class FourSpecimenAuto extends OpMode {
     boolean preloadStarted = false;
     boolean grabSpecimen1Started = false;
     boolean scoreSpecimen1Started = false;
-    boolean moveToPushLoc1Started = false;
     boolean pushBlock1Started = false;
-    boolean moveToPushLoc2Started = false;
     boolean pushBlock2Started = false;
-    boolean moveToPushLoc3Started = false;
     boolean pushBlock3Started = false;
     boolean scoreSpecimen2Started = false;
     boolean grabSpecimen2Started = false;
@@ -113,7 +110,7 @@ public class FourSpecimenAuto extends OpMode {
     /** different modes **/
     private Path preload;
     /** path names **/
-    private PathChain grabSpecimen1, scoreSpecimen1, moveToPushLoc1, pushBlock1, moveToPushLoc2, pushBlock2, moveToPushLoc3, pushBlock3, scoreSpecimen2, grabSpecimen2, scoreSpecimen3, park;
+    private PathChain grabSpecimen1, scoreSpecimen1, pushBlock1, pushBlock2, pushBlock3, scoreSpecimen2, grabSpecimen2, scoreSpecimen3, park;
     /** points **/
     /* start pos */
     private static final Pose startPos = new Pose(9, 63.4, Math.toRadians(0));
@@ -144,7 +141,7 @@ public class FourSpecimenAuto extends OpMode {
             grabSpecimen1Points.getEndHeading(),
             0
     );
-    /* line4 */
+    /* line4a */
     public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
             scoreSpecimen1Points.endPointX,
             scoreSpecimen1Points.endPointY,
@@ -155,7 +152,7 @@ public class FourSpecimenAuto extends OpMode {
             scoreSpecimen1Points.getEndHeading(),
             0
     );
-    /* line5 */
+    /* line4b */
     public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
             17.6,
             28,
@@ -164,7 +161,7 @@ public class FourSpecimenAuto extends OpMode {
             moveToPushLoc1Points.getEndHeading(),
             0
     );
-    /* line6 */
+    /* line4c */
     public static CustomPedroPathing.beizerCurve moveToPushLoc2Points = new CustomPedroPathing.beizerCurve(
             pushBlock1Points.endPointX,
             pushBlock1Points.endPointY,
@@ -175,7 +172,7 @@ public class FourSpecimenAuto extends OpMode {
             pushBlock1Points.getEndHeading(),
             0
     );
-    /* line7 */
+    /* line4d */
     public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
             17.6,
             20.3,
@@ -184,20 +181,20 @@ public class FourSpecimenAuto extends OpMode {
             moveToPushLoc2Points.getEndHeading(),
             0
     );
-    /* line8 */
+    /* line4e */
     public static CustomPedroPathing.beizerCurve moveToPushLoc3Points = new CustomPedroPathing.beizerCurve(
             pushBlock2Points.endPointX,
             pushBlock2Points.endPointY,
             53.49,
             22.5,
-            54.05,
+            53.9,
             13.3,
             pushBlock2Points.getEndHeading(),
             0
     );
-    /* line9 */
+    /* line4f */
     public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
-            19.8,
+            17.3,
             11.8,
             moveToPushLoc3Points.endPointX,
             moveToPushLoc3Points.endPointY,
@@ -258,6 +255,7 @@ public class FourSpecimenAuto extends OpMode {
                         grabSpecimen1Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen1Points.getStartHeading()), Math.toRadians(grabSpecimen1Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(5)
                 .build();
         /* line3 */
         scoreSpecimen1 = follower.pathBuilder()
@@ -268,7 +266,7 @@ public class FourSpecimenAuto extends OpMode {
                 .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen1Points.getStartHeading()), Math.toRadians(scoreSpecimen1Points.getEndHeading()))
                 .build();
         /* line4 */
-        moveToPushLoc1 = follower.pathBuilder()
+        pushBlock1 = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         moveToPushLoc1Points.getStartPoint(),
                         moveToPushLoc1Points.getMiddlePoint(0),
@@ -276,50 +274,44 @@ public class FourSpecimenAuto extends OpMode {
                         moveToPushLoc1Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc1Points.getStartHeading()), Math.toRadians(moveToPushLoc1Points.getEndHeading()))
-                .build();
-        /* line5 */
-        pushBlock1 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         pushBlock1Points.getStartPoint(),
                         pushBlock1Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(pushBlock1Points.getStartHeading()), Math.toRadians(pushBlock1Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(4.5)
                 .build();
-        /* line6 */
-        moveToPushLoc2 = follower.pathBuilder()
+        /* line4a */
+        pushBlock2 = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         moveToPushLoc2Points.getStartPoint(),
                         moveToPushLoc2Points.getMiddlePoint(),
                         moveToPushLoc2Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc2Points.getStartHeading()), Math.toRadians(moveToPushLoc2Points.getEndHeading()))
-                .build();
-        /* line7 */
-        pushBlock2 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         pushBlock2Points.getStartPoint(),
                         pushBlock2Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(pushBlock2Points.getStartHeading()), Math.toRadians(pushBlock2Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(5)
                 .build();
-        /* line8 */
-        moveToPushLoc3 = follower.pathBuilder()
+        /* line4b */
+        pushBlock3 = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         moveToPushLoc3Points.getStartPoint(),
                         moveToPushLoc3Points.getMiddlePoint(),
                         moveToPushLoc3Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc3Points.getStartHeading()), Math.toRadians(moveToPushLoc3Points.getEndHeading()))
-                .build();
-        /* line9 */
-        pushBlock3 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         pushBlock3Points.getStartPoint(),
                         pushBlock3Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(pushBlock3Points.getStartHeading()), Math.toRadians(pushBlock3Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(3.5)
                 .build();
-        /* line10 */
+        /* line5 */
         scoreSpecimen2 = follower.pathBuilder()
                 .addPath(new BezierCurve(
                         scoreSpecimen2Points.getStartPoint(),
@@ -327,15 +319,16 @@ public class FourSpecimenAuto extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen2Points.getStartHeading()), Math.toRadians(scoreSpecimen2Points.getEndHeading()))
                 .build();
-        /* line11 */
+        /* line6 */
         grabSpecimen2 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         grabSpecimen2Points.getStartPoint(),
                         grabSpecimen2Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen2Points.getStartHeading()), Math.toRadians(grabSpecimen2Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(5)
                 .build();
-        /* line12 */
+        /* line7 */
         scoreSpecimen3 = follower.pathBuilder()
                 .addPath(new BezierLine(
                         scoreSpecimen3Points.getStartPoint(),
@@ -343,13 +336,13 @@ public class FourSpecimenAuto extends OpMode {
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen3Points.getStartHeading()), Math.toRadians(scoreSpecimen3Points.getEndHeading()))
                 .build();
-        /* line13 */
+        /* line8 */
         park = follower.pathBuilder()
                 .addPath(new BezierLine(
                         parkPoints.getStartPoint(),
                         parkPoints.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(parkPoints.getStartHeading()), Math.toRadians(parkPoints.getEndHeading()))
+                .setConstantHeadingInterpolation(Math.toRadians(parkPoints.getEndHeading()))
                 .build();
     }
     /** movements **/
@@ -406,73 +399,46 @@ public class FourSpecimenAuto extends OpMode {
                 }
                 break;
             case 3: /* line4 */
-                if (!moveToPushLoc1Started) {
+                if (!pushBlock1Started) {
                     extendArmMove(0);
                     submersibleArm(1);
                     wrist2(0.9);
                     wrist1(0.5);
                     arm(0.18);
                     rotation(0.52);
-                    follower.followPath(moveToPushLoc1, true);
-                    moveToPushLoc1Started = true;
-                }
-                if (!follower.isBusy()) {
-                    setPathState(4);
-                }
-                break;
-            case 4: /* line5 */
-                if (!pushBlock1Started) {
                     follower.followPath(pushBlock1, true);
                     pushBlock1Started = true;
                 }
                 if (!follower.isBusy()) {
-                    setPathState(5);
+                    setPathState(999);
                 }
                 break;
-            case 5: /* line6 */
-                if (!moveToPushLoc2Started) {
-                    follower.followPath(moveToPushLoc2, true);
-                    moveToPushLoc2Started = true;
-                }
-                if (!follower.isBusy()) {
-                    setPathState(6);
-                }
-                break;
-            case 6: /* line7 */
+            case 999: /* line4a */
                 if (!pushBlock2Started) {
                     follower.followPath(pushBlock2, true);
                     pushBlock2Started = true;
                 }
                 if (!follower.isBusy()) {
-                    setPathState(7);
+                    Timer.wait(pauses);
+                    setPathState(998);
                 }
                 break;
-            case 7: /* line8 */
-                if (!moveToPushLoc3Started) {
-                    follower.followPath(moveToPushLoc3, true);
-                    moveToPushLoc3Started = true;
-                }
-                if (!follower.isBusy()) {
-                    setPathState(8);
-                }
-                break;
-            case 8: /* line9 */
+            case 998: /* line4b */
                 if (!pushBlock3Started) {
                     extendArmMove(0);
                     wrist1(0.42);
                     arm(0.96);
-                    follower.followPath(pushBlock3, false);
-                    claw1(0);
+                    follower.followPath(pushBlock3, true);
                     pushBlock3Started = true;
                 }
                 if (!follower.isBusy()) {
                     claw1.setPosition(1);
                     claw1(1);
                     Timer.wait(pauses);
-                    setPathState(9);
+                    setPathState(4);
                 }
                 break;
-            case 9: /* line10 */
+            case 4: /* line5 */
                 if (!scoreSpecimen2Started) {
                     extendArmMove(10);
                     wrist1(0.6);
@@ -485,11 +451,11 @@ public class FourSpecimenAuto extends OpMode {
                         extendArmMove(19);
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
                         claw1(0);
-                        setPathState(10);
+                        setPathState(5);
                     }
                 }
                 break;
-            case 10: /* line11 */
+            case 5: /* line6 */
                 if (!grabSpecimen2Started) {
                     extendArmMove(0);
                     wrist1(0.42);
@@ -501,10 +467,10 @@ public class FourSpecimenAuto extends OpMode {
                     claw1.setPosition(1);
                     claw1(1);
                     Timer.wait(pauses);
-                    setPathState(11);
+                    setPathState(6);
                 }
                 break;
-            case 11: /* line12 */
+            case 6: /* line7 */
                 if (!scoreSpecimen3Started) {
                     extendArmMove(10);
                     wrist1(0.6);
@@ -517,15 +483,15 @@ public class FourSpecimenAuto extends OpMode {
                         extendArmMove(19);
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
                         claw1(0);
-                        setPathState(12);
+                        setPathState(7);
                     }
                 }
                 break;
-            case 12: /* line13 */
+            case 7: /* line8 */
                 if (!parkStarted) {
                     claw1(0);
                     extendArmMove(0);
-                    wrist2(0.5);
+                    wrist2(0.45);
                     wrist1(0.5);
                     arm(0.18);
                     claw2(1);

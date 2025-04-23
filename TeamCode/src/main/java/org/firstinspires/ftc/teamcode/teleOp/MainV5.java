@@ -252,6 +252,7 @@ public class MainV5 extends LinearOpMode {
             follower.startTeleopDrive();
             while (opModeIsActive()) {
                 // variables
+                telemetryM.setDebug(debugMode);
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 // gamepad stuff
                 previousGamepad1.copy(currentGamepad1);
@@ -270,6 +271,10 @@ public class MainV5 extends LinearOpMode {
                 // field side
                 if (currentGamepad1.share && !previousGamepad1.share) {
                     redSide = !redSide;
+                }
+                // toggle debug
+                if (currentGamepad1.options && !previousGamepad1.options) {
+                    debugMode = !debugMode;
                 }
                 // movements
                 if (!odoDrive) {

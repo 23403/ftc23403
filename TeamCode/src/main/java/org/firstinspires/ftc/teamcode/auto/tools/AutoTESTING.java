@@ -252,6 +252,7 @@ public class AutoTESTING extends OpMode {
                         grabSpecimen1Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen1Points.getStartHeading()), Math.toRadians(grabSpecimen1Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(5)
                 .build();
         /* line3 */
         scoreSpecimen1 = follower.pathBuilder()
@@ -297,6 +298,7 @@ public class AutoTESTING extends OpMode {
                         pushBlock3Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(pushBlock3Points.getStartHeading()), Math.toRadians(pushBlock3Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(4.5)
                 .build();
         /* line5 */
         scoreSpecimen2 = follower.pathBuilder()
@@ -313,6 +315,7 @@ public class AutoTESTING extends OpMode {
                         grabSpecimen2Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen2Points.getStartHeading()), Math.toRadians(grabSpecimen2Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(5)
                 .build();
         /* line7 */
         scoreSpecimen3 = follower.pathBuilder()
@@ -394,6 +397,14 @@ public class AutoTESTING extends OpMode {
                     rotation(0.52);
                     follower.followPath(pushBlocks, true);
                     pushBlocksStarted = true;
+                }
+                if (follower.isBusy()) {
+                    if (follower.getPose().getX() >= 54) {
+                        submersibleArm(0);
+                    }
+                    if (follower.getPose().getX() <= 18) {
+                        submersibleArm(1);
+                    }
                 }
                 if (!follower.isBusy()) {
                     if (!pushBlocksEnded) {
