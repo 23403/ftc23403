@@ -409,7 +409,7 @@ public class FourSpecimenAuto extends OpMode {
                     follower.followPath(pushBlock1, true);
                     pushBlock1Started = true;
                 }
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || (Math.abs(follower.getPose().getX() - pushBlock1Points.endPointX) < 2 && Math.abs(follower.getPose().getY() - pushBlock1Points.endPointY) < 2)) {
                     setPathState(999);
                 }
                 break;
@@ -418,7 +418,7 @@ public class FourSpecimenAuto extends OpMode {
                     follower.followPath(pushBlock2, true);
                     pushBlock2Started = true;
                 }
-                if (!follower.isBusy()) {
+                if (!follower.isBusy() || (Math.abs(follower.getPose().getX() - pushBlock2Points.endPointX) < 3 && Math.abs(follower.getPose().getY() - pushBlock2Points.endPointY) < 2)) {
                     Timer.wait(pauses);
                     setPathState(998);
                 }

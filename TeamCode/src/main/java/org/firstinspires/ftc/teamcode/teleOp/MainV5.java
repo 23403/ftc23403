@@ -190,7 +190,7 @@ public class MainV5 extends LinearOpMode {
         Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
         // limits
         claw2.scaleRange(0.01, 0.08);
-        wrist2.scaleRange(0, 0.8);
+        wrist2.scaleRange(0.05, 0.88);
         rotation.scaleRange(0.43, 0.55);
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
@@ -498,7 +498,7 @@ public class MainV5 extends LinearOpMode {
                 }
                 // wrist
                 if (gamepad1.dpad_right) {
-                    wristCpos2 = 0;
+                    wristCpos2 = 0.15;
                 } else if (gamepad1.dpad_left) {
                     wristCpos2 = 1;
                 }

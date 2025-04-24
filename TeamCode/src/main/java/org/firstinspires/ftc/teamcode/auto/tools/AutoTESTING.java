@@ -94,130 +94,87 @@ public class AutoTESTING extends OpMode {
     double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
     double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
     /* preload lines */
-    boolean preloadStarted = false;
+    boolean pushBlock1Started = false;
+    boolean pushBlock2Started = false;
+    boolean pushBlock3Started = false;
     boolean grabSpecimen1Started = false;
     boolean scoreSpecimen1Started = false;
-    boolean pushBlocksStarted = false;
-    boolean pushBlocksEnded = false;
-    boolean scoreSpecimen2Started = false;
     boolean grabSpecimen2Started = false;
-    boolean scoreSpecimen3Started = false;
+    boolean scoreSpecimen2Started = false;
     boolean parkStarted = false;
 
-    /** different modes **/
-    private Path preload;
     /** path names **/
-    private PathChain grabSpecimen1, scoreSpecimen1, pushBlocks, scoreSpecimen2, grabSpecimen2, scoreSpecimen3, park;
+    private PathChain pushBlock1, pushBlock2, pushBlock3, grabSpecimen1, scoreSpecimen1, grabSpecimen2, scoreSpecimen2, park;
     /** points **/
     /* start pos */
     private static final Pose startPos = new Pose(9, 63.4, Math.toRadians(0));
-    /* line1 */
-    public static CustomPedroPathing.beizerLine preloadPoints = new CustomPedroPathing.beizerLine(
-            37.1,
-            61.1,
+    /* line1a */
+    public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
             startPos.getX(),
             startPos.getY(),
+            31.2,
+            58.8,
+            37.17,
+            40.81,
             startPos.getHeading(),
-            0
+            -40
+    );
+    /* line1b */
+    public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
+            40.97,
+            30.7,
+            moveToPushLoc1Points.endPointX,
+            moveToPushLoc1Points.endPointY,
+            -110,
+            -40
+    );
+    /* line1c */
+    public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
+            17.6,
+            20.3,
+            pushBlock1Points.endPointX,
+            pushBlock1Points.endPointY,
+            -110,
+            -40
+    );
+    /* line1d */
+    public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
+            19.8,
+            11.8,
+            pushBlock2Points.endPointX,
+            pushBlock2Points.endPointY,
+            -110,
+            -40
     );
     /* line2 */
     public static CustomPedroPathing.beizerLine grabSpecimen1Points = new CustomPedroPathing.beizerLine(
             21.65,
             35.8,
-            preloadPoints.endPointX,
-            preloadPoints.endPointY,
-            preloadPoints.getEndHeading(),
-            0
-    );
-    /* line3 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
-            36.85,
-            62.35,
-            grabSpecimen1Points.endPointX,
-            grabSpecimen1Points.endPointY,
-            grabSpecimen1Points.getEndHeading(),
-            0
-    );
-    /* line4a */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
-            scoreSpecimen1Points.endPointX,
-            scoreSpecimen1Points.endPointY,
-            List.of(27.5, 55.2),
-            List.of(21.8, 45.1),
-            54.74,
-            28,
-            scoreSpecimen1Points.getEndHeading(),
-            0
-    );
-    /* line4b */
-    public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
-            17.6,
-            28,
-            moveToPushLoc1Points.endPointX,
-            moveToPushLoc1Points.endPointY,
-            moveToPushLoc1Points.getEndHeading(),
-            0
-    );
-    /* line4c */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc2Points = new CustomPedroPathing.beizerCurve(
-            pushBlock1Points.endPointX,
-            pushBlock1Points.endPointY,
-            58.74,
-            31,
-            53.94,
-            20.3,
-            pushBlock1Points.getEndHeading(),
-            0
-    );
-    /* line4d */
-    public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
-            17.6,
-            20.3,
-            moveToPushLoc2Points.endPointX,
-            moveToPushLoc2Points.endPointY,
-            moveToPushLoc2Points.getEndHeading(),
-            0
-    );
-    /* line4e */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc3Points = new CustomPedroPathing.beizerCurve(
-            pushBlock2Points.endPointX,
-            pushBlock2Points.endPointY,
-            53.49,
-            22.5,
-            54.05,
-            13.3,
-            pushBlock2Points.getEndHeading(),
-            0
-    );
-    /* line4f */
-    public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
-            19.8,
-            11.8,
-            moveToPushLoc3Points.endPointX,
-            moveToPushLoc3Points.endPointY,
-            moveToPushLoc3Points.getEndHeading(),
-            0
-    );
-    /* line10 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen2Points = new CustomPedroPathing.beizerLine(
-            35.85,
-            65.55,
             pushBlock3Points.endPointX,
             pushBlock3Points.endPointY,
             pushBlock3Points.getEndHeading(),
             0
     );
-    /* line11 */
+    /* line3 */
+    public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
+            35.85,
+            65.55,
+            grabSpecimen1Points.endPointX,
+            grabSpecimen1Points.endPointY,
+            grabSpecimen1Points.getEndHeading(),
+            0
+    );
+    /* line7 */
     public static CustomPedroPathing.beizerLine grabSpecimen2Points = new CustomPedroPathing.beizerLine(
             18.5,
             35.8,
-            scoreSpecimen2Points.endPointX,
-            scoreSpecimen2Points.endPointY,
-            scoreSpecimen2Points.getEndHeading(),
+            scoreSpecimen1Points.endPointX,
+            scoreSpecimen1Points.endPointY,
+            scoreSpecimen1Points.getEndHeading(),
             0
     );
-    /* line12 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen3Points = new CustomPedroPathing.beizerLine(
+    /* line8 */
+    public static CustomPedroPathing.beizerLine scoreSpecimen2Points = new CustomPedroPathing.beizerLine(
             37,
             70,
             grabSpecimen2Points.endPointX,
@@ -225,26 +182,52 @@ public class AutoTESTING extends OpMode {
             grabSpecimen2Points.getEndHeading(),
             0
     );
-    /* line13 */
+    /* line9 */
     public static CustomPedroPathing.beizerCurve parkPoints = new CustomPedroPathing.beizerCurve(
-            scoreSpecimen3Points.endPointX,
-            scoreSpecimen3Points.endPointY,
+            scoreSpecimen2Points.endPointX,
+            scoreSpecimen2Points.endPointY,
             27.2,
             69.3,
             16.8,
             49.23,
-            scoreSpecimen3Points.getEndHeading(),
+            scoreSpecimen2Points.getEndHeading(),
             -130
     );
     /** create paths **/
     public void buildPaths() {
-        /* line1 */
-        preload = new Path(
-                new BezierLine(
-                        preloadPoints.getStartPoint(),
-                        preloadPoints.getEndPoint()
-                ));
-        preload.setLinearHeadingInterpolation(Math.toRadians(preloadPoints.getStartHeading()), Math.toRadians(preloadPoints.getEndHeading()));
+        /* line4a */
+        pushBlock1 = follower.pathBuilder()
+                .addPath(new BezierCurve(
+                        moveToPushLoc1Points.getStartPoint(),
+                        moveToPushLoc1Points.getMiddlePoint(),
+                        moveToPushLoc1Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc1Points.getStartHeading()), Math.toRadians(moveToPushLoc1Points.getEndHeading()))
+                .addPath(new BezierLine(
+                        pushBlock1Points.getStartPoint(),
+                        pushBlock1Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(pushBlock1Points.getStartHeading()), Math.toRadians(pushBlock1Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(8)
+                .build();
+        /* line4b */
+        pushBlock2 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pushBlock2Points.getStartPoint(),
+                        pushBlock2Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(pushBlock2Points.getStartHeading()), Math.toRadians(pushBlock2Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(8)
+                .build();
+        /* line4c */
+        pushBlock3 = follower.pathBuilder()
+                .addPath(new BezierLine(
+                        pushBlock3Points.getStartPoint(),
+                        pushBlock3Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(pushBlock3Points.getStartHeading()), Math.toRadians(pushBlock3Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(8)
+                .build();
         /* line2 */
         grabSpecimen1 = follower.pathBuilder()
                 .addPath(new BezierLine(
@@ -254,59 +237,13 @@ public class AutoTESTING extends OpMode {
                 .setLinearHeadingInterpolation(Math.toRadians(grabSpecimen1Points.getStartHeading()), Math.toRadians(grabSpecimen1Points.getEndHeading()))
                 .setZeroPowerAccelerationMultiplier(5)
                 .build();
-        /* line3 */
+        /* line5 */
         scoreSpecimen1 = follower.pathBuilder()
-                .addPath(new BezierLine(
+                .addPath(new BezierCurve(
                         scoreSpecimen1Points.getStartPoint(),
                         scoreSpecimen1Points.getEndPoint()
                 ))
                 .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen1Points.getStartHeading()), Math.toRadians(scoreSpecimen1Points.getEndHeading()))
-                .build();
-        /* line4 */
-        pushBlocks = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        moveToPushLoc1Points.getStartPoint(),
-                        moveToPushLoc1Points.getMiddlePoint(0),
-                        moveToPushLoc1Points.getMiddlePoint(1),
-                        moveToPushLoc1Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc1Points.getStartHeading()), Math.toRadians(moveToPushLoc1Points.getEndHeading()))
-                .addPath(new BezierLine(
-                        pushBlock1Points.getStartPoint(),
-                        pushBlock1Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(pushBlock1Points.getStartHeading()), Math.toRadians(pushBlock1Points.getEndHeading()))
-                .addPath(new BezierCurve(
-                        moveToPushLoc2Points.getStartPoint(),
-                        moveToPushLoc2Points.getMiddlePoint(),
-                        moveToPushLoc2Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc2Points.getStartHeading()), Math.toRadians(moveToPushLoc2Points.getEndHeading()))
-                .addPath(new BezierLine(
-                        pushBlock2Points.getStartPoint(),
-                        pushBlock2Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(pushBlock2Points.getStartHeading()), Math.toRadians(pushBlock2Points.getEndHeading()))
-                .addPath(new BezierCurve(
-                        moveToPushLoc3Points.getStartPoint(),
-                        moveToPushLoc3Points.getMiddlePoint(),
-                        moveToPushLoc3Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc3Points.getStartHeading()), Math.toRadians(moveToPushLoc3Points.getEndHeading()))
-                .addPath(new BezierLine(
-                        pushBlock3Points.getStartPoint(),
-                        pushBlock3Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(pushBlock3Points.getStartHeading()), Math.toRadians(pushBlock3Points.getEndHeading()))
-                .setZeroPowerAccelerationMultiplier(4.5)
-                .build();
-        /* line5 */
-        scoreSpecimen2 = follower.pathBuilder()
-                .addPath(new BezierCurve(
-                        scoreSpecimen2Points.getStartPoint(),
-                        scoreSpecimen2Points.getEndPoint()
-                ))
-                .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen2Points.getStartHeading()), Math.toRadians(scoreSpecimen2Points.getEndHeading()))
                 .build();
         /* line6 */
         grabSpecimen2 = follower.pathBuilder()
@@ -318,12 +255,12 @@ public class AutoTESTING extends OpMode {
                 .setZeroPowerAccelerationMultiplier(5)
                 .build();
         /* line7 */
-        scoreSpecimen3 = follower.pathBuilder()
+        scoreSpecimen2 = follower.pathBuilder()
                 .addPath(new BezierLine(
-                        scoreSpecimen3Points.getStartPoint(),
-                        scoreSpecimen3Points.getEndPoint()
+                        scoreSpecimen2Points.getStartPoint(),
+                        scoreSpecimen2Points.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen3Points.getStartHeading()), Math.toRadians(scoreSpecimen3Points.getEndHeading()))
+                .setLinearHeadingInterpolation(Math.toRadians(scoreSpecimen2Points.getStartHeading()), Math.toRadians(scoreSpecimen2Points.getEndHeading()))
                 .build();
         /* line8 */
         park = follower.pathBuilder()
@@ -337,25 +274,41 @@ public class AutoTESTING extends OpMode {
     /** movements **/
     public void autonomousPathUpdate() {
         switch (pathState) {
-            case 0: /* line1 */
-                if (!preloadStarted) {
-                    extendArmMove(10);
-                    submersibleArm(1);
-                    wrist1(0.6);
-                    arm(0.23);
-                    follower.followPath(preload, false);
-                    preloadStarted = true;
+            case 1: /* line1a */
+                if (!pushBlock1Started) {
+                    extendArmMove(0);
+                    wrist2(0.9);
+                    wrist1(0.5);
+                    arm(0.18);
+                    rotation(0.52);
+                    follower.followPath(pushBlock1, true);
+                    pushBlock1Started = true;
                 }
-                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
-                    if (Math.abs(eaInches1 - 18.3) > 2) {
-                        extendArmMove(19);
-                    } else if (Math.abs(eaInches1 - 19) <= 2) {
-                        claw1(0);
-                        setPathState(1);
-                    }
+                if (!follower.isBusy()) {
+                    submersibleArm(0);
+                    setPathState(999);
                 }
                 break;
-            case 1: /* line2 */
+            case 199: /* line4b */
+                if (!pushBlock2Started) {
+                    follower.followPath(pushBlock2, true);
+                    pushBlock2Started = true;
+                }
+                if (!follower.isBusy()) {
+                    setPathState(198);
+                }
+                break;
+            case 198: /* line4b */
+                if (!pushBlock3Started) {
+                    follower.followPath(pushBlock3, true);
+                    pushBlock3Started = true;
+                }
+                if (!follower.isBusy()) {
+                    Timer.wait(pauses);
+                    setPathState(5);
+                }
+                break;
+            case 5: /* line6 */
                 if (!grabSpecimen1Started) {
                     extendArmMove(0);
                     wrist1(0.42);
@@ -367,10 +320,10 @@ public class AutoTESTING extends OpMode {
                     claw1.setPosition(1);
                     claw1(1);
                     Timer.wait(pauses);
-                    setPathState(2);
+                    setPathState(6);
                 }
                 break;
-            case 2: /* line3 */
+            case 6: /* line5 */
                 if (!scoreSpecimen1Started) {
                     extendArmMove(10);
                     wrist1(0.6);
@@ -383,45 +336,26 @@ public class AutoTESTING extends OpMode {
                         extendArmMove(19);
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
                         claw1(0);
-                        setPathState(3);
+                        setPathState(7);
                     }
                 }
                 break;
-            case 3: /* line4 */
-                if (!pushBlocksStarted) {
+            case 7: /* line6 */
+                if (!grabSpecimen2Started) {
                     extendArmMove(0);
-                    submersibleArm(1);
-                    wrist2(0.9);
-                    wrist1(0.5);
-                    arm(0.18);
-                    rotation(0.52);
-                    follower.followPath(pushBlocks, true);
-                    pushBlocksStarted = true;
-                }
-                if (follower.isBusy()) {
-                    if (follower.getPose().getX() >= 54) {
-                        submersibleArm(0);
-                    }
-                    if (follower.getPose().getX() <= 18) {
-                        submersibleArm(1);
-                    }
+                    wrist1(0.42);
+                    arm(0.96);
+                    follower.followPath(grabSpecimen2, false);
+                    grabSpecimen2Started = true;
                 }
                 if (!follower.isBusy()) {
-                    if (!pushBlocksEnded) {
-                        extendArmMove(0);
-                        wrist1(0.42);
-                        arm(0.96);
-                        claw1(0);
-                        pushBlocksEnded = true;
-                    } else {
-                        claw1.setPosition(1);
-                        claw1(1);
-                        Timer.wait(pauses);
-                        setPathState(4);
-                    }
+                    claw1.setPosition(1);
+                    claw1(1);
+                    Timer.wait(pauses);
+                    setPathState(8);
                 }
                 break;
-            case 4: /* line5 */
+            case 8: /* line7 */
                 if (!scoreSpecimen2Started) {
                     extendArmMove(10);
                     wrist1(0.6);
@@ -434,43 +368,11 @@ public class AutoTESTING extends OpMode {
                         extendArmMove(19);
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
                         claw1(0);
-                        setPathState(5);
+                        setPathState(9);
                     }
                 }
                 break;
-            case 5: /* line6 */
-                if (!grabSpecimen2Started) {
-                    extendArmMove(0);
-                    wrist1(0.42);
-                    arm(0.96);
-                    follower.followPath(grabSpecimen2, false);
-                    grabSpecimen2Started = true;
-                }
-                if (!follower.isBusy()) {
-                    claw1.setPosition(1);
-                    claw1(1);
-                    Timer.wait(pauses);
-                    setPathState(6);
-                }
-                break;
-            case 6: /* line7 */
-                if (!scoreSpecimen3Started) {
-                    extendArmMove(10);
-                    wrist1(0.6);
-                    arm(0.23);
-                    follower.followPath(scoreSpecimen3, false);
-                    scoreSpecimen3Started = true;
-                }
-                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
-                    if (Math.abs(eaInches1 - 18.3) > 2) {
-                        extendArmMove(19);
-                    } else if (Math.abs(eaInches1 - 19) <= 2) {
-                        claw1(0);
-                        setPathState(7);
-                    }
-                }
-                break;
-            case 7: /* line8 */
+            case 9: /* line8 */
                 if (!parkStarted) {
                     claw1(0);
                     extendArmMove(0);

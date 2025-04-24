@@ -21,6 +21,14 @@ public class CustomPedroPathing {
             this.startHeading = startHeading;
             this.endHeading = endHeading;
         }
+        public beizerLine(double endPointX, double endPointY, double endHeading) {
+            this.startPointX = 0;
+            this.startPointY = 0;
+            this.endPointX = endPointX;
+            this.endPointY = endPointY;
+            this.startHeading = 0;
+            this.endHeading = endHeading;
+        }
         public Point getStartPoint() {
             return new Point(startPointX, startPointY);
         }
@@ -64,6 +72,26 @@ public class CustomPedroPathing {
             this.endPointX = endPointX;
             this.endPointY = endPointY;
             this.startHeading = startHeading;
+            this.endHeading = endHeading;
+        }
+        public beizerCurve(double middlePointX, double middlePointY, double endPointX, double endPointY, double endHeading) {
+            this.startPointX = 0;
+            this.startPointY = 0;
+            this.middlePointX = middlePointX;
+            this.middlePointY = middlePointY;
+            this.endPointX = endPointX;
+            this.endPointY = endPointY;
+            this.startHeading = 0;
+            this.endHeading = endHeading;
+        }
+        public beizerCurve(List<Double> middlePointX, List<Double> middlePointY, double endPointX, double endPointY, double endHeading) {
+            this.startPointX = 0;
+            this.startPointY = 0;
+            this.middlePointXL = middlePointX;
+            this.middlePointYL = middlePointY;
+            this.endPointX = endPointX;
+            this.endPointY = endPointY;
+            this.startHeading = 0;
             this.endHeading = endHeading;
         }
         public Point getStartPoint() {
