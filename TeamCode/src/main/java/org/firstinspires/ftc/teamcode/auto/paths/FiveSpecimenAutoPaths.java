@@ -14,7 +14,7 @@ import java.util.List;
 @Config("5+0 Auto Paths")
 public class FiveSpecimenAutoPaths {
     /* start pos */
-    private static final Pose startPos = new Pose(9, 63.4, Math.toRadians(0));
+    public static Pose startPos = new Pose(9, 63.4, Math.toRadians(0));
     /* line1 */
     public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
             37.1,
@@ -124,7 +124,7 @@ public class FiveSpecimenAutoPaths {
     public static PathChain scoreSpecimen1() {
         return new PathBuilder()
                 .addPath(new BezierLine(
-                                scoreSpecimen5Points.getEndPoint(),
+                                new Point(startPos),
                                 scoreSpecimen1Points.getEndPoint()
                         )
                 )
@@ -136,11 +136,11 @@ public class FiveSpecimenAutoPaths {
     public static PathChain pushBlock1() {
         return new PathBuilder()
                 .addPath(new BezierCurve(
-                        scoreSpecimen5Points.getEndPoint(),
+                        scoreSpecimen1Points.getEndPoint(),
                         moveToPushLoc1Points.getMiddlePoint(),
                         moveToPushLoc1Points.getEndPoint()
                 ))
-                .setLinearHeadingInterpolation(startPos.getHeading(), Math.toRadians(moveToPushLoc1Points.getEndHeading()))
+                .setLinearHeadingInterpolation(scoreSpecimen1Points.getEndHeading(), Math.toRadians(moveToPushLoc1Points.getEndHeading()))
                 .addPath(new BezierLine(
                         moveToPushLoc1Points.getEndPoint(),
                         pushBlock1Points.getEndPoint()
@@ -291,18 +291,18 @@ public class FiveSpecimenAutoPaths {
                 .setZeroPowerAccelerationMultiplier(8)
                 .build();
     }
-    
-    
+
+
     /***
      * TESTING AUTO METHODS
-    ***/
+     ***/
 
     /* line1 */
     public static PathChain scoreSpecimen1(Pose startPos) {
         return new PathBuilder()
                 .addPath(new BezierLine(
-                            scoreSpecimen5Points.getStartPoint(),
-                            scoreSpecimen1Points.getEndPoint()
+                                scoreSpecimen5Points.getStartPoint(),
+                                scoreSpecimen1Points.getEndPoint()
                         )
                 )
                 .setConstantHeadingInterpolation(Math.toRadians(scoreSpecimen1Points.getEndHeading()))
