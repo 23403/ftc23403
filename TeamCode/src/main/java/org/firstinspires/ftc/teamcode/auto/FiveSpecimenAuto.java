@@ -52,8 +52,8 @@ import xyz.nin1275.utils.Timer;
  * @version 1.3, 4/13/25
 **/
 
-@Config("5 Spec Auto")
-@Autonomous(name = "5+0", group = ".ftc23403")
+@Config("5 Spec Auto OLD")
+@Autonomous(name = "5+0 OLD", group = ".ftc23403")
 public class FiveSpecimenAuto extends OpMode {
     private Follower follower;
     private com.pedropathing.util.Timer pathTimer, opmodeTimer;

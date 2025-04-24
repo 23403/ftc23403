@@ -10,116 +10,132 @@ import com.pedropathing.pathgen.Point;
 
 import org.firstinspires.ftc.teamcode.utils.CustomPedroPathing;
 
-import java.util.List;
 @Config("5+0 Auto Paths")
 public class FiveSpecimenAutoPaths {
     /* start pos */
-    public static Pose startPos = new Pose(9, 63.4, Math.toRadians(0));
+    public static Pose startPos = new Pose(9, 63.4, Math.toRadians(-180));
     /* line1 */
     public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
-            37.1,
-            61.1,
-            0
+            32,
+            72.34,
+            -180
     );
     /* line2a */
     public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
-            List.of(27.5, 55.2),
-            List.of(21.8, 45.1),
-            54.74,
-            28,
-            0
+            21.67,
+            52.84,
+            38.66,
+            46.54,
+            304
     );
     /* line2b */
     public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
-            21.5,
-            28,
-            0
+            36.47,
+            45.88,
+            256
     );
     /* line2c */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc2Points = new CustomPedroPathing.beizerCurve(
-            58.74,
-            31,
-            53.94,
-            20.3,
-            0
+    public static CustomPedroPathing.beizerLine moveToPushLoc2Points = new CustomPedroPathing.beizerLine(
+            41.2,
+            35.67,
+            296
     );
     /* line2d */
     public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
-            23.5,
-            20.3,
-            0
+            31.55,
+            36.57,
+            259
     );
     /* line2e */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc3Points = new CustomPedroPathing.beizerCurve(
-            53.49,
-            22.5,
-            53.9,
-            13.3,
-            0
+    public static CustomPedroPathing.beizerLine moveToPushLoc3Points = new CustomPedroPathing.beizerLine(
+            45.5,
+            28.7,
+            287
     );
     /* line2f */
     public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
-            17.3,
-            11.8,
-            0
+            35.5,
+            27.7,
+            252
     );
     /* line3 */
     public static CustomPedroPathing.beizerLine grabSpecimen1Points = new CustomPedroPathing.beizerLine(
-            21.65,
-            35.8,
-            0
+            26,
+            36.74,
+            360
     );
     /* line4 */
     public static CustomPedroPathing.beizerLine scoreSpecimen2Points = new CustomPedroPathing.beizerLine(
-            36.85,
-            62.35,
-            0
+            37,
+            69,
+            360
     );
     /* line5 */
     public static CustomPedroPathing.beizerLine grabSpecimen2Points = new CustomPedroPathing.beizerLine(
-            18.5,
-            35.8,
-            0
+            21.5,
+            38.74,
+            360
     );
     /* line6 */
     public static CustomPedroPathing.beizerLine scoreSpecimen3Points = new CustomPedroPathing.beizerLine(
-            37,
-            70,
-            0
+            34,
+            68,
+            360
     );
     /* line7 */
     public static CustomPedroPathing.beizerLine grabSpecimen3Points = new CustomPedroPathing.beizerLine(
-            18.1,
-            35.8,
-            0
+            20,
+            38.74,
+            360
     );
     /* line8 */
     public static CustomPedroPathing.beizerLine scoreSpecimen4Points = new CustomPedroPathing.beizerLine(
-            35.85,
-            65.55,
-            0
+            33,
+            67,
+            360
     );
     /* line9 */
     public static CustomPedroPathing.beizerLine grabSpecimen4Points = new CustomPedroPathing.beizerLine(
-            18.1,
-            35.8,
-            0
+            18.8,
+            38.74,
+            360
     );
     /* line10 */
     public static CustomPedroPathing.beizerLine scoreSpecimen5Points = new CustomPedroPathing.beizerLine(
-            35.85,
-            65.55,
-            0
+            32,
+            66,
+            360
     );
     /* line11 */
-    public static CustomPedroPathing.beizerCurve parkPoints = new CustomPedroPathing.beizerCurve(
-            27.2,
-            69.3,
-            16.8,
+    public static CustomPedroPathing.beizerLine parkPoints = new CustomPedroPathing.beizerLine(
+            18.8,
             49.23,
             -130
     );
 
+    /* line1-2a */
+    public static PathChain scoreSpecimen1AndPushBlock1() {
+        return new PathBuilder()
+                .addPath(new BezierLine(
+                                new Point(startPos),
+                                scoreSpecimen1Points.getEndPoint()
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(scoreSpecimen1Points.getEndHeading()))
+                .addPath(new BezierCurve(
+                        scoreSpecimen1Points.getEndPoint(),
+                        moveToPushLoc1Points.getMiddlePoint(),
+                        moveToPushLoc1Points.getEndPoint()
+                ))
+                .setConstantHeadingInterpolation(Math.toRadians(moveToPushLoc1Points.getEndHeading()))
+                .addPath(new BezierLine(
+                        moveToPushLoc1Points.getEndPoint(),
+                        pushBlock1Points.getEndPoint()
+                ))
+                .setLinearHeadingInterpolation(Math.toRadians(moveToPushLoc1Points.getEndHeading()), Math.toRadians(pushBlock1Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(8)
+                .build();
+    }
     /* line1 */
     public static PathChain scoreSpecimen1() {
         return new PathBuilder()
@@ -152,9 +168,8 @@ public class FiveSpecimenAutoPaths {
     /* line2b */
     public static PathChain pushBlock2() {
         return new PathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         scoreSpecimen5Points.getEndPoint(),
-                        moveToPushLoc2Points.getMiddlePoint(),
                         moveToPushLoc2Points.getEndPoint()
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(moveToPushLoc2Points.getEndHeading()))
@@ -169,9 +184,8 @@ public class FiveSpecimenAutoPaths {
     /* line2c */
     public static PathChain pushBlock3() {
         return new PathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         scoreSpecimen5Points.getEndPoint(),
-                        moveToPushLoc3Points.getMiddlePoint(),
                         moveToPushLoc3Points.getEndPoint()
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(moveToPushLoc3Points.getEndHeading()))
@@ -292,10 +306,9 @@ public class FiveSpecimenAutoPaths {
                 .build();
     }
 
-
     /***
      * TESTING AUTO METHODS
-     ***/
+    ***/
 
     /* line1 */
     public static PathChain scoreSpecimen1(Pose startPos) {
@@ -329,9 +342,8 @@ public class FiveSpecimenAutoPaths {
     /* line2b */
     public static PathChain pushBlock2(Pose startPos) {
         return new PathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         scoreSpecimen5Points.getStartPoint(),
-                        moveToPushLoc2Points.getMiddlePoint(),
                         moveToPushLoc2Points.getEndPoint()
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(moveToPushLoc2Points.getEndHeading()))
@@ -346,9 +358,8 @@ public class FiveSpecimenAutoPaths {
     /* line2c */
     public static PathChain pushBlock3(Pose startPos) {
         return new PathBuilder()
-                .addPath(new BezierCurve(
+                .addPath(new BezierLine(
                         scoreSpecimen5Points.getStartPoint(),
-                        moveToPushLoc3Points.getMiddlePoint(),
                         moveToPushLoc3Points.getEndPoint()
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(moveToPushLoc3Points.getEndHeading()))

@@ -67,7 +67,7 @@ public class MainV5 extends LinearOpMode {
     // servos
     public static double wristCpos1 = 0;
     public static double clawCpos1 = 1;
-    public static double sweeperCpos = 1;
+    public static double swiperCpos = 1;
     public static double wristCpos2 = 1;
     public static double clawCpos2 = 0.5;
     public static double armCpos = 0.23;
@@ -178,7 +178,7 @@ public class MainV5 extends LinearOpMode {
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // servos
-        Servo sweeper = hardwareMap.get(Servo.class, "sweeper"); // 1x goBilda torque
+        Servo swiper = hardwareMap.get(Servo.class, "swiper"); // 1x goBilda torque
         // ea
         Servo arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
@@ -203,7 +203,7 @@ public class MainV5 extends LinearOpMode {
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
-        sweeper.setDirection(Servo.Direction.REVERSE);
+        swiper.setDirection(Servo.Direction.REVERSE);
         // breaks
         Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear));
         // colors
@@ -266,7 +266,7 @@ public class MainV5 extends LinearOpMode {
                 claw2.setPosition(clawCpos2);
                 arm.setPosition(armCpos);
                 submersibleArm1.setPosition(subArmCpos);
-                sweeper.setPosition(sweeperCpos);
+                swiper.setPosition(swiperCpos);
                 rotation.setPosition(rotationalCpos);
                 // field side
                 if (currentGamepad1.share && !previousGamepad1.share) {
@@ -561,7 +561,7 @@ public class MainV5 extends LinearOpMode {
                 telemetryM.addData(true, "Claw Position1:", claw1.getPosition());
                 telemetryM.addData(true, "Claw Position2:", claw2.getPosition());
                 telemetryM.addData(true, "Arm Position:", arm.getPosition());
-                telemetryM.addData(true, "Sweeper Position:", sweeper.getPosition());
+                telemetryM.addData(true, "Swiper Position:", swiper.getPosition());
                 telemetryM.addData(true, "Rotation Position:", rotation.getPosition());
                 telemetryM.addData(true, "Red side?", redSide);
                 telemetryM.addData(true, "slides reset timer", resetTimer.milliseconds());
