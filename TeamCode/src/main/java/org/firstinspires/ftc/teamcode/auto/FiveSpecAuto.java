@@ -118,7 +118,7 @@ public class FiveSpecAuto extends OpMode {
                     scoreSpecimen1Started = true;
                 }
                 if (!follower.isBusy()) {
-                    claw1(0);
+                    claw.open(1);
                     setPathState(291);
                 }
                 break;
@@ -167,7 +167,7 @@ public class FiveSpecAuto extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     claw1.setPosition(1);
-                    claw1(1);
+                    claw.close(1);
                     Timer.wait(pauses);
                     setPathState(4);
                 }
@@ -181,7 +181,7 @@ public class FiveSpecAuto extends OpMode {
                 if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     extendArmMove(19);
                     if (Math.abs(eaInches1 - 19) <= 2) {
-                        claw1(0);
+                        claw.open(1);
                         setPathState(5);
                     }
                 }
@@ -194,7 +194,7 @@ public class FiveSpecAuto extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     claw1.setPosition(1);
-                    claw1(1);
+                    claw.close(1);
                     Timer.wait(pauses);
                     setPathState(6);
                 }
@@ -208,7 +208,7 @@ public class FiveSpecAuto extends OpMode {
                 if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     extendArmMove(19);
                     if (Math.abs(eaInches1 - 19) <= 2) {
-                        claw1(0);
+                        claw.open(1);
                         setPathState(7);
                     }
                 }
@@ -221,7 +221,7 @@ public class FiveSpecAuto extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     claw1.setPosition(1);
-                    claw1(1);
+                    claw.close(1);
                     Timer.wait(pauses);
                     setPathState(8);
                 }
@@ -235,7 +235,7 @@ public class FiveSpecAuto extends OpMode {
                 if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     extendArmMove(19);
                     if (Math.abs(eaInches1 - 19) <= 2) {
-                        claw1(0);
+                        claw.open(1);
                         setPathState(9);
                     }
                 }
@@ -248,7 +248,7 @@ public class FiveSpecAuto extends OpMode {
                 }
                 if (!follower.isBusy()) {
                     claw1.setPosition(1);
-                    claw1(1);
+                    claw.close(1);
                     Timer.wait(pauses);
                     setPathState(10);
                 }
@@ -262,7 +262,7 @@ public class FiveSpecAuto extends OpMode {
                 if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     extendArmMove(19);
                     if (Math.abs(eaInches1 - 19) <= 2) {
-                        claw1(0);
+                        claw.open(1);
                         setPathState(11);
                     }
                 }
@@ -321,6 +321,16 @@ public class FiveSpecAuto extends OpMode {
     }
 
     /** states **/
+    private static class claw {
+        public static void open(int claw) {
+            if (claw == 1) claw1(0);
+            if (claw == 2) claw2(0);
+        }
+        public static void close(int claw) {
+            if (claw == 1) claw1(1);
+            if (claw == 2) claw2(1);
+        }
+    }
     private static class submersible {
         public static void subQuarterly() {
             submersibleArm(0.75);
@@ -343,14 +353,14 @@ public class FiveSpecAuto extends OpMode {
             extendArmMove(6.5);
             arm(0.8);
             wrist1(0.18);
-            claw1(1);
+            claw.close(1);
         }
         public static void scoreStage1() {
             extendArmMove(10);
-            submersibleArm(1);
+            submersible.subIn();
             wrist1(0.6);
             arm(0.23);
-            claw1(1);
+            claw.close(1);
         }
         public static void scoreStage2() {
             extendArmMove(19);
@@ -367,11 +377,11 @@ public class FiveSpecAuto extends OpMode {
             extendArmMove(0);
             wrist1(0.42);
             arm(0.96);
-            claw1(0);
+            claw.open(0);
         }
         public static void park() {
             extendArmMove(0);
-            submersibleArm(0);
+            submersible.subFull();
             wrist2(0.9);
             wrist1(0.5);
             arm(0.18);
@@ -415,7 +425,7 @@ public class FiveSpecAuto extends OpMode {
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
         // limits
         claw2.scaleRange(0.01, 0.08);
-        wrist2.scaleRange(0, 0.8);
+        wrist2.scaleRange(0.05, 0.88);
         rotation.scaleRange(0.43, 0.55);
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
