@@ -138,7 +138,7 @@ public class FiveSpecAuto extends OpMode {
                 break;
             case 292: /* line2b */
                 if (!pushBlock2Started) {
-                    submersible.subQuarterly();
+                    submersible.subHalf();
                     follower.followPath(FiveSpecimenAutoPaths.pushBlock2(), false);
                     pushBlock2Started = true;
                 }
@@ -149,17 +149,18 @@ public class FiveSpecAuto extends OpMode {
                 break;
             case 293: /* line2c */
                 if (!pushBlock3Started) {
-                    submersible.subQuarterly();
+                    submersible.subHalf();
                     follower.followPath(FiveSpecimenAutoPaths.pushBlock3(), false);
                     pushBlock3Started = true;
                 }
-                if (follower.isBusy() && follower.getPose().getX() >= 44 && follower.getPose().getY() <= 29) submersible.subFull();
+                if (follower.isBusy() && follower.getPose().getX() >= 44 && follower.getPose().getY() <= 29) submersible.subThreeQuarters();
                 if (!follower.isBusy() || (Math.abs(follower.getPose().getX() - FiveSpecimenAutoPaths.pushBlock3Points.endPointX) < 2 && Math.abs(follower.getPose().getY() - FiveSpecimenAutoPaths.pushBlock3Points.endPointY) < 2)) {
                     setPathState(3);
                 }
                 break;
             case 3: /* line3 */
                 if (!grabSpecimen1Started) {
+                    submersible.subIn();
                     presets.humanPlayer();
                     follower.followPath(FiveSpecimenAutoPaths.grabSpecimen1(), false);
                     grabSpecimen1Started = true;
@@ -272,13 +273,20 @@ public class FiveSpecAuto extends OpMode {
                     follower.followPath(FiveSpecimenAutoPaths.park(), false);
                     parkStarted = true;
                 }
-                if (follower.isBusy() && Math.abs(Math.toDegrees(follower.getPose().getHeading()) - FiveSpecimenAutoPaths.parkPoints.getEndHeading()) <= 2) submersible.subFull();
+                if (follower.isBusy() && angleDiffDegrees(Math.toDegrees(follower.getPose().getHeading()), FiveSpecimenAutoPaths.parkPoints.getEndHeading()) <= 2) submersible.subFull();
                 if (!follower.isBusy()) setPathState(-1);
                 break;
             case -1: /* done */
                 autoTime = autoTimeE.seconds();
+                setPathState(-2);
                 break;
         }
+    }
+
+    // util
+    public static double angleDiffDegrees(double a, double b) {
+        double diff = ((a - b + 180) % 360 + 360) % 360 - 180;
+        return Math.abs(diff);
     }
 
     /** movements logic **/
@@ -317,6 +325,12 @@ public class FiveSpecAuto extends OpMode {
         public static void subQuarterly() {
             submersibleArm(0.75);
         }
+        public static void subThreeQuarters() {
+            submersibleArm(0.25);
+        }
+        public static void subHalf() {
+            submersibleArm(0.5);
+        }
         public static void subFull() {
             submersibleArm(0);
         }
@@ -343,7 +357,7 @@ public class FiveSpecAuto extends OpMode {
         }
         public static void transition() {
             extendArmMove(0);
-            submersibleArm(1);
+            submersible.subIn();
             wrist2(0.9);
             wrist1(0.5);
             arm(0.18);
@@ -505,7 +519,7 @@ public class FiveSpecAuto extends OpMode {
             }
         }
         // telemetry for debugging
-        if (pathState == -1) telemetry.addData("Time took:", autoTime);
+        if (pathState == -2) telemetry.addData("Time took:", autoTime);
         telemetry.addData("currentState", extendArmState);
         telemetry.addData("extendArm1 Power", extendArm1.getPower());
         telemetry.addData("extendArm2 Power", extendArm2.getPower());

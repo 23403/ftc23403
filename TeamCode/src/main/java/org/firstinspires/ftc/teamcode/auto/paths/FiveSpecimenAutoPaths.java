@@ -169,7 +169,7 @@ public class FiveSpecimenAutoPaths {
     public static PathChain pushBlock2() {
         return new PathBuilder()
                 .addPath(new BezierLine(
-                        scoreSpecimen5Points.getEndPoint(),
+                        pushBlock1Points.getEndPoint(),
                         moveToPushLoc2Points.getEndPoint()
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(moveToPushLoc2Points.getEndHeading()))
@@ -185,7 +185,7 @@ public class FiveSpecimenAutoPaths {
     public static PathChain pushBlock3() {
         return new PathBuilder()
                 .addPath(new BezierLine(
-                        scoreSpecimen5Points.getEndPoint(),
+                        pushBlock2Points.getEndPoint(),
                         moveToPushLoc3Points.getEndPoint()
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(moveToPushLoc3Points.getEndHeading()))
