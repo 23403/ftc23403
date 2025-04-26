@@ -24,39 +24,39 @@ public class FiveSpecimenAutoPaths {
     public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
             21.67,
             52.84,
-            38.66,
-            46.54,
-            304
+            40,
+            43.8,
+            309
     );
     /* line2b */
     public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
-            36.47,
-            45.88,
-            256
+            30.25,
+            43.9,
+            240
     );
     /* line2c */
     public static CustomPedroPathing.beizerLine moveToPushLoc2Points = new CustomPedroPathing.beizerLine(
-            41.2,
-            35.67,
-            296
+            43.34,
+            36,
+            300
     );
     /* line2d */
     public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
-            31.55,
-            36.57,
-            259
+            33.1,
+            29.48,
+            224
     );
     /* line2e */
     public static CustomPedroPathing.beizerLine moveToPushLoc3Points = new CustomPedroPathing.beizerLine(
-            45.5,
-            28.7,
-            287
+            44,
+            29,
+            295
     );
     /* line2f */
     public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
-            35.5,
-            27.7,
-            252
+            33.7,
+            24,
+            224
     );
     /* line3 */
     public static CustomPedroPathing.beizerLine grabSpecimen1Points = new CustomPedroPathing.beizerLine(

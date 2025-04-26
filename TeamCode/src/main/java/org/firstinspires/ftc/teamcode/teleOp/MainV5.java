@@ -67,9 +67,9 @@ public class MainV5 extends LinearOpMode {
     // servos
     public static double wristCpos1 = 0;
     public static double clawCpos1 = 1;
-    public static double swiperCpos = 1;
+    public static double swiperCpos = 0;
     public static double wristCpos2 = 1;
-    public static double clawCpos2 = 0.5;
+    public static double clawCpos2 = 1;
     public static double armCpos = 0.23;
     public static double subArmCpos = 1;
     public static double rotationalCpos = 0.5;
@@ -85,7 +85,7 @@ public class MainV5 extends LinearOpMode {
     public static boolean odoDrive = false;
     // extend arm
     public static double slidesTARGET = 0;
-    public static double eaLimitHigh = 36;
+    public static double eaLimitHigh = 33.6;
     public static double eaLimitLow = 0;
     public static boolean eaCorrection = true;
     public static int eaTicks1 = 0;
@@ -109,7 +109,7 @@ public class MainV5 extends LinearOpMode {
                 0.97,
                 -1.0);
         public static CustomPresets highBasket = new CustomPresets(
-                35,
+                33.6,
                 -1.0,
                 -1.0,
                 1.0,
@@ -131,7 +131,7 @@ public class MainV5 extends LinearOpMode {
                 1.0,
                 1.0,
                 0.0,
-                0.9,
+                1.0,
                 0.5,
                 0.18,
                 0.52);
@@ -196,6 +196,7 @@ public class MainV5 extends LinearOpMode {
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
         submersibleArm1.scaleRange(0.45, 1);
+        swiper.scaleRange(0.3, 0.87);
         // turn on pwm servos
         arm.getController().pwmEnable();
         submersibleArm1.getController().pwmEnable();
@@ -498,7 +499,7 @@ public class MainV5 extends LinearOpMode {
                 }
                 // wrist
                 if (gamepad1.dpad_right) {
-                    wristCpos2 = 0.15;
+                    wristCpos2 = 0;
                 } else if (gamepad1.dpad_left) {
                     wristCpos2 = 1;
                 }

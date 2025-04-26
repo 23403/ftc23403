@@ -73,9 +73,9 @@ public class FiveSpecAuto extends OpMode {
     // servo positions
     public static double wristCpos1 = 0;
     public static double clawCpos1 = 1;
-    public static double swiperCpos = 1;
+    public static double swiperCpos = 0;
     public static double wristCpos2 = 0.9;
-    public static double clawCpos2 = 0.5;
+    public static double clawCpos2 = 1;
     public static double armCpos = 0.23;
     public static double subArmCpos = 1;
     public static double rotationalCpos = 0.5;
@@ -131,6 +131,7 @@ public class FiveSpecAuto extends OpMode {
                 if (follower.isBusy() && follower.getPose().getX() >= 38 && follower.getPose().getY() <= 47) {
                     presets.transition();
                     submersible.subFull();
+                    swiper(1);
                 }
                 if (!follower.isBusy() || (Math.abs(follower.getPose().getX() - FiveSpecimenAutoPaths.pushBlock1Points.endPointX) < 2 && Math.abs(follower.getPose().getY() - FiveSpecimenAutoPaths.pushBlock1Points.endPointY) < 2)) {
                     setPathState(292);
@@ -138,28 +139,37 @@ public class FiveSpecAuto extends OpMode {
                 break;
             case 292: /* line2b */
                 if (!pushBlock2Started) {
+                    swiper(0.7);
                     submersible.subHalf();
                     follower.followPath(FiveSpecimenAutoPaths.pushBlock2(), false);
                     pushBlock2Started = true;
                 }
-                if (follower.isBusy() && follower.getPose().getX() >= 39 && follower.getPose().getY() <= 36) submersible.subFull();
+                if (follower.isBusy() && follower.getPose().getX() >= 39 && follower.getPose().getY() <= 36) {
+                    submersible.subFull();
+                    swiper(1);
+                }
                 if (!follower.isBusy() || (Math.abs(follower.getPose().getX() - FiveSpecimenAutoPaths.pushBlock2Points.endPointX) < 2 && Math.abs(follower.getPose().getY() - FiveSpecimenAutoPaths.pushBlock2Points.endPointY) < 2)) {
                     setPathState(293);
                 }
                 break;
             case 293: /* line2c */
                 if (!pushBlock3Started) {
+                    swiper(0.7);
                     submersible.subHalf();
                     follower.followPath(FiveSpecimenAutoPaths.pushBlock3(), false);
                     pushBlock3Started = true;
                 }
-                if (follower.isBusy() && follower.getPose().getX() >= 44 && follower.getPose().getY() <= 29) submersible.subThreeQuarters();
+                if (follower.isBusy() && follower.getPose().getX() >= 44 && follower.getPose().getY() <= 29) {
+                    submersible.subThreeQuarters();
+                    swiper(1);
+                }
                 if (!follower.isBusy() || (Math.abs(follower.getPose().getX() - FiveSpecimenAutoPaths.pushBlock3Points.endPointX) < 2 && Math.abs(follower.getPose().getY() - FiveSpecimenAutoPaths.pushBlock3Points.endPointY) < 2)) {
                     setPathState(3);
                 }
                 break;
             case 3: /* line3 */
                 if (!grabSpecimen1Started) {
+                    swiper(0);
                     submersible.subIn();
                     presets.humanPlayer();
                     follower.followPath(FiveSpecimenAutoPaths.grabSpecimen1(), false);
@@ -307,7 +317,7 @@ public class FiveSpecAuto extends OpMode {
     private static void wrist2(double pos) {
         wristCpos2 = pos;
     }
-    private static void sweeper(double pos) {
+    private static void swiper(double pos) {
         swiperCpos = pos;
     }
     private static void arm(double pos) {
@@ -345,7 +355,7 @@ public class FiveSpecAuto extends OpMode {
             submersibleArm(0);
         }
         public static void subIn() {
-            submersibleArm(0);
+            submersibleArm(1);
         }
     }
     private static class presets {
@@ -430,7 +440,8 @@ public class FiveSpecAuto extends OpMode {
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
-        submersibleArm1.scaleRange(0.42, 1);
+        submersibleArm1.scaleRange(0.45, 1);
+        swiper.scaleRange(0.3, 0.83);
         // extendArm
         Motors.resetEncoders(List.of(extendArm1, extendArm2));
         Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);

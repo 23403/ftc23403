@@ -60,7 +60,7 @@ public class P2P extends OpMode {
     /** store the state of our auto. */
     private int pathState;
     // servos
-    private Servo sweeper; // 1x goBilda torque
+    private Servo swiper; // 1x goBilda torque
     private Servo arm; // 2x axon
     private Servo wrist1; // 1x axon
     private Servo claw1; // 1x axon
@@ -72,7 +72,7 @@ public class P2P extends OpMode {
     // servo positions
     public static double wristCpos1 = 0;
     public static double clawCpos1 = 1;
-    public static double sweeperCpos = 1;
+    public static double swiperCpos = 1;
     public static double wristCpos2 = 1;
     public static double clawCpos2 = 0.5;
     public static double armCpos = 0.23;
@@ -174,8 +174,8 @@ public class P2P extends OpMode {
     private void wrist2(double pos) {
         wristCpos2 = pos;
     }
-    private void sweeper(double pos) {
-        sweeperCpos = pos;
+    private void swiper(double pos) {
+        swiperCpos = pos;
     }
     private void arm(double pos) {
         armCpos = pos;
@@ -214,7 +214,7 @@ public class P2P extends OpMode {
         claw2.setPosition(clawCpos2);
         arm.setPosition(armCpos);
         submersibleArm1.setPosition(subArmCpos);
-        sweeper.setPosition(sweeperCpos);
+        swiper.setPosition(swiperCpos);
         rotation.setPosition(rotationalCpos);
         // extendArm code
         controller.setPID(Math.sqrt(P), I, D);
@@ -300,7 +300,7 @@ public class P2P extends OpMode {
         extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // servos
-        sweeper = hardwareMap.get(Servo.class, "sweeper"); // 1x goBilda torque
+        swiper = hardwareMap.get(Servo.class, "swiper"); // 1x goBilda torque
         // ea
         arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
         wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
@@ -312,16 +312,17 @@ public class P2P extends OpMode {
         claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
         // directions
-        sweeper.setDirection(Servo.Direction.REVERSE);
+        swiper.setDirection(Servo.Direction.REVERSE);
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
         // limits
         claw2.scaleRange(0.01, 0.08);
-        wrist2.scaleRange(0, 0.8);
+        wrist2.scaleRange(0.05, 0.88);
         rotation.scaleRange(0.43, 0.55);
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
         submersibleArm1.scaleRange(0.45, 1);
+        swiper.scaleRange(0, 0.93);
         // extendArm
         Motors.resetEncoders(List.of(extendArm1, extendArm2));
         Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
