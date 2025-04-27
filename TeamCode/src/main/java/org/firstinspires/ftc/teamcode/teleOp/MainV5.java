@@ -194,14 +194,14 @@ public class MainV5 extends LinearOpMode {
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // servos
-        Servo swiper = hardwareMap.get(Servo.class, "swiper"); // 1x goBilda torque
+        Servo swiper = hardwareMap.get(Servo.class, "swiper"); // 1x goBilda speed
         // ea
         Servo arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
         Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
         // sa
         Servo submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
-        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 25kg
+        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon
         Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
         // limits

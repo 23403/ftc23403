@@ -16,7 +16,6 @@ import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.localization.constants.ThreeWheelIMUConstants;
-import com.pedropathing.util.Constants;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
@@ -28,10 +27,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 
-import java.util.List;
-
-import pedroPathing.constants.FConstants;
-import pedroPathing.constants.LConstants;
 import xyz.nin1275.utils.Motors;
 
 @Config("Auto pos tracking")

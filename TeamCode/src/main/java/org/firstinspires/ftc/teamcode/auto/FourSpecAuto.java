@@ -63,7 +63,7 @@ public class FourSpecAuto extends OpMode {
     private Servo claw1; // 1x axon
     private Servo submersibleArm1; // 1x axon
     private Servo submersibleArm2; // 1x axon
-    private Servo wrist2; // 1x 20kg
+    private Servo wrist2; // 1x axon
     private Servo claw2; // 1x goBilda speed
     private Servo rotation; // 1x goBilda speed
     // servo positions

@@ -8,106 +8,106 @@ import com.pedropathing.pathgen.PathBuilder;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.pathgen.Point;
 
-import org.firstinspires.ftc.teamcode.utils.CustomPedroPathing;
+import xyz.nin1275.custom.PPMP;
+import xyz.nin1275.custom.PPPoint;
 
 @Config("5+0 Auto Paths")
 public class FiveSpecimenAutoPaths {
     /* start pos */
     public static Pose startPos = new Pose(9, 63.4, Math.toRadians(-180));
     /* line1 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine scoreSpecimen1Points = new PPPoint.beizerLine(
             32,
             72.34,
             -180
     );
     /* line2a */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
-            21.67,
-            52.84,
+    public static PPPoint.beizerCurve moveToPushLoc1Points = new PPPoint.beizerCurve(
             40,
             43.8,
-            309
+            309,
+            new PPMP(21.67, 52.84)
     );
     /* line2b */
-    public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine pushBlock1Points = new PPPoint.beizerLine(
             30.25,
             43.9,
             240
     );
     /* line2c */
-    public static CustomPedroPathing.beizerLine moveToPushLoc2Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine moveToPushLoc2Points = new PPPoint.beizerLine(
             43.34,
             36,
             300
     );
     /* line2d */
-    public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine pushBlock2Points = new PPPoint.beizerLine(
             33.1,
             29.48,
             224
     );
     /* line2e */
-    public static CustomPedroPathing.beizerLine moveToPushLoc3Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine moveToPushLoc3Points = new PPPoint.beizerLine(
             44,
             29,
             295
     );
     /* line2f */
-    public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine pushBlock3Points = new PPPoint.beizerLine(
             33.7,
             24,
             224
     );
     /* line3 */
-    public static CustomPedroPathing.beizerLine grabSpecimen1Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine grabSpecimen1Points = new PPPoint.beizerLine(
             26,
             36.74,
             360
     );
     /* line4 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen2Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine scoreSpecimen2Points = new PPPoint.beizerLine(
             37,
             69,
             360
     );
     /* line5 */
-    public static CustomPedroPathing.beizerLine grabSpecimen2Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine grabSpecimen2Points = new PPPoint.beizerLine(
             21.5,
             38.74,
             360
     );
     /* line6 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen3Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine scoreSpecimen3Points = new PPPoint.beizerLine(
             34,
             68,
             360
     );
     /* line7 */
-    public static CustomPedroPathing.beizerLine grabSpecimen3Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine grabSpecimen3Points = new PPPoint.beizerLine(
             20,
             38.74,
             360
     );
     /* line8 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen4Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine scoreSpecimen4Points = new PPPoint.beizerLine(
             33,
             67,
             360
     );
     /* line9 */
-    public static CustomPedroPathing.beizerLine grabSpecimen4Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine grabSpecimen4Points = new PPPoint.beizerLine(
             18.8,
             38.74,
             360
     );
     /* line10 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen5Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine scoreSpecimen5Points = new PPPoint.beizerLine(
             32,
             66,
             360
     );
     /* line11 */
-    public static CustomPedroPathing.beizerLine parkPoints = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine parkPoints = new PPPoint.beizerLine(
             18.8,
             49.23,
             -130

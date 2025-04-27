@@ -19,7 +19,6 @@ import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.localization.constants.ThreeWheelIMUConstants;
 import com.pedropathing.pathgen.BezierCurve;
 import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.pathgen.PathChain;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
@@ -30,15 +29,13 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.utils.CustomPedroPathing;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
-
-import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
+import xyz.nin1275.custom.PPPoint;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Timer;
@@ -109,7 +106,7 @@ public class AutoTESTING extends OpMode {
     /* start pos */
     private static final Pose startPos = new Pose(9, 63.4, Math.toRadians(0));
     /* line1a */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
+    public static PPPoint.beizerCurve moveToPushLoc1Points = new PPPoint.beizerCurve(
             startPos.getX(),
             startPos.getY(),
             31.2,
@@ -120,7 +117,7 @@ public class AutoTESTING extends OpMode {
             -40
     );
     /* line1b */
-    public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine pushBlock1Points = new PPPoint.beizerLine(
             40.97,
             30.7,
             moveToPushLoc1Points.endPointX,
@@ -129,7 +126,7 @@ public class AutoTESTING extends OpMode {
             -40
     );
     /* line1c */
-    public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine pushBlock2Points = new PPPoint.beizerLine(
             17.6,
             20.3,
             pushBlock1Points.endPointX,
@@ -138,7 +135,7 @@ public class AutoTESTING extends OpMode {
             -40
     );
     /* line1d */
-    public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine pushBlock3Points = new PPPoint.beizerLine(
             19.8,
             11.8,
             pushBlock2Points.endPointX,
@@ -147,7 +144,7 @@ public class AutoTESTING extends OpMode {
             -40
     );
     /* line2 */
-    public static CustomPedroPathing.beizerLine grabSpecimen1Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine grabSpecimen1Points = new PPPoint.beizerLine(
             21.65,
             35.8,
             pushBlock3Points.endPointX,
@@ -156,7 +153,7 @@ public class AutoTESTING extends OpMode {
             0
     );
     /* line3 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine scoreSpecimen1Points = new PPPoint.beizerLine(
             35.85,
             65.55,
             grabSpecimen1Points.endPointX,
@@ -165,7 +162,7 @@ public class AutoTESTING extends OpMode {
             0
     );
     /* line7 */
-    public static CustomPedroPathing.beizerLine grabSpecimen2Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine grabSpecimen2Points = new PPPoint.beizerLine(
             18.5,
             35.8,
             scoreSpecimen1Points.endPointX,
@@ -174,7 +171,7 @@ public class AutoTESTING extends OpMode {
             0
     );
     /* line8 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen2Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine scoreSpecimen2Points = new PPPoint.beizerLine(
             37,
             70,
             grabSpecimen2Points.endPointX,
@@ -183,7 +180,7 @@ public class AutoTESTING extends OpMode {
             0
     );
     /* line9 */
-    public static CustomPedroPathing.beizerCurve parkPoints = new CustomPedroPathing.beizerCurve(
+    public static PPPoint.beizerCurve parkPoints = new PPPoint.beizerCurve(
             scoreSpecimen2Points.endPointX,
             scoreSpecimen2Points.endPointY,
             27.2,

@@ -45,8 +45,8 @@ import xyz.nin1275.utils.Timer;
  * @version 1.4, 4/27/25
 **/
 
-@Config("4 Spec Auto")
-@Autonomous(name = "4+0", group = ".ftc23403")
+@Config("5 Spec Auto PUSH")
+@Autonomous(name = "5+0 push", group = ".ftc23403")
 public class FiveSpecimenAuto extends OpMode {
     private Follower follower;
     private com.pedropathing.util.Timer pathTimer, opmodeTimer;
@@ -63,7 +63,7 @@ public class FiveSpecimenAuto extends OpMode {
     private Servo claw1; // 1x axon
     private Servo submersibleArm1; // 1x axon
     private Servo submersibleArm2; // 1x axon
-    private Servo wrist2; // 1x 20kg
+    private Servo wrist2; // 1x axon
     private Servo claw2; // 1x goBilda speed
     private Servo rotation; // 1x goBilda speed
     // servo positions

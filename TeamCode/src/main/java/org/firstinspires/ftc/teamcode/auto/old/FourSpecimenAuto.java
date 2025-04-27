@@ -30,7 +30,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.utils.CustomPedroPathing;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 
@@ -39,6 +38,7 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
+import xyz.nin1275.custom.PPPoint;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Timer;
@@ -115,7 +115,7 @@ public class FourSpecimenAuto extends OpMode {
     /* start pos */
     private static final Pose startPos = new Pose(9, 63.4, Math.toRadians(0));
     /* line1 */
-    public static CustomPedroPathing.beizerLine preloadPoints = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine preloadPoints = new PPPoint.beizerLine(
             37.1,
             61.1,
             startPos.getX(),
@@ -124,7 +124,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line2 */
-    public static CustomPedroPathing.beizerLine grabSpecimen1Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine grabSpecimen1Points = new PPPoint.beizerLine(
             21.65,
             35.8,
             preloadPoints.endPointX,
@@ -133,7 +133,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line3 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen1Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine scoreSpecimen1Points = new PPPoint.beizerLine(
             36.85,
             62.35,
             grabSpecimen1Points.endPointX,
@@ -142,7 +142,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line4a */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc1Points = new CustomPedroPathing.beizerCurve(
+    public static PPPoint.beizerCurve moveToPushLoc1Points = new PPPoint.beizerCurve(
             scoreSpecimen1Points.endPointX,
             scoreSpecimen1Points.endPointY,
             List.of(27.5, 55.2),
@@ -153,7 +153,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line4b */
-    public static CustomPedroPathing.beizerLine pushBlock1Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine pushBlock1Points = new PPPoint.beizerLine(
             17.6,
             28,
             moveToPushLoc1Points.endPointX,
@@ -162,7 +162,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line4c */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc2Points = new CustomPedroPathing.beizerCurve(
+    public static PPPoint.beizerCurve moveToPushLoc2Points = new PPPoint.beizerCurve(
             pushBlock1Points.endPointX,
             pushBlock1Points.endPointY,
             58.74,
@@ -173,7 +173,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line4d */
-    public static CustomPedroPathing.beizerLine pushBlock2Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine pushBlock2Points = new PPPoint.beizerLine(
             17.6,
             20.3,
             moveToPushLoc2Points.endPointX,
@@ -182,7 +182,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line4e */
-    public static CustomPedroPathing.beizerCurve moveToPushLoc3Points = new CustomPedroPathing.beizerCurve(
+    public static PPPoint.beizerCurve moveToPushLoc3Points = new PPPoint.beizerCurve(
             pushBlock2Points.endPointX,
             pushBlock2Points.endPointY,
             53.49,
@@ -193,7 +193,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line4f */
-    public static CustomPedroPathing.beizerLine pushBlock3Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine pushBlock3Points = new PPPoint.beizerLine(
             17.3,
             11.8,
             moveToPushLoc3Points.endPointX,
@@ -202,7 +202,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line10 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen2Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine scoreSpecimen2Points = new PPPoint.beizerLine(
             35.85,
             65.55,
             pushBlock3Points.endPointX,
@@ -211,7 +211,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line11 */
-    public static CustomPedroPathing.beizerLine grabSpecimen2Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine grabSpecimen2Points = new PPPoint.beizerLine(
             18.5,
             35.8,
             scoreSpecimen2Points.endPointX,
@@ -220,7 +220,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line12 */
-    public static CustomPedroPathing.beizerLine scoreSpecimen3Points = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine scoreSpecimen3Points = new PPPoint.beizerLine(
             37,
             70,
             grabSpecimen2Points.endPointX,
@@ -229,7 +229,7 @@ public class FourSpecimenAuto extends OpMode {
             0
     );
     /* line13 */
-    public static CustomPedroPathing.beizerCurve parkPoints = new CustomPedroPathing.beizerCurve(
+    public static PPPoint.beizerCurve parkPoints = new PPPoint.beizerCurve(
             scoreSpecimen3Points.endPointX,
             scoreSpecimen3Points.endPointY,
             27.2,

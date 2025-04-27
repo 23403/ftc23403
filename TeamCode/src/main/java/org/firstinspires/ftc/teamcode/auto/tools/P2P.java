@@ -22,6 +22,7 @@ import com.pedropathing.pathgen.Path;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 
+import xyz.nin1275.custom.PPPoint;
 import xyz.nin1275.utils.Motors;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
@@ -30,12 +31,9 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import org.firstinspires.ftc.teamcode.utils.CustomPedroPathing;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
-
-import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -115,7 +113,7 @@ public class P2P extends OpMode {
 
     /** points */
     /* line1 */
-    public static CustomPedroPathing.beizerLine pointPoints = new CustomPedroPathing.beizerLine(
+    public static PPPoint.beizerLine pointPoints = new PPPoint.beizerLine(
             38.4,
             84,
             startPos.getX(),
