@@ -41,7 +41,7 @@ import xyz.nin1275.MetroLib;
 
 @Disabled
 @Config("Auto Hook beta")
-@Autonomous(name = "Auto Hook beta", group = ".ftc23403")
+@Autonomous(name = "Auto Hook beta", group = "old_ftc23403")
 public class AutoHookBETA extends OpMode {
     private Follower follower;
     private Timer pathTimer, opmodeTimer;

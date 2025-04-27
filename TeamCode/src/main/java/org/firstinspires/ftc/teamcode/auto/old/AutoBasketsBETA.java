@@ -27,7 +27,6 @@ import java.util.List;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
-import xyz.nin1275.constants.PIDConstants;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.MetroLib;
 
@@ -42,7 +41,7 @@ import xyz.nin1275.MetroLib;
 
 @Disabled
 @Config("Auto Baskets beta")
-@Autonomous(name = "Auto Baskets beta", group = ".ftc23403")
+@Autonomous(name = "Auto Baskets beta", group = "old_ftc23403")
 public class AutoBasketsBETA extends OpMode {
     private Follower follower;
     private Timer pathTimer, opmodeTimer;
@@ -227,8 +226,6 @@ public class AutoBasketsBETA extends OpMode {
         double tickPerRevolution = 751.8 / 180;
         int eaPos1 = extendArm1.getCurrentPosition();
         int eaPos2 = extendArm2.getCurrentPosition();
-        double ff1 = Math.cos(Math.toRadians(-eaPos1/ tickPerRevolution)) * PIDConstants.F;
-        double ff2 = Math.cos(Math.toRadians(-eaPos2/ tickPerRevolution)) * PIDConstants.F;
         // formula
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
         //double pid1 = controller.calculate(eaPos1, dis1);

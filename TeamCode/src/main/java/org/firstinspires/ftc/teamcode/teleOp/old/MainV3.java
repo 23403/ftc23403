@@ -27,7 +27,6 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.utils.Calibrate;
-import xyz.nin1275.utils.GamepadUtils;
 import xyz.nin1275.MetroLib;
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Sensor;
@@ -153,11 +152,11 @@ public class MainV3 extends LinearOpMode {
         submersibleArm2.setDirection(DcMotorSimple.Direction.REVERSE);
         // Motors.reverse(List.of(rightBackDrive, rightFrontDrive, extendArm2, submersibleArm2));
         // breaks
-        Motors.setBrakes(List.of(leftFrontDrive, rightFrontDrive, leftBackDrive, rightBackDrive, extendArm1, extendArm2, submersibleArm1, submersibleArm2));
-        Motors.resetEncoders(List.of(extendArm1, submersibleArm1, extendArm2, submersibleArm2));
+        Motors.setBrakes(leftFrontDrive, rightFrontDrive, leftBackDrive, rightBackDrive, extendArm1, extendArm2, submersibleArm1, submersibleArm2);
+        Motors.resetEncoders(extendArm1, submersibleArm1, extendArm2, submersibleArm2);
         // misc
-        GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
-        GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
+        gamepad1.setLedColor(0, 255, 0, Integer.MAX_VALUE);
+        gamepad2.setLedColor(255, 0, 255, Integer.MAX_VALUE);
         // calibration
         imu.resetYaw();
         Calibrate.TeleOp.calibrateStartup(List.of(extendArm1, extendArm2, submersibleArm1, submersibleArm2));
@@ -357,32 +356,32 @@ public class MainV3 extends LinearOpMode {
                 }
                 // color sensor code
                 if (Sensor.isRedGrabbed()) {
-                    GamepadUtils.setGamepad1Color(255, 0, 0, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepad2Color(255, 0, 0, Integer.MAX_VALUE);
+                    gamepad1.setLedColor(255, 0, 0, Integer.MAX_VALUE);
+                    gamepad2.setLedColor(255, 0, 0, Integer.MAX_VALUE);
                     if (!ran) {
-                        GamepadUtils.viberate(gamepad1, 20, 1000);
-                        GamepadUtils.viberate(gamepad2, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
                         ran = true;
                     }
                 } else if (Sensor.isBlueGrabbed()) {
-                    GamepadUtils.setGamepad1Color(0, 0, 255, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepad2Color(0, 0, 255, Integer.MAX_VALUE);
+                    gamepad1.setLedColor(0, 0, 255, Integer.MAX_VALUE);
+                    gamepad2.setLedColor(0, 0, 255, Integer.MAX_VALUE);
                     if (!ran) {
-                        GamepadUtils.viberate(gamepad1, 20, 1000);
-                        GamepadUtils.viberate(gamepad2, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
                         ran = true;
                     }
                 } else if (Sensor.isYellowGrabbed()) {
-                    GamepadUtils.setGamepad1Color(255, 255, 0, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepad2Color(255, 255, 0, Integer.MAX_VALUE);
+                    gamepad1.setLedColor(255, 255, 0, Integer.MAX_VALUE);
+                    gamepad2.setLedColor(255, 255, 0, Integer.MAX_VALUE);
                     if (!ran) {
-                        GamepadUtils.viberate(gamepad1, 20, 1000);
-                        GamepadUtils.viberate(gamepad2, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
                         ran = true;
                     }
                 } else {
-                    GamepadUtils.setGamepadColorOld(1, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepadColorOld(2, Integer.MAX_VALUE);
+                    gamepad1.setLedColor(0, 255, 0, Integer.MAX_VALUE);
+                    gamepad2.setLedColor(255, 0, 255, Integer.MAX_VALUE);
                     ran = false;
                 }
                 // auto intake
@@ -406,13 +405,13 @@ public class MainV3 extends LinearOpMode {
                 // alerts
                 // 15 seconds left
                 if (Timer.TeleOp.alert(15)) {
-                    GamepadUtils.viberate(gamepad1, 20, 1000);
-                    GamepadUtils.viberate(gamepad2, 20, 1000);
+                    gamepad1.rumble(20, 20, 1000);
+                    gamepad1.rumble(20, 20, 1000);
                 }
                 // start of match
                 if (Timer.TeleOp.alert(150)) {
-                    GamepadUtils.viberate(gamepad1, 20, 1000);
-                    GamepadUtils.viberate(gamepad2, 20, 1000);
+                    gamepad1.rumble(20, 20, 1000);
+                    gamepad1.rumble(20, 20, 1000);
                 }
                 // telemetry
                 telemetry.addData("Sensor Distance IN:", sensor.getDistance(DistanceUnit.INCH));

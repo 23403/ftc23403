@@ -30,7 +30,6 @@ import java.util.List;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.utils.Calibrate;
-import xyz.nin1275.utils.GamepadUtils;
 import xyz.nin1275.MetroLib;
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Sensor;
@@ -181,15 +180,15 @@ public class MainV4 extends LinearOpMode {
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
         sweeper.setDirection(Servo.Direction.REVERSE);
         // breaks
-        Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear));
+        Motors.setBrakes(leftFront, rightFront, leftRear, rightRear);
         // reset encoders
         extendArm1.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         extendArm2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         // misc
         limelightMap.setPollRateHz(100); // update 100 times a second
         limelightMap.start();
-        GamepadUtils.setGamepad1Color(0, 255, 0, Integer.MAX_VALUE);
-        GamepadUtils.setGamepad2Color(255, 0, 255, Integer.MAX_VALUE);
+        gamepad1.setLedColor(0, 255, 0, Integer.MAX_VALUE);
+        gamepad2.setLedColor(255, 0, 255, Integer.MAX_VALUE);
         extendArm1.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         extendArm2.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         claw1.setPosition(clawCpos1);
@@ -438,39 +437,39 @@ public class MainV4 extends LinearOpMode {
                 }
                 // color sensor code
                 if (Sensor.isRedGrabbed()) {
-                    GamepadUtils.setGamepad1Color(255, 0, 0, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepad2Color(255, 0, 0, Integer.MAX_VALUE);
+                    gamepad1.setLedColor(255, 0, 0, Integer.MAX_VALUE);
+                    gamepad2.setLedColor(255, 0, 0, Integer.MAX_VALUE);
                     if (!ran) {
-                        GamepadUtils.viberate(gamepad1, 20, 1000);
-                        GamepadUtils.viberate(gamepad2, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
                         ran = true;
                     }
                 } else if (Sensor.isBlueGrabbed()) {
-                    GamepadUtils.setGamepad1Color(0, 0, 255, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepad2Color(0, 0, 255, Integer.MAX_VALUE);
+                    gamepad1.setLedColor(0, 0, 255, Integer.MAX_VALUE);
+                    gamepad2.setLedColor(0, 0, 255, Integer.MAX_VALUE);
                     if (!ran) {
-                        GamepadUtils.viberate(gamepad1, 20, 1000);
-                        GamepadUtils.viberate(gamepad2, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
                         ran = true;
                     }
                 } else if (Sensor.isYellowGrabbed()) {
-                    GamepadUtils.setGamepad1Color(255, 255, 0, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepad2Color(255, 255, 0, Integer.MAX_VALUE);
+                    gamepad1.setLedColor(255, 255, 0, Integer.MAX_VALUE);
+                    gamepad2.setLedColor(255, 255, 0, Integer.MAX_VALUE);
                     if (!ran) {
-                        GamepadUtils.viberate(gamepad1, 20, 1000);
-                        GamepadUtils.viberate(gamepad2, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
+                        gamepad1.rumble(20, 20, 1000);
                         ran = true;
                     }
                 } else {
-                    GamepadUtils.setGamepadColorOld(1, Integer.MAX_VALUE);
-                    GamepadUtils.setGamepadColorOld(2, Integer.MAX_VALUE);
+                    gamepad1.setLedColor(0, 255, 0, Integer.MAX_VALUE);
+                    gamepad2.setLedColor(255, 0, 255, Integer.MAX_VALUE);
                     ran = false;
                 }
                 // alerts
                 // 15 seconds left and start of match
                 if (Timer.TeleOp.alert(15) || Timer.TeleOp.alert(150)) {
-                    GamepadUtils.viberate(gamepad1, 20, 1000);
-                    GamepadUtils.viberate(gamepad2, 20, 1000);
+                    gamepad1.rumble(20, 20, 1000);
+                    gamepad1.rumble(20, 20, 1000);
                 }
                 // telemetry
                 Calibrate.TeleOp.getStartPositions();

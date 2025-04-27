@@ -44,8 +44,6 @@ import org.firstinspires.ftc.teamcode.utils.TelemetryM;
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 import org.firstinspires.ftc.teamcode.variables.enums.PresetStates;
 
-import java.util.List;
-
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
@@ -153,6 +151,24 @@ public class MainV5 extends LinearOpMode {
                 0.6,
                 0.23,
                 -1.0);
+        public static CustomPresets preHang = new CustomPresets(
+                33.6,
+                1.0,
+                1.0,
+                1.0,
+                1.0,
+                0.5,
+                0.18,
+                0.52);
+        public static CustomPresets hang = new CustomPresets(
+                eaLimitLow,
+                -1.0,
+                -1.0,
+                -1.0,
+                -1.0,
+                -1.0,
+                -1.0,
+                -1.0);
     }
     @Override
     public void runOpMode() {
@@ -206,7 +222,7 @@ public class MainV5 extends LinearOpMode {
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
         swiper.setDirection(Servo.Direction.REVERSE);
         // breaks
-        Motors.setBrakes(List.of(leftFront, rightFront, leftRear, rightRear));
+        Motors.setBrakes(leftFront, rightFront, leftRear, rightRear);
         // colors
         gamepad1.setLedColor(0, 255, 255, -1);
         gamepad2.setLedColor(0, 255, 0, -1);
@@ -241,8 +257,8 @@ public class MainV5 extends LinearOpMode {
         }
         extendArm1.setPower(0);
         extendArm2.setPower(0);
-        Motors.resetEncoders(List.of(extendArm1, extendArm2));
-        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        Motors.resetEncoders(extendArm1, extendArm2);
+        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
         resetTimer.reset();
         // telemetry
         telemetryM.addLine("BEASTKIT Team 23403!");
@@ -317,6 +333,7 @@ public class MainV5 extends LinearOpMode {
                     extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
                     extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
                     extendArmState = ExtendArmStates.MANUAL_MOVEMENT;
+                    presetState = PresetStates.NO_PRESET;
                 } else if (gamepad2.dpad_down && eaInches1 > eaLimitLow) {
                     double pid = controller.calculate(eaInches1, eaLimitLow);
                     double rawPower = pid + ff;
@@ -325,7 +342,8 @@ public class MainV5 extends LinearOpMode {
                     extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
                     extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
                     extendArmState = ExtendArmStates.MANUAL_MOVEMENT;
-                } else if (Math.abs(eaInches1 - eaLimitLow) > 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
+                    presetState = PresetStates.NO_PRESET;
+                } else if (Math.abs(eaInches1 - eaLimitLow) > 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET && presetState != PresetStates.L2_HANG) {
                     extendArm1.setPower(ff);
                     extendArm2.setPower(ff);
                     if (extendArmState == ExtendArmStates.PRESET_REACHED) Timer.wait(500);
@@ -353,8 +371,8 @@ public class MainV5 extends LinearOpMode {
                     } else {
                         extendArm1.setPower(0);
                         extendArm2.setPower(0);
-                        Motors.resetEncoders(List.of(extendArm1, extendArm2));
-                        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                        Motors.resetEncoders(extendArm1, extendArm2);
+                        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
                         extendArmState = ExtendArmStates.ZERO_POS_RESET;
                     }
                 }
@@ -401,12 +419,19 @@ public class MainV5 extends LinearOpMode {
                             presetState = PresetStates.HUMAN_PLAYER;
                         }
                         break;
+                    case L2_HANG:
+                        double target = MainV5.presets.hang.extendArm != -1.0 ? MainV5.presets.hang.extendArm : eaInches1;
+                        if (Math.abs(eaInches1 - target) <= 2) {
+                            extendArm1.setPower(-0.5);
+                            extendArm2.setPower(-0.5);
+                        }
+                        break;
                 }
 
                 /**
                  * GAMEPAD 1
-                 *   X / ▢         - Grab sample using limelight
-                 *   Y / Δ         - EMPTY
+                 *   X / ▢         - Transition from Submersible arm to Extend arm
+                 *   Y / Δ         - L2 hang
                  *   B / O         - Grab from Human Player Preset
                  *   A / X         - EMPTY
                  *
@@ -427,17 +452,19 @@ public class MainV5 extends LinearOpMode {
                 if (gamepad1.b) {
                     presetState = PresetStates.HUMAN_PLAYER;
                 }
-                // limelight grabbing
+                // transition preset
                 if (gamepad1.x) {
-                    // use correction code cuz its easier fr fr
-                    slidesTARGET = 0;
-                    subArmCpos = 1;
-                    if (true) {
-                        wristCpos2 = 0.1;
-                        Timer.wait(300);
-                        claw2.setPosition(1);
+                    presetState = PresetStates.TRANSITION;
+                }
+                // l2 hang
+                if (currentGamepad1.y && !previousGamepad1.y) {
+                    if (presetState == PresetStates.NO_PRESET) {
+                        applyPreset(MainV5.presets.preHang);
+                        presetState = PresetStates.PRE_L2_HANG;
+                    } else if (presetState == PresetStates.PRE_L2_HANG) {
+                        applyPreset(MainV5.presets.hang);
+                        presetState = PresetStates.L2_HANG;
                     }
-                    extendArmState = ExtendArmStates.MOVING_TO_PRESET;
                 }
                 /**
                  * GAMEPAD 2

@@ -114,8 +114,8 @@ public class posTracking extends OpMode {
         submersibleArm1.scaleRange(0.45, 1);
         swiper.scaleRange(0, 0.93);
         // extendArm
-        Motors.resetEncoders(List.of(extendArm1, extendArm2));
-        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        Motors.resetEncoders(extendArm1, extendArm2);
+        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
         resetTimer.reset();
         // starting pos
         wrist1.setPosition(wristCpos1);
@@ -175,8 +175,8 @@ public class posTracking extends OpMode {
             } else {
                 extendArm1.setPower(0);
                 extendArm2.setPower(0);
-                Motors.resetEncoders(List.of(extendArm1, extendArm2));
-                Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                Motors.resetEncoders(extendArm1, extendArm2);
+                Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
                 extendArmState = ExtendArmStates.ZERO_POS_RESET;
             }
         }

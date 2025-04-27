@@ -29,7 +29,7 @@ import pedroPathing.constants.LConstants;
  */
 
 @Disabled
-@Autonomous(name = "Auto Hook", group = ".ftc23403")
+@Autonomous(name = "Auto Hook", group = "old_ftc23403")
 public class AutoHookOdometry extends OpMode {
     private Follower follower;
     private Timer pathTimer, opmodeTimer;

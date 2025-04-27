@@ -36,7 +36,7 @@ import pedroPathing.constants.LConstants;
 
 @Disabled
 @Config("Auto Hook alpha")
-@Autonomous (name = "Auto Hook alpha", group = "ftc23403")
+@Autonomous (name = "Auto Hook alpha", group = "old_ftc23403")
 public class AutoHookALPHA extends OpMode {
     private Telemetry telemetryA;
     private String state;

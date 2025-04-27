@@ -29,8 +29,6 @@ import org.firstinspires.ftc.teamcode.auto.paths.FiveSpecimenAutoPaths;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 
-import java.util.List;
-
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
@@ -443,8 +441,8 @@ public class FiveSpecAuto extends OpMode {
         submersibleArm1.scaleRange(0.45, 1);
         swiper.scaleRange(0.3, 0.83);
         // extendArm
-        Motors.resetEncoders(List.of(extendArm1, extendArm2));
-        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        Motors.resetEncoders(extendArm1, extendArm2);
+        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
         resetTimer.reset();
         // starting pos
         claw1.setPosition(1);
@@ -521,8 +519,8 @@ public class FiveSpecAuto extends OpMode {
             } else {
                 extendArm1.setPower(0);
                 extendArm2.setPower(0);
-                Motors.resetEncoders(List.of(extendArm1, extendArm2));
-                Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                Motors.resetEncoders(extendArm1, extendArm2);
+                Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
                 extendArmState = ExtendArmStates.ZERO_POS_RESET;
             }
         }
