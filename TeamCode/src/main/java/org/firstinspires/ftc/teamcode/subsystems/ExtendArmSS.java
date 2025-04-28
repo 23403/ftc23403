@@ -53,8 +53,8 @@ public class ExtendArmSS {
         }
         extendArm1.setPower(0);
         extendArm2.setPower(0);
-        Motors.resetEncoders(List.of(extendArm1, extendArm2));
-        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        Motors.resetEncoders(extendArm1, extendArm2);
+        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
         resetTimer.reset();
     }
     public ExtendArmSS(DcMotorEx motor1, DcMotorEx motor2, PIDController controller, double K, double F, double cpr, double inchesPerRev) {
@@ -78,8 +78,8 @@ public class ExtendArmSS {
         }
         extendArm1.setPower(0);
         extendArm2.setPower(0);
-        Motors.resetEncoders(List.of(extendArm1, extendArm2));
-        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        Motors.resetEncoders(extendArm1, extendArm2);
+        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
         resetTimer.reset();
     }
     public ExtendArmSS(DcMotorEx motor, PIDController controller, double K, double F, double cpr, double inchesPerRev, double limitHigh, double limitLow, boolean correctionEnabled) {
@@ -102,7 +102,7 @@ public class ExtendArmSS {
         }
         extendArm.setPower(0);
         Motors.resetEncoders(extendArm);
-        Motors.setMode(extendArm, DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm);
         resetTimer.reset();
     }
     public ExtendArmSS(DcMotorEx motor, PIDController controller, double K, double F, double cpr, double inchesPerRev) {
@@ -125,7 +125,7 @@ public class ExtendArmSS {
         }
         extendArm.setPower(0);
         Motors.resetEncoders(extendArm);
-        Motors.setMode(extendArm, DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm);
         resetTimer.reset();
     }
     // loop
@@ -185,8 +185,8 @@ public class ExtendArmSS {
                 } else {
                     extendArm1.setPower(0);
                     extendArm2.setPower(0);
-                    Motors.resetEncoders(List.of(extendArm1, extendArm2));
-                    Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                    Motors.resetEncoders(extendArm1, extendArm2);
+                    Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
                     extendArmState = ExtendArmStates.ZERO_POS_RESET;
                 }
             }
@@ -244,7 +244,7 @@ public class ExtendArmSS {
                 } else {
                     extendArm.setPower(0);
                     Motors.resetEncoders(extendArm);
-                    Motors.setMode(extendArm, DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                    Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm);
                     extendArmState = ExtendArmStates.ZERO_POS_RESET;
                 }
             }

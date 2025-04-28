@@ -12,6 +12,7 @@ import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.subsystems.ExtendArmSS;
@@ -31,6 +32,7 @@ public class ExtendArmSSTest extends LinearOpMode {
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         PIDController controller = new PIDController(Math.sqrt(P), I, D);
         ExtendArmSS extendArmSS = new ExtendArmSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection);
+        extendArm2.setDirection(DcMotor.Direction.REVERSE);
         // telemetry
         telemetry.addData("currentState", extendArmSS.getState());
         telemetry.addData("power1", extendArmSS.getPower1());
