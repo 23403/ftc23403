@@ -7,8 +7,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 
-import java.util.List;
-
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Timer;
 
@@ -30,9 +28,10 @@ public class ExtendArmSS {
     private double inches1 = 0;
     private double inches2 = 0;
     private double inches = 0;
+    private boolean cos = false;
 
     // init
-    public ExtendArmSS(DcMotorEx motor1, DcMotorEx motor2, PIDController controller, double K, double F, double cpr, double inchesPerRev, double limitHigh, double limitLow, boolean correctionEnabled) {
+    public ExtendArmSS(DcMotorEx motor1, DcMotorEx motor2, PIDController controller, double K, double F, double cpr, double inchesPerRev, double limitHigh, double limitLow, boolean correctionEnabled, boolean cos) {
         this.extendArm1 = motor1;
         this.extendArm2 = motor2;
         this.extendArm = null;
@@ -45,6 +44,7 @@ public class ExtendArmSS {
         this.K = K;
         this.F = F;
         this.isDualMotor = true;
+        this.cos = cos;
         // init stuff
         resetTimer.reset();
         while (resetTimer.milliseconds() < 500) {
@@ -57,7 +57,7 @@ public class ExtendArmSS {
         Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
         resetTimer.reset();
     }
-    public ExtendArmSS(DcMotorEx motor1, DcMotorEx motor2, PIDController controller, double K, double F, double cpr, double inchesPerRev) {
+    public ExtendArmSS(DcMotorEx motor1, DcMotorEx motor2, PIDController controller, double K, double F, double cpr, double inchesPerRev, boolean cos) {
         this.extendArm1 = motor1;
         this.extendArm2 = motor2;
         this.extendArm = null;
@@ -70,6 +70,7 @@ public class ExtendArmSS {
         this.K = K;
         this.F = F;
         this.isDualMotor = true;
+        this.cos = cos;
         // init stuff
         resetTimer.reset();
         while (resetTimer.milliseconds() < 500) {
@@ -82,7 +83,7 @@ public class ExtendArmSS {
         Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
         resetTimer.reset();
     }
-    public ExtendArmSS(DcMotorEx motor, PIDController controller, double K, double F, double cpr, double inchesPerRev, double limitHigh, double limitLow, boolean correctionEnabled) {
+    public ExtendArmSS(DcMotorEx motor, PIDController controller, double K, double F, double cpr, double inchesPerRev, double limitHigh, double limitLow, boolean correctionEnabled, boolean cos) {
         this.extendArm1 = null;
         this.extendArm2 = null;
         this.extendArm = motor;
@@ -95,6 +96,7 @@ public class ExtendArmSS {
         this.K = K;
         this.F = F;
         this.isDualMotor = false;
+        this.cos = cos;
         // init stuff
         resetTimer.reset();
         while (resetTimer.milliseconds() < 500) {
@@ -105,7 +107,7 @@ public class ExtendArmSS {
         Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm);
         resetTimer.reset();
     }
-    public ExtendArmSS(DcMotorEx motor, PIDController controller, double K, double F, double cpr, double inchesPerRev) {
+    public ExtendArmSS(DcMotorEx motor, PIDController controller, double K, double F, double cpr, double inchesPerRev, boolean cos) {
         this.extendArm1 = null;
         this.extendArm2 = null;
         this.extendArm = motor;
@@ -118,6 +120,7 @@ public class ExtendArmSS {
         this.K = K;
         this.F = F;
         this.isDualMotor = false;
+        this.cos = cos;
         // init stuff
         resetTimer.reset();
         while (resetTimer.milliseconds() < 500) {
@@ -148,12 +151,14 @@ public class ExtendArmSS {
             if (movingUp || movingDown) {
                 double target = movingUp ? eaLimitHigh : eaLimitLow;
                 double pid = controller.calculate(inches1, target);
+                if (cos) ff = Math.cos(Math.toRadians(inches1/CPR)) * ff;
                 double rawPower = pid + ff;
                 double correction = (inches1 - inches2) * K;
                 extendArm1.setPower(clamp(rawPower));
                 extendArm2.setPower(clamp(rawPower + correction));
                 extendArmState = ExtendArmStates.MANUAL_MOVEMENT;
             } else if (Math.abs(inches1 - eaLimitLow) > 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
+                if (cos) ff = Math.cos(Math.toRadians(inches1/CPR)) * ff;
                 extendArm1.setPower(ff);
                 extendArm2.setPower(ff);
                 if (extendArmState == ExtendArmStates.PRESET_REACHED) Timer.wait(500);
@@ -193,6 +198,7 @@ public class ExtendArmSS {
             // preset controls
             if (extendArmState == ExtendArmStates.MOVING_TO_PRESET) {
                 double pid = controller.calculate(inches1, slidesTARGET);
+                if (cos) ff = Math.cos(Math.toRadians(inches1/CPR)) * ff;
                 double rawPower = pid + ff;
                 double correction = (inches1 - inches2) * K;
                 extendArm1.setPower(clamp(rawPower));
@@ -211,10 +217,12 @@ public class ExtendArmSS {
             if (movingUp || movingDown) {
                 double target = movingUp ? eaLimitHigh : eaLimitLow;
                 double pid = controller.calculate(inches, target);
+                if (cos) ff = Math.cos(Math.toRadians(inches/CPR)) * ff;
                 double rawPower = pid + ff;
                 extendArm.setPower(clamp(rawPower));
                 extendArmState = ExtendArmStates.MANUAL_MOVEMENT;
             } else if (Math.abs(inches - eaLimitLow) > 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
+                if (cos) ff = Math.cos(Math.toRadians(inches/CPR)) * ff;
                 extendArm.setPower(ff);
                 if (extendArmState == ExtendArmStates.PRESET_REACHED) Timer.wait(500);
                 extendArmState = eaCorrection ? ExtendArmStates.FORCE_FEED_BACK : ExtendArmStates.FLOATING;
@@ -251,6 +259,7 @@ public class ExtendArmSS {
             // preset controls
             if (extendArmState == ExtendArmStates.MOVING_TO_PRESET) {
                 double pid = controller.calculate(inches, slidesTARGET);
+                if (cos) ff = Math.cos(Math.toRadians(inches/CPR)) * ff;
                 double rawPower = pid + ff;
                 extendArm.setPower(clamp(rawPower));
                 if (Math.abs(inches - slidesTARGET) < 1) extendArmState = ExtendArmStates.PRESET_REACHED;

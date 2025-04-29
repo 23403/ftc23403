@@ -31,7 +31,7 @@ public class ExtendArmSSTest extends LinearOpMode {
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         PIDController controller = new PIDController(Math.sqrt(P), I, D);
-        ExtendArmSS extendArmSS = new ExtendArmSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection);
+        ExtendArmSS extendArmSS = new ExtendArmSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection, false);
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
         // telemetry
         telemetry.addData("currentState", extendArmSS.getState());
