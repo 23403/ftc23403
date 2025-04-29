@@ -105,6 +105,7 @@ public class FourSpecAuto extends OpMode {
         switch (pathState) {
             case 0: /* line1 */
                 if (!preloadStarted) {
+                    submersible.subIn();
                     presets.scoreStage1();
                     follower.followPath(FourSpecimenAutoPaths.preload(), false);
                     preloadStarted = true;

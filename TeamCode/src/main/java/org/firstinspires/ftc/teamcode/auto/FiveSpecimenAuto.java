@@ -107,6 +107,7 @@ public class FiveSpecimenAuto extends OpMode {
         switch (pathState) {
             case 0: /* line1 */
                 if (!preloadStarted) {
+                    submersible.subIn();
                     presets.scoreStage1();
                     follower.followPath(FiveSpecimenAutoPushPaths.preload(), false);
                     preloadStarted = true;

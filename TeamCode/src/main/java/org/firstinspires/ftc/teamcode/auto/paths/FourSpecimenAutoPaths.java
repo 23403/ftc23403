@@ -29,8 +29,8 @@ public class FourSpecimenAutoPaths {
     );
     /* line3 */
     public static PPPoint.beizerLine scoreSpecimen1Points = new PPPoint.beizerLine(
-            36.85,
-            62.35,
+            37,
+            69,
             0
     );
     /* line4a */
@@ -75,8 +75,8 @@ public class FourSpecimenAutoPaths {
     );
     /* line10 */
     public static PPPoint.beizerLine scoreSpecimen2Points = new PPPoint.beizerLine(
-            35.85,
-            65.55,
+            34,
+            68,
             0
     );
     /* line11 */
@@ -87,8 +87,8 @@ public class FourSpecimenAutoPaths {
     );
     /* line12 */
     public static PPPoint.beizerLine scoreSpecimen3Points = new PPPoint.beizerLine(
-            37,
-            70,
+            33,
+            67,
             0
     );
     /* line13 */
