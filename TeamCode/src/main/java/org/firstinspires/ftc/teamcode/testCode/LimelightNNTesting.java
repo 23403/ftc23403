@@ -23,6 +23,7 @@ public class LimelightNNTesting extends LinearOpMode {
         Limelight3A limelight = hardwareMap.get(Limelight3A.class, "limelight");
         Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
         Servo subArm = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
+        limelight.pipelineSwitch(1);
         limelight.start();
         subArm.scaleRange(0.45, 1);
         rotation.scaleRange(0.43, 0.55);
