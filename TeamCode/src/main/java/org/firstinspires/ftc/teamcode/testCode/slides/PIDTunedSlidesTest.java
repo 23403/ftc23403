@@ -47,8 +47,8 @@ public class PIDTunedSlidesTest extends LinearOpMode {
         }
         extendArm1.setPower(0);
         extendArm2.setPower(0);
-        Motors.resetEncoders(List.of(extendArm1, extendArm2));
-        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        Motors.resetEncoders(extendArm1, extendArm2);
+        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
         resetTimer.reset();
         // telemetry.addData("currentState", extendArmSS.getCurrentState());
         telemetry.update();
@@ -110,8 +110,8 @@ public class PIDTunedSlidesTest extends LinearOpMode {
                     } else {
                         extendArm1.setPower(0);
                         extendArm2.setPower(0);
-                        Motors.resetEncoders(List.of(extendArm1, extendArm2));
-                        Motors.setMode(List.of(extendArm1, extendArm2), DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                        Motors.resetEncoders(extendArm1, extendArm2);
+                        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
                         extendArmState = ExtendArmStates.ZERO_POS_RESET;
                     }
                 }
