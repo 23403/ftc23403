@@ -24,6 +24,8 @@ import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.localization.PoseUpdater;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -182,7 +184,7 @@ public class MainV5 extends LinearOpMode {
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         TelemetryM telemetryM = new TelemetryM(telemetry, debugMode);
         Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
-        Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState);
+        Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState, follower);
         LynxUtils.initLynx(hardwareMap);
         // gamepads
         Gamepad currentGamepad1 = new Gamepad();
@@ -265,6 +267,7 @@ public class MainV5 extends LinearOpMode {
                 extendArmState = extendArmSS.getState();
                 extendArmSS.setEaCorrection(eaCorrection);
                 extendArmSS.setLimits(MainV5.eaLimitHigh, MainV5.eaLimitLow);
+                limelight.setFollower(follower);
                 telemetryM.setDebug(debugMode);
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 // gamepad stuff
@@ -402,6 +405,7 @@ public class MainV5 extends LinearOpMode {
                     wristCpos2 = 0.5;
                     subArmCpos = limelight.getSubmersible();
                     rotationalCpos = limelight.getRotation();
+                    limelight.strafe();
                     Timer.wait(200);
                     wristCpos2 = 0;
                     clawCpos2 = 1;

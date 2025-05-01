@@ -3,6 +3,11 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import androidx.core.math.MathUtils;
 
 import com.acmerobotics.dashboard.config.Config;
+import com.arcrobotics.ftclib.geometry.Pose2d;
+import com.pedropathing.follower.Follower;
+import com.pedropathing.localization.Pose;
+import com.pedropathing.pathgen.BezierLine;
+import com.pedropathing.pathgen.Path;
 import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 
@@ -13,14 +18,23 @@ public class Vision {
     public static class Limelight {
         private Limelight3A limelight;
         private LimelightState llState;
+        private Follower follower = null;
         private boolean validResult = false;
         private double tx = 0, ty = 0;
         public static double CAMERA_VERTICAL_CENTER_OFFSET = -14.5;
         public static double CAMERA_HORIZONTAL_CENTER_OFFSET = -5;
+        public static double STRAFE_SCALE = 20.0;
         // init
         public Limelight(Limelight3A limelight, LimelightState llState) {
             this.limelight = limelight;
             this.llState = llState;
+            limelight.pipelineSwitch(1);
+            limelight.start();
+        }
+        public Limelight(Limelight3A limelight, LimelightState llState, Follower follower) {
+            this.limelight = limelight;
+            this.llState = llState;
+            this.follower = follower;
             limelight.pipelineSwitch(1);
             limelight.start();
         }
@@ -48,9 +62,24 @@ public class Vision {
         public LimelightState getState() {
             return llState;
         }
+        public void strafe() {
+            if (follower != null) {
+                double offset = (getRotation() - 0.5) * STRAFE_SCALE; // Negative = left, Positive = right
+                Pose currentPose = follower.getPose();
+                Pose targetPose = new Pose(
+                        currentPose.getX(),              // No forward movement, just strafe
+                        currentPose.getY() + offset,     // Strafe left/right based on sample position
+                        currentPose.getHeading()
+                );
+                follower.followPath(new Path(new BezierLine(currentPose, targetPose)));
+            }
+        }
         // setter
         public void setState(LimelightState state) {
-            llState = state;
+            this.llState = state;
+        }
+        public void setFollower(Follower follower) {
+            this.follower = follower;
         }
     }
 }
