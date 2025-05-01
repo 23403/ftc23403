@@ -9,14 +9,15 @@ import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.teamcode.subsystems.ExtendArmSS;
 import org.firstinspires.ftc.teamcode.teleOp.MainV5;
+
+import xyz.nin1275.controllers.PID;
+import xyz.nin1275.subsystems.SlidesSS;
 
 @Config("ExtendArmSS Test")
 @TeleOp(name="ExtendArmSS Test", group="test_ftc23403")
@@ -30,9 +31,9 @@ public class ExtendArmSSTest extends LinearOpMode {
         // hardware
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
-        PIDController controller = new PIDController(Math.sqrt(P), I, D);
-        ExtendArmSS extendArmSS = new ExtendArmSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection, false);
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
+        PID controller = new PID(Math.sqrt(P), I, D);
+        SlidesSS extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection, false);
         // telemetry
         telemetry.addData("currentState", extendArmSS.getState());
         telemetry.addData("power1", extendArmSS.getPower1());
