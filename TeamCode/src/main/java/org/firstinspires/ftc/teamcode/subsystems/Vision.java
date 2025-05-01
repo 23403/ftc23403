@@ -1,161 +1,56 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import androidx.core.math.MathUtils;
+
 import com.acmerobotics.dashboard.config.Config;
-import com.pedropathing.follower.Follower;
-import com.pedropathing.localization.Pose;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.PathBuilder;
-import com.pedropathing.pathgen.PathChain;
 import com.qualcomm.hardware.limelightvision.LLResult;
-import com.qualcomm.hardware.limelightvision.LLResultTypes;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.firstinspires.ftc.robotcore.external.Telemetry;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+
+import xyz.nin1275.utils.Timer;
 
 @Config
 public class Vision {
-    // Limelight and claw configuration
-    public static double limelightHeight = 9.5; // Camera height in inches
-    public static double limelightAngle = 60; // Camera angle (0° = down, 90° = forward)
-    public static double clawForwardOffset = 19; // Claw's forward offset from the camera
-    public static double clawLateralOffset = 5; // Claw's lateral (right is +) offset from the camera
-
-    private Pose target = new Pose(); // The best sample's position
-    private Pose cachedTarget; // Cached best sample
-    private final Limelight3A limelight;
-    private PathChain toTarget;
-    private final Telemetry telemetry;
-    private final int[] unwanted;
-    private double bestAngle;
-    private final Follower f;
-
-    public Vision(HardwareMap hardwareMap, Telemetry telemetry, int[] unwanted, Follower f) {
-        this.unwanted = unwanted;
-        this.telemetry = telemetry;
-        this.f = f;
-
-        limelight = hardwareMap.get(Limelight3A.class, "limelight");
-        limelight.setPollRateHz(100);
-        limelight.pipelineSwitch(9);
-        limelight.start();
-        f.update();
-        cachedTarget = f.getPose();
-        f.update();
-    }
-
-    public void find() {
-        LLResult result = limelight.getLatestResult();
-        List<LLResultTypes.DetectorResult> detections = result.getDetectorResults();
-
-        if (detections.isEmpty()) {
-            telemetry.addData("Detections", "None");
-            target = cachedTarget.copy();
-            return;
+    public static class Limelight {
+        private Limelight3A limelight;
+        private LimelightState llState;
+        private boolean validResult = false;
+        private double tx = 0, ty = 0;
+        public static double CAMERA_VERTICAL_CENTER_OFFSET = -14.5;
+        public static double CAMERA_HORIZONTAL_CENTER_OFFSET = -5;
+        // init
+        public Limelight(Limelight3A limelight, LimelightState llState) {
+            this.limelight = limelight;
+            this.llState = llState;
+            limelight.pipelineSwitch(1);
+            limelight.start();
         }
-
-        // List to store scored detections
-        List<LL3ADetection> scoredDetections = new ArrayList<>();
-
-        for (LLResultTypes.DetectorResult detection : detections) {
-            int c = detection.getClassId();
-
-            boolean colorMatch = true;
-
-            for (int o : unwanted) {
-                if (c == o) {
-                    colorMatch = false;
-                    break;
-                }
-            }
-
-            if (colorMatch) {
-                // Compute angles
-                double actualYAngle = Math.toRadians(limelightAngle + detection.getTargetYDegrees());
-                double xAngle = Math.toRadians(-detection.getTargetXDegrees());
-
-                // Compute distances
-                double yDistance = limelightHeight / Math.tan(actualYAngle); // Forward distance (FTC X)
-                double xDistance = Math.tan(xAngle) * yDistance; // Lateral distance (FTC Y)
-
-                // Score based on alignment
-                double rotationScore = -Math.abs((detection.getTargetCorners().get(0).get(0) -
-                        detection.getTargetCorners().get(1).get(0)) /
-                        (detection.getTargetCorners().get(1).get(1) -
-                                detection.getTargetCorners().get(2).get(1)) - (1.5 / 3.5));
-                double score = -yDistance - Math.abs(xDistance) + 2.0 * rotationScore; // Weighted scoring
-
-                double angle;
-
-                if (detection.getTargetCorners() == null || detection.getTargetCorners().size() < 4) {
-                    angle = Double.NaN;
-                }
-
-                List<List<Double>> corners = detection.getTargetCorners();
-
-                double dx = Math.toRadians(corners.get(1).get(0) - corners.get(0).get(0));
-                double dy = Math.toRadians(corners.get(2).get(1) - corners.get(0).get(1));
-                angle = ((Math.atan2(dy, dx)) * 4.5);
-
-                scoredDetections.add(new LL3ADetection(detection, score, yDistance, xDistance, rotationScore, angle));
-            }
+        // method
+        public void update() {
+            LLResult result = limelight.getLatestResult();
+            validResult = (result != null && result.isValid());
+            if (llState == LimelightState.FOUND_SAMPLE) {
+                Timer.wait(200);
+                setState(LimelightState.NO_SAMPLE_FOUND);
+            } else if (validResult) {
+                double distanceScale = 1.0 + (result.getTa() * 0.2);
+                tx = ((result.getTx() - CAMERA_HORIZONTAL_CENTER_OFFSET + 27) / 54.0) * distanceScale;
+                ty = (result.getTy() - CAMERA_VERTICAL_CENTER_OFFSET + 20) / 40.0;
+                llState = LimelightState.FOUND_SAMPLE;
+            } else llState = LimelightState.NO_SAMPLE_FOUND;
         }
-
-        // Find the best detection
-
-        if (!scoredDetections.isEmpty()) {
-            scoredDetections.sort(Comparator.comparingDouble(LL3ADetection::getScore).reversed());
-            LL3ADetection bestDetection = scoredDetections.get(0);
-
-            bestAngle = bestDetection.getAngle();
-
-            // Convert to coordinates and apply claw offsets
-            // X (forward)
-            // Y (left)
-            Pose sample = new Pose(
-                    bestDetection.getYDistance(), // X (forward)
-                    bestDetection.getXDistance(), // Y (left)
-                    0
-            );
-
-            Pose difference = new Pose(sample.getX() - clawForwardOffset + 2.5, sample.getY() + clawLateralOffset, 0);
-
-            target = new Pose(f.getPose().getX() + difference.getX(), f.getPose().getY() + difference.getY(), f.getPose().getHeading());
-            cachedTarget = target.copy();
-
-            toTarget = new PathBuilder()
-                    .addPath(new BezierLine(f.getPose(), target)).setConstantHeadingInterpolation(f.getPose().getHeading()).build();
-
-            // Display results
-            telemetry.addData("Best Detection", bestDetection.getDetection().getClassName());
-            telemetry.addData("Sample Position", "X: %.2f, Y: %.2f", sample.getX(), sample.getY());
-            telemetry.addData("diff", difference);
-            telemetry.addData("target", target);
-            telemetry.addData("current", f.getPose());
-        } else {
-            target = cachedTarget.copy();
+        // getters
+        public double getRotation() {
+            return MathUtils.clamp(tx, 0.0, 1.0);
         }
-    }
-
-    public Pose getTarget() {
-        return target;
-    }
-
-    public PathChain toTarget() {
-        return toTarget;
-    }
-
-    public void off() {
-        limelight.stop();
-    }
-
-    public void on() {
-        limelight.start();
-    }
-
-    public double getAngle() {
-        return bestAngle;
+        public double getSubmersible() {
+            return 1.0 - MathUtils.clamp(ty, 0.0, 1.0);
+        }
+        public LimelightState getState() {
+            return llState;
+        }
+        // setter
+        public void setState(LimelightState state) {
+            llState = state;
+        }
     }
 }

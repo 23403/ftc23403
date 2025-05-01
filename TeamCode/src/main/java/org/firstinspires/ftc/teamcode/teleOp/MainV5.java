@@ -36,6 +36,8 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
@@ -52,13 +54,13 @@ import xyz.nin1275.subsystems.SlidesSS;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Sensor;
+import xyz.nin1275.utils.Timer;
 
 @Configurable
 @Config("MainV5")
 @TeleOp(name="Main v5", group=".ftc23403")
 public class MainV5 extends LinearOpMode {
     /**
-     * @TODO get limelight working in here
      * @TODO add color sensor shit
      * MAIN V5 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
@@ -89,9 +91,11 @@ public class MainV5 extends LinearOpMode {
     public static boolean eaCorrection = true;
     public static SlidesSS extendArmSS;
     // states
-    private static SlidersStates extendArmState = SlidersStates.FLOATING;
+    SlidersStates extendArmState = SlidersStates.FLOATING;
     private static PresetStates presetState = PresetStates.NO_PRESET;
     private static RotationStates rotationState = RotationStates.MIDDLE;
+    LimelightState llState = LimelightState.INIT;
+
     // presets
     @Config("MainV5 Presets")
     public static class presets {
@@ -178,6 +182,7 @@ public class MainV5 extends LinearOpMode {
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         TelemetryM telemetryM = new TelemetryM(telemetry, debugMode);
         Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+        Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState);
         LynxUtils.initLynx(hardwareMap);
         // gamepads
         Gamepad currentGamepad1 = new Gamepad();
@@ -256,6 +261,7 @@ public class MainV5 extends LinearOpMode {
             follower.startTeleopDrive();
             while (opModeIsActive()) {
                 // variables
+                llState = limelight.getState();
                 extendArmState = extendArmSS.getState();
                 extendArmSS.setEaCorrection(eaCorrection);
                 extendArmSS.setLimits(MainV5.eaLimitHigh, MainV5.eaLimitLow);
@@ -391,12 +397,16 @@ public class MainV5 extends LinearOpMode {
                 }
                 // limelight
                 if (currentGamepad1.a && !previousGamepad1.a) {
-                    /*
-                    subArmCpos = limelight.getSubArmPos();
-                    rotationCpos = limelight.getRotationPos();
-                    */
-                    wristCpos2 = 0;
+                    limelight.setState(LimelightState.MOVING_TO_SAMPLE);
                     clawCpos2 = 0;
+                    wristCpos2 = 0.5;
+                    subArmCpos = limelight.getSubmersible();
+                    rotationalCpos = limelight.getRotation();
+                    Timer.wait(200);
+                    wristCpos2 = 0;
+                    clawCpos2 = 1;
+                    limelight.setState(LimelightState.SAMPLE_REACHED);
+                    presetState = PresetStates.TRANSITION;
                 }
                 /**
                  * GAMEPAD 2
