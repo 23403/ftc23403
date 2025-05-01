@@ -43,6 +43,7 @@ import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 import org.firstinspires.ftc.teamcode.variables.enums.PresetStates;
+import org.firstinspires.ftc.teamcode.variables.enums.RotationStates;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -73,9 +74,9 @@ public class MainV5 extends LinearOpMode {
     public static double rotationalCpos = 0.5;
     // misc
     public static boolean redSide = true;
-    public static boolean debugMode = true;
+    public static boolean debugMode = false;
     public static double wheelSpeedMax = 1;
-    public static double wheelSpeedMinEA = 0.4;
+    public static double wheelSpeedMinEA = 0.7;
     public static double wheelSpeedMinSA = 0.8;
     private double wheelSpeed = wheelSpeedMax;
     public static double rotationalSpeed = 0.2;
@@ -94,6 +95,7 @@ public class MainV5 extends LinearOpMode {
     // states
     private static ExtendArmStates extendArmState = ExtendArmStates.FLOATING;
     private static PresetStates presetState = PresetStates.NO_PRESET;
+    private static RotationStates rotationState = RotationStates.MIDDLE;
     // presets
     @Config("MainV5 Presets")
     public static class presets {
@@ -200,7 +202,7 @@ public class MainV5 extends LinearOpMode {
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
         Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
         // sa
-        Servo submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
+        Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 2x axon
         Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon
         Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
@@ -211,11 +213,11 @@ public class MainV5 extends LinearOpMode {
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
-        submersibleArm1.scaleRange(0.45, 1);
+        submersibleArm.scaleRange(0.45, 1);
         swiper.scaleRange(0.3, 0.87);
         // turn on pwm servos
         arm.getController().pwmEnable();
-        submersibleArm1.getController().pwmEnable();
+        submersibleArm.getController().pwmEnable();
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -282,7 +284,7 @@ public class MainV5 extends LinearOpMode {
                 claw1.setPosition(clawCpos1);
                 claw2.setPosition(clawCpos2);
                 arm.setPosition(armCpos);
-                submersibleArm1.setPosition(subArmCpos);
+                submersibleArm.setPosition(subArmCpos);
                 swiper.setPosition(swiperCpos);
                 rotation.setPosition(rotationalCpos);
                 // field side
@@ -352,7 +354,7 @@ public class MainV5 extends LinearOpMode {
                 // states
                 if (Math.abs(eaInches1 - eaLimitHigh) < 1 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
                     extendArmState = ExtendArmStates.MAX_POS;
-                } else if (Math.abs(eaInches1 - eaLimitLow) < 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET && extendArmState != ExtendArmStates.RESETTING_ZERO_POS && extendArmState != ExtendArmStates.ZERO_POS_RESET && extendArmState != ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
+                } else if (Math.abs(eaInches1 - eaLimitLow) < 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET && extendArmState != ExtendArmStates.RESETTING_ZERO_POS && extendArmState != ExtendArmStates.ZERO_POS_RESET && extendArmState != ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION && presetState != PresetStates.L2_HANG) {
                     extendArmState = ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION;
                     resetTimer.reset();
                 }
@@ -403,11 +405,15 @@ public class MainV5 extends LinearOpMode {
                         break;
                     case HIGH_BASKET:
                         applyPreset(MainV5.presets.highBasket);
-                        presetState = PresetStates.NO_PRESET;
+                        if (clawCpos1 == 0) {
+                            presetState = PresetStates.TRANSITION;
+                        }
                         break;
                     case LOW_BASKET:
                         applyPreset(MainV5.presets.lowBasket);
-                        presetState = PresetStates.NO_PRESET;
+                        if (clawCpos1 == 0) {
+                            presetState = PresetStates.TRANSITION;
+                        }
                         break;
                     case TRANSITION:
                         applyPreset(MainV5.presets.transition);
@@ -422,8 +428,8 @@ public class MainV5 extends LinearOpMode {
                     case L2_HANG:
                         double target = MainV5.presets.hang.extendArm != -1.0 ? MainV5.presets.hang.extendArm : eaInches1;
                         if (Math.abs(eaInches1 - target) <= 2) {
-                            extendArm1.setPower(-0.5);
-                            extendArm2.setPower(-0.5);
+                            extendArm1.setPower(-0.8);
+                            extendArm2.setPower(-0.8);
                         }
                         break;
                 }
@@ -433,7 +439,7 @@ public class MainV5 extends LinearOpMode {
                  *   X / ▢         - Transition from Submersible arm to Extend arm
                  *   Y / Δ         - L2 hang
                  *   B / O         - Grab from Human Player Preset
-                 *   A / X         - EMPTY
+                 *   A / X         - Grab using Limelight
                  *
                  *                    ________
                  *                   / ______ \\
@@ -465,6 +471,15 @@ public class MainV5 extends LinearOpMode {
                         applyPreset(MainV5.presets.hang);
                         presetState = PresetStates.L2_HANG;
                     }
+                }
+                // limelight
+                if (currentGamepad1.a && !previousGamepad1.a) {
+                    /*
+                    subArmCpos = limelight.getSubArmPos();
+                    rotationCpos = limelight.getRotationPos();
+                    */
+                    wristCpos2 = 0;
+                    clawCpos2 = 0;
                 }
                 /**
                  * GAMEPAD 2
@@ -544,12 +559,22 @@ public class MainV5 extends LinearOpMode {
                     wristCpos1 = 0.42;
                 }
                 // rotate
-                if (gamepad1.right_trigger > 0) {
-                    rotationalCpos += rotationalSpeed;
-                    if (rotationalCpos > 0.7) rotationalCpos = 0.7;
-                } else if (gamepad1.left_trigger > 0) {
-                    rotationalCpos -= rotationalSpeed;
-                    if (rotationalCpos < 0.2) rotationalCpos = 0.2;
+                if (currentGamepad1.right_trigger > 0 && !(previousGamepad1.right_trigger > 0)) {
+                    if (rotationState == RotationStates.MIDDLE) {
+                        rotationalCpos = 0.7;
+                        rotationState = RotationStates.RIGHT;
+                    } else if (rotationState == RotationStates.LEFT) {
+                        rotationalCpos = 0.5;
+                        rotationState = RotationStates.MIDDLE;
+                    }
+                } else if (currentGamepad1.left_trigger > 0 && !(previousGamepad1.left_trigger > 0)) {
+                    if (rotationState == RotationStates.MIDDLE) {
+                        rotationalCpos = 0.2;
+                        rotationState = RotationStates.LEFT;
+                    } else if (rotationState == RotationStates.RIGHT) {
+                        rotationalCpos = 0.5;
+                        rotationState = RotationStates.MIDDLE;
+                    }
                 }
                 // extendArm and subArm slowdown
                 if (eaInches1 >= eaLimitHigh / 2) {
@@ -583,7 +608,7 @@ public class MainV5 extends LinearOpMode {
                 telemetryM.addData(true, "DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
                 telemetryM.addData(true, "Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
                 telemetryM.addData(true, "Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
-                telemetryM.addData(true, "Submersible Arm Position1:", submersibleArm1.getPosition());
+                telemetryM.addData(true, "Submersible Arm Position:", submersibleArm.getPosition());
                 telemetryM.addData(true, "Wrist Position1:", wrist1.getPosition());
                 telemetryM.addData(true, "Wrist Position2:", wrist2.getPosition());
                 telemetryM.addData(true, "Claw Position1:", claw1.getPosition());
@@ -602,7 +627,7 @@ public class MainV5 extends LinearOpMode {
             // stop code
             // turn off servos on the servo hub or spm if we get them
             arm.getController().pwmDisable();
-            submersibleArm1.getController().pwmDisable();
+            submersibleArm.getController().pwmDisable();
         }
     }
     // preset controls
