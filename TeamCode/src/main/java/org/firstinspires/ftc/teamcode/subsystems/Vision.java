@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.subsystems;
 import androidx.core.math.MathUtils;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.arcrobotics.ftclib.geometry.Pose2d;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.pathgen.BezierLine;
@@ -16,11 +15,11 @@ import xyz.nin1275.utils.Timer;
 @Config
 public class Vision {
     public static class Limelight {
-        private Limelight3A limelight;
+        private final Limelight3A limelight;
         private LimelightState llState;
         private Follower follower = null;
-        private boolean validResult = false;
-        private double tx = 0, ty = 0;
+        boolean validResult = false;
+        private double tx = -1, ty = -1;
         public static double CAMERA_VERTICAL_CENTER_OFFSET = -14.5;
         public static double CAMERA_HORIZONTAL_CENTER_OFFSET = -5;
         public static double STRAFE_SCALE = 20.0;
@@ -50,20 +49,24 @@ public class Vision {
                 tx = ((result.getTx() - CAMERA_HORIZONTAL_CENTER_OFFSET + 27) / 54.0) * distanceScale;
                 ty = (result.getTy() - CAMERA_VERTICAL_CENTER_OFFSET + 20) / 40.0;
                 llState = LimelightState.FOUND_SAMPLE;
-            } else llState = LimelightState.NO_SAMPLE_FOUND;
+            } else {
+                tx = -1;
+                ty = -1;
+                llState = LimelightState.NO_SAMPLE_FOUND;
+            }
         }
         // getters
         public double getRotation() {
-            return MathUtils.clamp(tx, 0.0, 1.0);
+            return tx == -1 ? -1 : MathUtils.clamp(tx, 0.0, 1.0);
         }
         public double getSubmersible() {
-            return 1.0 - MathUtils.clamp(ty, 0.0, 1.0);
+            return ty == -1 ? -1 : 1.0 - MathUtils.clamp(ty, 0.0, 1.0);
         }
         public LimelightState getState() {
             return llState;
         }
         public void strafe() {
-            if (follower != null) {
+            if (follower != null && getRotation() != -1) {
                 double offset = (getRotation() - 0.5) * STRAFE_SCALE; // Negative = left, Positive = right
                 Pose currentPose = follower.getPose();
                 Pose targetPose = new Pose(

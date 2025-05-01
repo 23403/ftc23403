@@ -263,6 +263,7 @@ public class MainV5 extends LinearOpMode {
             follower.startTeleopDrive();
             while (opModeIsActive()) {
                 // variables
+                limelight.update();
                 llState = limelight.getState();
                 extendArmState = extendArmSS.getState();
                 extendArmSS.setEaCorrection(eaCorrection);
