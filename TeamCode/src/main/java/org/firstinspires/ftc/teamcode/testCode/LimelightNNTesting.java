@@ -24,18 +24,21 @@ public class LimelightNNTesting extends LinearOpMode {
         Servo subArm = hardwareMap.get(Servo.class, "subArm");
         subArm.scaleRange(0.45, 1);
         rotation.scaleRange(0.43, 0.55);
-        subArm.setPosition(0.75);
+        subArm.setPosition(0);
         rotation.setPosition(0.5);
         Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState);
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad previousGamepad1 = new Gamepad();
         llState = limelight.getState();
+        telemetry.addData("llState", llState);
+        telemetry.update();
         waitForStart();
         while (opModeIsActive()) {
             // gamepad stuff
             previousGamepad1.copy(currentGamepad1);
             currentGamepad1.copy(gamepad1);
             limelight.update();
+            llState = limelight.getState();
             // limelight
             if (currentGamepad1.a && !previousGamepad1.a) {
                 limelight.setState(LimelightState.MOVING_TO_SAMPLE);
@@ -45,6 +48,11 @@ public class LimelightNNTesting extends LinearOpMode {
                 Timer.wait(200);
                 limelight.setState(LimelightState.SAMPLE_REACHED);
             }
+            if (gamepad1.b) {
+                subArm.setPosition(0);
+                rotation.setPosition(0.5);
+            }
+            telemetry.addData("llState", llState);
             telemetry.update();
         }
     }
