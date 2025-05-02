@@ -118,7 +118,7 @@ public class outreachTeleOp extends LinearOpMode {
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
         Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
         // sa
-        Servo submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
+        Servo submersibleArm1 = hardwareMap.get(Servo.class, "subArm"); // 1x axon
         Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon
         Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed

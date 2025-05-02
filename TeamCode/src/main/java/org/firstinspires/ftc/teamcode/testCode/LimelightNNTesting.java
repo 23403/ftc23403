@@ -21,7 +21,7 @@ public class LimelightNNTesting extends LinearOpMode {
     public void runOpMode() {
         Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         Servo rotation = hardwareMap.get(Servo.class, "rotation");
-        Servo subArm = hardwareMap.get(Servo.class, "subArm1");
+        Servo subArm = hardwareMap.get(Servo.class, "subArm");
         subArm.scaleRange(0.45, 1);
         rotation.scaleRange(0.43, 0.55);
         subArm.setPosition(0.75);

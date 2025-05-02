@@ -130,8 +130,8 @@ public class MainV3 extends LinearOpMode {
         DcMotor leftFrontDrive = hardwareMap.dcMotor.get("leftFront");
         DcMotor extendArm1 = hardwareMap.dcMotor.get("ExtendArm1");
         DcMotor extendArm2 = hardwareMap.dcMotor.get("ExtendArm2");
-        DcMotor submersibleArm1 = hardwareMap.dcMotor.get("SubArm1");
-        DcMotor submersibleArm2 = hardwareMap.dcMotor.get("SubArm2");
+        DcMotor submersibleArm1 = hardwareMap.dcMotor.get("subArm");
+        DcMotor submersibleArm2 = hardwareMap.dcMotor.get("subArm");
         // servos
         Servo sweeper = hardwareMap.get(Servo.class, "sweeper");
         // ea

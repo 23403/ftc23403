@@ -398,16 +398,16 @@ public class MainV5 extends LinearOpMode {
                 // limelight
                 if (currentGamepad1.a && !previousGamepad1.a && !gamepad1.options) {
                     limelight.setState(LimelightState.MOVING_TO_SAMPLE);
-                    clawCpos2 = 0;
-                    wristCpos2 = 0.5;
+                    // clawCpos2 = 0;
+                    // wristCpos2 = 0.5;
                     subArmCpos = limelight.getSubmersible();
                     rotationalCpos = limelight.getRotation();
                     limelight.strafe();
                     Timer.wait(200);
-                    wristCpos2 = 0;
-                    clawCpos2 = 1;
+                    // wristCpos2 = 0;
+                    // clawCpos2 = 1;
                     limelight.setState(LimelightState.SAMPLE_REACHED);
-                    presetState = PresetStates.TRANSITION;
+                    // presetState = PresetStates.TRANSITION;
                 }
                 /**
                  * GAMEPAD 2

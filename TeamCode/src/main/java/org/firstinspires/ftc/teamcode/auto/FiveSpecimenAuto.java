@@ -61,7 +61,7 @@ public class FiveSpecimenAuto extends OpMode {
     private Servo arm; // 2x axon
     private Servo wrist1; // 1x axon
     private Servo claw1; // 1x axon
-    private Servo submersibleArm1; // 1x axon
+    private Servo submersibleArm; // 2x axon
     private Servo submersibleArm2; // 1x axon
     private Servo wrist2; // 1x axon
     private Servo claw2; // 1x goBilda speed
@@ -396,8 +396,8 @@ public class FiveSpecimenAuto extends OpMode {
         wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
         claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
         // sa
-        submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
-        submersibleArm2 = hardwareMap.get(Servo.class, "subArm2"); // 1x axon
+        submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 1x axon
+        submersibleArm2 = hardwareMap.get(Servo.class, "subArm"); // 1x axon
         wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 25kg
         claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
@@ -411,7 +411,7 @@ public class FiveSpecimenAuto extends OpMode {
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
-        submersibleArm1.scaleRange(0.45, 1);
+        submersibleArm.scaleRange(0.45, 1);
         swiper.scaleRange(0.3, 0.83);
         // extendArm
         Motors.resetEncoders(extendArm1, extendArm2);
@@ -457,7 +457,7 @@ public class FiveSpecimenAuto extends OpMode {
         claw1.setPosition(clawCpos1);
         claw2.setPosition(clawCpos2);
         arm.setPosition(armCpos);
-        submersibleArm1.setPosition(subArmCpos);
+        submersibleArm.setPosition(subArmCpos);
         swiper.setPosition(swiperCpos);
         rotation.setPosition(rotationalCpos);
         // extendArm code
