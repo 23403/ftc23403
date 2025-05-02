@@ -24,8 +24,6 @@ import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
 import com.pedropathing.localization.PoseUpdater;
-import com.pedropathing.pathgen.BezierLine;
-import com.pedropathing.pathgen.Path;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
@@ -43,7 +41,6 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
-import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 import org.firstinspires.ftc.teamcode.variables.enums.PresetStates;
 import org.firstinspires.ftc.teamcode.variables.enums.RotationStates;
 
@@ -83,7 +80,6 @@ public class MainV5 extends LinearOpMode {
     public static double wheelSpeedMinEA = 0.7;
     public static double wheelSpeedMinSA = 0.8;
     private double wheelSpeed = wheelSpeedMax;
-    public static double rotationalSpeed = 0.2;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
@@ -400,7 +396,7 @@ public class MainV5 extends LinearOpMode {
                     }
                 }
                 // limelight
-                if (currentGamepad1.a && !previousGamepad1.a) {
+                if (currentGamepad1.a && !previousGamepad1.a && !gamepad1.options) {
                     limelight.setState(LimelightState.MOVING_TO_SAMPLE);
                     clawCpos2 = 0;
                     wristCpos2 = 0.5;
@@ -446,7 +442,7 @@ public class MainV5 extends LinearOpMode {
                     presetState = PresetStates.TRANSITION;
                 }
                 // specimen preset
-                if (currentGamepad2.b && !previousGamepad2.b) {
+                if (currentGamepad2.b && !previousGamepad2.b && !gamepad1.options) {
                     if (presetState == PresetStates.NO_PRESET) {
                         applyPreset(MainV5.presets.preSpecimen);
                         presetState = PresetStates.PRE_SPECIMEN_SCORE;
@@ -529,6 +525,8 @@ public class MainV5 extends LinearOpMode {
                 telemetryM.addLine("BEASTKIT Team 23403!");
                 telemetryM.addData(true, "extendArmState", extendArmState);
                 telemetryM.addData(true, "presetState", presetState);
+                telemetryM.addData(true, "rotationState", rotationState);
+                telemetryM.addData(true, "llState", llState);
                 telemetryM.addData(true, "PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
                 telemetryM.addData(true, "target", slidesTARGET);
                 telemetryM.addData(true, "eaCpos1", extendArmSS.getInches1());

@@ -17,7 +17,7 @@ public class FiveSpecimenAutoPushPaths {
     public static final Pose startPos = new Pose(9, 63.4, Math.toRadians(0));
     /* line1 */
     public static PPPoint.beizerLine preloadPoints = new PPPoint.beizerLine(
-            37.1,
+            33,
             61.1,
             0
     );
@@ -70,7 +70,7 @@ public class FiveSpecimenAutoPushPaths {
     /* line4f */
     public static PPPoint.beizerLine pushBlock3Points = new PPPoint.beizerLine(
             17.3,
-            11.8,
+            13.3,
             0
     );
     /* line5 */
@@ -81,7 +81,7 @@ public class FiveSpecimenAutoPushPaths {
     );
     /* line6 */
     public static PPPoint.beizerLine grabSpecimen2Points = new PPPoint.beizerLine(
-            18.5,
+            17.5,
             35.8,
             0
     );
