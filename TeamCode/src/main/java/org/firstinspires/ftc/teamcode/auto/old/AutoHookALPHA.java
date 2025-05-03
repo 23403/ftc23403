@@ -259,40 +259,40 @@ public class AutoHookALPHA extends OpMode {
         extendArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
     private void submersibleArmMove(int dis1, int dis2, double power) {
-        DcMotor submersibleArm1 = hardwareMap.dcMotor.get("SubArm1");
-        DcMotor submersibleArm2 = hardwareMap.dcMotor.get("SubArm2");
+        DcMotor submersibleArm = hardwareMap.dcMotor.get("subArm");
+        DcMotor submersibleArm2 = hardwareMap.dcMotor.get("subArm");
         // stuff
-        submersibleArm1.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        submersibleArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         submersibleArm2.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         // formula
         submersibleArm2.setDirection(DcMotor.Direction.REVERSE);
         // reset pos
-        submersibleArm1.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        submersibleArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         submersibleArm2.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         // target
-        submersibleArm1.setTargetPosition(dis1);
+        submersibleArm.setTargetPosition(dis1);
         submersibleArm2.setTargetPosition(dis2);
         // move moters
-        submersibleArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        submersibleArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         submersibleArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         // power
-        submersibleArm1.setPower(power);
+        submersibleArm.setPower(power);
         submersibleArm2.setPower(power);
         int saCpos1 = 0;
         int saCpos2 = 0;
-        while (submersibleArm1.isBusy() || submersibleArm2.isBusy()) {
-            telemetry.addData("SubmersibleArm1Pos:", submersibleArm1.getCurrentPosition());
+        while (submersibleArm.isBusy() || submersibleArm2.isBusy()) {
+            telemetry.addData("submersibleArmPos:", submersibleArm.getCurrentPosition());
             telemetry.addData("SubmersibleArm2Pos:", submersibleArm2.getCurrentPosition());
             telemetry.update();
-            saCpos1 = submersibleArm1.getCurrentPosition();
+            saCpos1 = submersibleArm.getCurrentPosition();
             saCpos2 = submersibleArm2.getCurrentPosition();
         }
         // stop
-        submersibleArm1.setTargetPosition(saCpos1);
+        submersibleArm.setTargetPosition(saCpos1);
         submersibleArm2.setTargetPosition(saCpos2);
-        submersibleArm1.setPower(1);
+        submersibleArm.setPower(1);
         submersibleArm2.setPower(1);
-        submersibleArm1.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        submersibleArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         submersibleArm2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
     }
     private void turn(int dis, double power) {

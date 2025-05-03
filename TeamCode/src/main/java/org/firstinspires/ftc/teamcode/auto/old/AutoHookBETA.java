@@ -55,7 +55,7 @@ public class AutoHookBETA extends OpMode {
     public Servo wrist1; // axon
     public Servo wrist2; // 20kg
     public Servo sweeper; // goBilda torque
-    public Servo submersibleArm1; // axon
+    public Servo submersibleArm; // axon
     public Servo arm; // axon
     // servo positions
     public static double wristCpos1 = 0.38;
@@ -520,7 +520,7 @@ public class AutoHookBETA extends OpMode {
         wrist1.setPosition(wristCpos1);
         wrist2.setPosition(wristCpos2);
         sweeper.setPosition(sweeperCpos);
-        submersibleArm1.setPosition(subArmCpos);
+        submersibleArm.setPosition(subArmCpos);
         arm.setPosition(armCpos);
         // extendArm code
         controller.setPID(PIDTuneSlides.P, PIDTuneSlides.I, PIDTuneSlides.D);
@@ -566,7 +566,7 @@ public class AutoHookBETA extends OpMode {
         wrist1 = hardwareMap.get(Servo.class, "wrist1"); // axon
         wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 20kg
         sweeper = hardwareMap.get(Servo.class, "sweeper"); // goBilda torque
-        submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // axon
+        submersibleArm = hardwareMap.get(Servo.class, "subArm"); // axon
         arm = hardwareMap.get(Servo.class, "arm"); // axon
         // directions
         sweeper.setDirection(Servo.Direction.REVERSE);
