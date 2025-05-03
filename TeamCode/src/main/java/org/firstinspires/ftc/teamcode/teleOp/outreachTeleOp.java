@@ -18,7 +18,6 @@ import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.bylazar.ftcontrol.panels.configurables.annotations.Configurable;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.Pose;
@@ -33,17 +32,21 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
+import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
-import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 import org.firstinspires.ftc.teamcode.variables.enums.PresetStates;
+import org.firstinspires.ftc.teamcode.variables.enums.RotationStates;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
+import xyz.nin1275.controllers.PID;
+import xyz.nin1275.enums.SlidersStates;
+import xyz.nin1275.subsystems.SlidesSS;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Timer;
@@ -67,12 +70,11 @@ public class outreachTeleOp extends LinearOpMode {
     public static double rotationalCpos = 0.5;
     // misc
     public static boolean redSide = true;
-    public static boolean debugMode = true;
+    public static boolean debugMode = false;
     public static double wheelSpeedMax = 1;
     public static double wheelSpeedMinEA = 0.4;
     public static double wheelSpeedMinSA = 0.8;
     private double wheelSpeed = wheelSpeedMax;
-    public static double rotationalSpeed = 0.2;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
@@ -80,24 +82,24 @@ public class outreachTeleOp extends LinearOpMode {
     public static double eaLimitHigh = 33.6;
     public static double eaLimitLow = 0;
     public static boolean eaCorrection = true;
-    public static int eaTicks1 = 0;
-    public static int eaTicks2 = 0;
-    public static double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
-    public static double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
-    ElapsedTime resetTimer = new ElapsedTime();
+    public static SlidesSS extendArmSS;
     // states
-    private static ExtendArmStates extendArmState = ExtendArmStates.FLOATING;
+    SlidersStates extendArmState = SlidersStates.FLOATING;
     private static PresetStates presetState = PresetStates.NO_PRESET;
+    private static RotationStates rotationState = RotationStates.MIDDLE;
+    LimelightState llState = LimelightState.INIT;
+
     @Override
     public void runOpMode() {
         // hardware
         Follower follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
-        PIDController controller = new PIDController(Math.sqrt(P), I, D);
+        PID controller = new PID(Math.sqrt(P), I, D);
         ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         TelemetryM telemetryM = new TelemetryM(telemetry, debugMode);
         Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+        Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState, follower);
         LynxUtils.initLynx(hardwareMap);
         // gamepads
         Gamepad currentGamepad1 = new Gamepad();
@@ -118,7 +120,7 @@ public class outreachTeleOp extends LinearOpMode {
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
         Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
         // sa
-        Servo submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon
+        Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 2x axon
         Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon
         Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
@@ -129,11 +131,11 @@ public class outreachTeleOp extends LinearOpMode {
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
-        submersibleArm1.scaleRange(0.45, 1);
+        submersibleArm.scaleRange(0.45, 1);
         swiper.scaleRange(0.3, 0.87);
         // turn on pwm servos
         arm.getController().pwmEnable();
-        submersibleArm1.getController().pwmEnable();
+        submersibleArm.getController().pwmEnable();
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -165,17 +167,8 @@ public class outreachTeleOp extends LinearOpMode {
         DashboardPoseTracker dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();
-        // reset slides 0 pos
-        resetTimer.reset();
-        while (resetTimer.milliseconds() < 500) {
-            extendArm1.setPower(-0.4);
-            extendArm2.setPower(-0.4);
-        }
-        extendArm1.setPower(0);
-        extendArm2.setPower(0);
-        Motors.resetEncoders(extendArm1, extendArm2);
-        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
-        resetTimer.reset();
+        // setup slides
+        extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection, false);
         // telemetry
         telemetryM.addLine("BEASTKIT Team 23403!");
         telemetryM.update();
@@ -184,6 +177,12 @@ public class outreachTeleOp extends LinearOpMode {
             follower.startTeleopDrive();
             while (opModeIsActive()) {
                 // variables
+                limelight.update();
+                llState = limelight.getState();
+                extendArmState = extendArmSS.getState();
+                extendArmSS.setEaCorrection(eaCorrection);
+                extendArmSS.setLimits(MainV5.eaLimitHigh, MainV5.eaLimitLow);
+                limelight.setFollower(follower);
                 telemetryM.setDebug(debugMode);
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
                 // gamepad stuff
@@ -197,7 +196,7 @@ public class outreachTeleOp extends LinearOpMode {
                 claw1.setPosition(clawCpos1);
                 claw2.setPosition(clawCpos2);
                 arm.setPosition(armCpos);
-                submersibleArm1.setPosition(subArmCpos);
+                submersibleArm.setPosition(subArmCpos);
                 swiper.setPosition(swiperCpos);
                 rotation.setPosition(rotationalCpos);
                 // field side
@@ -226,79 +225,8 @@ public class outreachTeleOp extends LinearOpMode {
                     follower.update();
                 }
                 // extendArm code
-                controller.setPID(Math.sqrt(P), I, D);
-                // Get current positions
-                eaTicks1 = extendArm1.getCurrentPosition();
-                eaTicks2 = extendArm2.getCurrentPosition();
-                // Convert ticks to inches
-                eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
-                eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
-                // vars
-                double ff = eaCorrection ? F : 0;
-                // controls
-                if (gamepad2.dpad_up && eaInches1 < eaLimitHigh) {
-                    double pid = controller.calculate(eaInches1, eaLimitHigh);
-                    double rawPower = pid + ff;
-                    double syncError = eaInches1 - eaInches2;
-                    double correction = syncError * K;
-                    extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
-                    extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
-                    extendArmState = ExtendArmStates.MANUAL_MOVEMENT;
-                    presetState = PresetStates.NO_PRESET;
-                } else if (gamepad2.dpad_down && eaInches1 > eaLimitLow) {
-                    double pid = controller.calculate(eaInches1, eaLimitLow);
-                    double rawPower = pid + ff;
-                    double syncError = eaInches1 - eaInches2;
-                    double correction = syncError * K;
-                    extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
-                    extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
-                    extendArmState = ExtendArmStates.MANUAL_MOVEMENT;
-                    presetState = PresetStates.NO_PRESET;
-                } else if (Math.abs(eaInches1 - eaLimitLow) > 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET && presetState != PresetStates.L2_HANG) {
-                    extendArm1.setPower(ff);
-                    extendArm2.setPower(ff);
-                    if (extendArmState == ExtendArmStates.PRESET_REACHED) Timer.wait(500);
-                    extendArmState = eaCorrection ? ExtendArmStates.FORCE_FEED_BACK : ExtendArmStates.FLOATING;
-                }
-                // states
-                if (Math.abs(eaInches1 - eaLimitHigh) < 1 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
-                    extendArmState = ExtendArmStates.MAX_POS;
-                } else if (Math.abs(eaInches1 - eaLimitLow) < 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET && extendArmState != ExtendArmStates.RESETTING_ZERO_POS && extendArmState != ExtendArmStates.ZERO_POS_RESET && extendArmState != ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-                    extendArmState = ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION;
-                    resetTimer.reset();
-                }
-                // pre resetting slides pos
-                if (extendArmState == ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-                    if (resetTimer.milliseconds() > 200 && Math.abs(eaInches1 - eaLimitLow) < 2) {
-                        extendArmState = ExtendArmStates.RESETTING_ZERO_POS;
-                        resetTimer.reset();
-                    }
-                }
-                // reset slides 0 pos
-                if (extendArmState == ExtendArmStates.RESETTING_ZERO_POS) {
-                    if (resetTimer.milliseconds() < 200) {
-                        extendArm1.setPower(-0.1);
-                        extendArm2.setPower(-0.1);
-                    } else {
-                        extendArm1.setPower(0);
-                        extendArm2.setPower(0);
-                        Motors.resetEncoders(extendArm1, extendArm2);
-                        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
-                        extendArmState = ExtendArmStates.ZERO_POS_RESET;
-                    }
-                }
-                // preset controls
-                if (extendArmState == ExtendArmStates.MOVING_TO_PRESET) {
-                    double pid = controller.calculate(eaInches1, slidesTARGET);
-                    double rawPower = pid + ff;
-                    double syncError = eaInches1 - eaInches2;
-                    double correction = syncError * K;
-                    extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
-                    extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
-                    // check if we are at the target by 50 encoders
-                    if (Math.abs(eaInches1 - slidesTARGET) < 1) {
-                        extendArmState = ExtendArmStates.PRESET_REACHED;
-                    }
+                if (presetState != PresetStates.L2_HANG) {
+                    extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
                 }
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
@@ -314,27 +242,31 @@ public class outreachTeleOp extends LinearOpMode {
                         break;
                     case HIGH_BASKET:
                         applyPreset(MainV5.presets.highBasket);
-                        presetState = PresetStates.NO_PRESET;
+                        if (clawCpos1 == 0) {
+                            presetState = PresetStates.TRANSITION;
+                        }
                         break;
                     case LOW_BASKET:
                         applyPreset(MainV5.presets.lowBasket);
-                        presetState = PresetStates.NO_PRESET;
+                        if (clawCpos1 == 0) {
+                            presetState = PresetStates.TRANSITION;
+                        }
                         break;
                     case TRANSITION:
                         applyPreset(MainV5.presets.transition);
                         presetState = PresetStates.NO_PRESET;
                         break;
                     case SCORE_SPECIMEN:
-                        double scoreTarget = MainV5.presets.scoreSpecimen.extendArm != -1.0 ? MainV5.presets.scoreSpecimen.extendArm : eaInches1;
-                        if (Math.abs(eaInches1 - scoreTarget) <= 2) {
+                        double scoreTarget = MainV5.presets.scoreSpecimen.extendArm != -1.0 ? MainV5.presets.scoreSpecimen.extendArm : extendArmSS.getInches1();
+                        if (Math.abs(extendArmSS.getInches1() - scoreTarget) <= 2) {
                             presetState = PresetStates.HUMAN_PLAYER;
                         }
                         break;
                     case L2_HANG:
-                        double target = MainV5.presets.hang.extendArm != -1.0 ? MainV5.presets.hang.extendArm : eaInches1;
-                        if (Math.abs(eaInches1 - target) <= 2) {
-                            extendArm1.setPower(-0.5);
-                            extendArm2.setPower(-0.5);
+                        double target = MainV5.presets.hang.extendArm != -1.0 ? MainV5.presets.hang.extendArm : extendArmSS.getInches1();
+                        if (Math.abs(extendArmSS.getInches1() - target) <= 2) {
+                            extendArm1.setPower(-0.8);
+                            extendArm2.setPower(-0.8);
                         }
                         break;
                 }
@@ -344,7 +276,7 @@ public class outreachTeleOp extends LinearOpMode {
                  *   X / ▢         - Transition from Submersible arm to Extend arm
                  *   Y / Δ         - L2 hang
                  *   B / O         - Grab from Human Player Preset
-                 *   A / X         - EMPTY
+                 *   A / X         - Grab using Limelight
                  *
                  *                    ________
                  *                   / ______ \\
@@ -376,6 +308,20 @@ public class outreachTeleOp extends LinearOpMode {
                         applyPreset(MainV5.presets.hang);
                         presetState = PresetStates.L2_HANG;
                     }
+                }
+                // limelight
+                if (currentGamepad1.a && !previousGamepad1.a && !gamepad1.options) {
+                    limelight.setState(LimelightState.MOVING_TO_SAMPLE);
+                    clawCpos2 = 0;
+                    wristCpos2 = 0.5;
+                    subArmCpos = limelight.getSubmersible();
+                    rotationalCpos = limelight.getRotation();
+                    limelight.strafe();
+                    Timer.wait(200);
+                    wristCpos2 = 0;
+                    clawCpos2 = 1;
+                    limelight.setState(LimelightState.SAMPLE_REACHED);
+                    presetState = PresetStates.TRANSITION;
                 }
                 /**
                  * GAMEPAD 2
@@ -410,7 +356,7 @@ public class outreachTeleOp extends LinearOpMode {
                     presetState = PresetStates.TRANSITION;
                 }
                 // specimen preset
-                if (currentGamepad2.b && !previousGamepad2.b) {
+                if (currentGamepad2.b && !previousGamepad2.b && !gamepad1.options) {
                     if (presetState == PresetStates.NO_PRESET) {
                         applyPreset(MainV5.presets.preSpecimen);
                         presetState = PresetStates.PRE_SPECIMEN_SCORE;
@@ -442,16 +388,26 @@ public class outreachTeleOp extends LinearOpMode {
                     wristCpos2 = 1;
                 }
                 // rotate
-                if (gamepad1.right_trigger > 0) {
-                    rotationalCpos += rotationalSpeed;
-                    if (rotationalCpos > 0.7) rotationalCpos = 0.7;
-                } else if (gamepad1.left_trigger > 0) {
-                    rotationalCpos -= rotationalSpeed;
-                    if (rotationalCpos < 0.2) rotationalCpos = 0.2;
+                if (currentGamepad1.right_trigger > 0 && !(previousGamepad1.right_trigger > 0)) {
+                    if (rotationState == RotationStates.MIDDLE) {
+                        rotationalCpos = 0.7;
+                        rotationState = RotationStates.RIGHT;
+                    } else if (rotationState == RotationStates.LEFT) {
+                        rotationalCpos = 0.5;
+                        rotationState = RotationStates.MIDDLE;
+                    }
+                } else if (currentGamepad1.left_trigger > 0 && !(previousGamepad1.left_trigger > 0)) {
+                    if (rotationState == RotationStates.MIDDLE) {
+                        rotationalCpos = 0.2;
+                        rotationState = RotationStates.LEFT;
+                    } else if (rotationState == RotationStates.RIGHT) {
+                        rotationalCpos = 0.5;
+                        rotationState = RotationStates.MIDDLE;
+                    }
                 }
                 // extendArm and subArm slowdown
-                if (eaInches1 >= eaLimitHigh / 2) {
-                    double ratio = (eaLimitHigh - eaInches1) / (eaLimitHigh - (eaLimitHigh / 2));
+                if (extendArmSS.getInches1() >= eaLimitHigh / 2) {
+                    double ratio = (eaLimitHigh - extendArmSS.getInches1()) / (eaLimitHigh - (eaLimitHigh / 2));
                     wheelSpeed = wheelSpeedMinEA + ratio * (wheelSpeedMax - wheelSpeedMinEA);
                 } else if (subArmCpos < 0.35) {
                     double subArmRatio = subArmCpos / 0.35;  // 1 when at 0.35, 0 when at 0
@@ -475,13 +431,13 @@ public class outreachTeleOp extends LinearOpMode {
             // stop code
             // turn off servos on the servo hub or spm if we get them
             arm.getController().pwmDisable();
-            submersibleArm1.getController().pwmDisable();
+            submersibleArm.getController().pwmDisable();
         }
     }
     // preset controls
     public void applyPreset(CustomPresets preset) {
         // use correction code cuz its easier fr fr
-        slidesTARGET = preset.extendArm != -1.0 ? preset.extendArm : eaInches1;
+        slidesTARGET = preset.extendArm != -1.0 ? preset.extendArm : extendArmSS.getInches1();
         subArmCpos = preset.subArm != -1.0 ? preset.subArm : subArmCpos;
         clawCpos2 = preset.claw2 != -1.0 ? preset.claw2 : clawCpos2;
         wristCpos2 = preset.wrist2 != -1.0 ? preset.wrist2 : wristCpos2;
@@ -489,6 +445,6 @@ public class outreachTeleOp extends LinearOpMode {
         clawCpos1 = preset.claw1 != -1.0 ? preset.claw1 : clawCpos1;
         armCpos = preset.arm != -1.0 ? preset.arm : armCpos;
         rotationalCpos = preset.rotational != -1.0 ? preset.rotational : rotationalCpos;
-        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
+        extendArmSS.moveTo(slidesTARGET);
     }
 }

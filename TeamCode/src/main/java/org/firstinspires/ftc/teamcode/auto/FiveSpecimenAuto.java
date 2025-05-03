@@ -1,18 +1,16 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.teleOp.MainV5.eaLimitHigh;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
-import com.arcrobotics.ftclib.controller.PIDController;
 import com.pedropathing.follower.Follower;
 import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.localization.constants.ThreeWheelIMUConstants;
@@ -26,14 +24,16 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.auto.paths.FiveSpecimenAutoPushPaths;
+import org.firstinspires.ftc.teamcode.teleOp.MainV5;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
-import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
+import xyz.nin1275.controllers.PID;
+import xyz.nin1275.enums.SlidersStates;
+import xyz.nin1275.subsystems.SlidesSS;
 import xyz.nin1275.utils.Calibrate;
-import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Timer;
 
 /**
@@ -54,6 +54,8 @@ public class FiveSpecimenAuto extends OpMode {
     public static Integer pauses = 200;
     private DashboardPoseTracker dashboardPoseTracker;
     private PoseUpdater poseUpdater;
+    ElapsedTime autoTimeE = new ElapsedTime();
+    private double autoTime;
     /** store the state of our auto. **/
     private int pathState;
     // servos
@@ -75,19 +77,11 @@ public class FiveSpecimenAuto extends OpMode {
     public static double armCpos = 0.23;
     public static double subArmCpos = 1;
     public static double rotationalCpos = 0.5;
-    // extendArm
-    private PIDController controller;
     private DcMotorEx extendArm1;
     private DcMotorEx extendArm2;
-    private static double slidesTARGET = 0;
-    private static ExtendArmStates extendArmState = ExtendArmStates.FLOATING;
-    ElapsedTime resetTimer = new ElapsedTime();
-    // Get current positions
-    int eaTicks1 = 0;
-    int eaTicks2 = 0;
-    // Convert ticks to inches
-    double eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
-    double eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
+    private static SlidersStates extendArmState = SlidersStates.FLOATING;
+    private static SlidesSS extendArmSS;
+    public static boolean eaCorrection = true;
     /* preload lines */
     boolean preloadStarted = false;
     boolean grabSpecimen1Started = false;
@@ -112,10 +106,10 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(FiveSpecimenAutoPushPaths.preload(), false);
                     preloadStarted = true;
                 }
-                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
-                    if (Math.abs(eaInches1 - 18.3) > 2) {
+                if (!follower.isBusy() && extendArmState == SlidersStates.PRESET_REACHED) {
+                    if (Math.abs(extendArmSS.getInches1() - 18.3) > 2) {
                         presets.scoreStage2();
-                    } else if (Math.abs(eaInches1 - 19) <= 2) {
+                    } else if (Math.abs(extendArmSS.getInches1() - 19) <= 2) {
                         claw.open(1);
                         setPathState(1);
                     }
@@ -140,10 +134,10 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(FiveSpecimenAutoPushPaths.scoreSpecimen1(), false);
                     scoreSpecimen1Started = true;
                 }
-                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
-                    if (Math.abs(eaInches1 - 18.3) > 2) {
+                if (!follower.isBusy() && extendArmState == SlidersStates.PRESET_REACHED) {
+                    if (Math.abs(extendArmSS.getInches1() - 18.3) > 2) {
                         presets.scoreStage2();
-                    } else if (Math.abs(eaInches1 - 19) <= 2) {
+                    } else if (Math.abs(extendArmSS.getInches1() - 19) <= 2) {
                         claw.open(1);
                         setPathState(3);
                     }
@@ -165,7 +159,6 @@ public class FiveSpecimenAuto extends OpMode {
                     pushBlock2Started = true;
                 }
                 if (!follower.isBusy() || (Math.abs(follower.getPose().getX() - FiveSpecimenAutoPushPaths.pushBlock2Points.endPointX) < 3 && Math.abs(follower.getPose().getY() - FiveSpecimenAutoPushPaths.pushBlock2Points.endPointY) < 2)) {
-                    Timer.wait(pauses);
                     setPathState(998);
                 }
                 break;
@@ -188,10 +181,10 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(FiveSpecimenAutoPushPaths.scoreSpecimen2(), false);
                     scoreSpecimen2Started = true;
                 }
-                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
-                    if (Math.abs(eaInches1 - 18.3) > 2) {
+                if (!follower.isBusy() && extendArmState == SlidersStates.PRESET_REACHED) {
+                    if (Math.abs(extendArmSS.getInches1() - 18.3) > 2) {
                         presets.scoreStage2();
-                    } else if (Math.abs(eaInches1 - 19) <= 2) {
+                    } else if (Math.abs(extendArmSS.getInches1() - 19) <= 2) {
                         claw.open(1);
                         setPathState(5);
                     }
@@ -216,10 +209,10 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(FiveSpecimenAutoPushPaths.scoreSpecimen3(), false);
                     scoreSpecimen3Started = true;
                 }
-                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
-                    if (Math.abs(eaInches1 - 18.3) > 2) {
+                if (!follower.isBusy() && extendArmState == SlidersStates.PRESET_REACHED) {
+                    if (Math.abs(extendArmSS.getInches1() - 18.3) > 2) {
                         presets.scoreStage2();
-                    } else if (Math.abs(eaInches1 - 19) <= 2) {
+                    } else if (Math.abs(extendArmSS.getInches1() - 19) <= 2) {
                         claw.open(1);
                         setPathState(7);
                     }
@@ -244,10 +237,10 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(FiveSpecimenAutoPushPaths.scoreSpecimen4(), false);
                     scoreSpecimen4Started = true;
                 }
-                if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
-                    if (Math.abs(eaInches1 - 18.3) > 2) {
+                if (!follower.isBusy() && extendArmState == SlidersStates.PRESET_REACHED) {
+                    if (Math.abs(extendArmSS.getInches1() - 18.3) > 2) {
                         presets.scoreStage2();
-                    } else if (Math.abs(eaInches1 - 19) <= 2) {
+                    } else if (Math.abs(extendArmSS.getInches1() - 19) <= 2) {
                         claw.open(1);
                         setPathState(9);
                     }
@@ -262,6 +255,10 @@ public class FiveSpecimenAuto extends OpMode {
                 if (follower.isBusy() && angleDiffDegrees(Math.toDegrees(follower.getPose().getHeading()), FiveSpecimenAutoPushPaths.parkPoints.getEndHeading()) <= 2) submersible.subFull();
                 if (!follower.isBusy()) setPathState(-1);
                 break;
+            case -1: /* done */
+                autoTime = autoTimeE.seconds();
+                setPathState(-2);
+                break;
         }
     }
 
@@ -273,8 +270,7 @@ public class FiveSpecimenAuto extends OpMode {
 
     /** movements logic **/
     private static void extendArmMove(double pos) {
-        slidesTARGET = pos;
-        extendArmState = ExtendArmStates.MOVING_TO_PRESET;
+        extendArmSS.moveTo(pos);
     }
     // servos
     private static void claw1(double pos) {
@@ -384,7 +380,8 @@ public class FiveSpecimenAuto extends OpMode {
         MetroLib.setConstants(MConstants.class);
         Calibrate.Auto.clearEverything();
         hardwareMap.get(IMU.class, ThreeWheelIMUConstants.IMU_HardwareMapName).resetYaw();
-        controller = new PIDController(Math.sqrt(P), I, D);
+        // extendArm
+        PID controller = new PID(Math.sqrt(P), I, D);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         // motors
         extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
@@ -414,9 +411,7 @@ public class FiveSpecimenAuto extends OpMode {
         submersibleArm1.scaleRange(0.45, 1);
         swiper.scaleRange(0.3, 0.83);
         // extendArm
-        Motors.resetEncoders(extendArm1, extendArm2);
-        Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
-        resetTimer.reset();
+        extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection, false);
         // starting pos
         claw1.setPosition(1);
         arm.setPosition(0.23);
@@ -461,71 +456,23 @@ public class FiveSpecimenAuto extends OpMode {
         swiper.setPosition(swiperCpos);
         rotation.setPosition(rotationalCpos);
         // extendArm code
-        controller.setPID(Math.sqrt(P), I, D);
-        // Get current positions
-        eaTicks1 = extendArm1.getCurrentPosition();
-        eaTicks2 = extendArm2.getCurrentPosition();
-        // Convert ticks to inches
-        eaInches1 = (eaTicks1 / CPR) * INCHES_PER_REV;
-        eaInches2 = (eaTicks2 / CPR) * INCHES_PER_REV;
-        // vars
-        double ff = F;
-        if (Math.abs(eaInches1 - 0) > 2 && (extendArmState == ExtendArmStates.PRESET_REACHED || extendArmState == ExtendArmStates.ZERO_POS_RESET ||  extendArmState == ExtendArmStates.MAX_POS)) {
-            extendArm1.setPower(ff);
-            extendArm2.setPower(ff);
-        }
-        // states
-        if (Math.abs(eaInches1 - eaLimitHigh) < 1 && extendArmState != ExtendArmStates.MOVING_TO_PRESET) {
-            extendArmState = ExtendArmStates.MAX_POS;
-        } else if (Math.abs(eaInches1 - 0) < 2 && extendArmState != ExtendArmStates.MOVING_TO_PRESET && extendArmState != ExtendArmStates.RESETTING_ZERO_POS && extendArmState != ExtendArmStates.ZERO_POS_RESET && extendArmState != ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-            extendArmState = ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION;
-            resetTimer.reset();
-        }
-        // pre resetting slides pos
-        if (extendArmState == ExtendArmStates.WAITING_FOR_RESET_CONFIRMATION) {
-            if (resetTimer.milliseconds() > 200 && Math.abs(eaInches1 - 0) < 2) {
-                extendArmState = ExtendArmStates.RESETTING_ZERO_POS;
-                resetTimer.reset();
-            }
-        }
-        // reset slides 0 pos
-        if (extendArmState == ExtendArmStates.RESETTING_ZERO_POS) {
-            if (resetTimer.milliseconds() < 200) {
-                extendArm1.setPower(-0.1);
-                extendArm2.setPower(-0.1);
-            } else {
-                extendArm1.setPower(0);
-                extendArm2.setPower(0);
-                Motors.resetEncoders(extendArm1, extendArm2);
-                Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
-                extendArmState = ExtendArmStates.ZERO_POS_RESET;
-            }
-        }
-        // preset controls
-        if (extendArmState == ExtendArmStates.MOVING_TO_PRESET) {
-            double pid = controller.calculate(eaInches1, slidesTARGET);
-            double rawPower = pid + ff;
-            double syncError = eaInches1 - eaInches2;
-            double correction = syncError * K;
-            extendArm1.setPower(Math.max(-1, Math.min(1, rawPower))); // leader
-            extendArm2.setPower(Math.max(-1, Math.min(1, (rawPower + correction)))); // follower with correction
-            // check if we are at the target by 50 encoders
-            if (Math.abs(eaInches1 - slidesTARGET) < 1) {
-                extendArmState = ExtendArmStates.PRESET_REACHED;
-            }
-        }
+        extendArmState = extendArmSS.getState();
+        extendArmSS.setEaCorrection(eaCorrection);
+        extendArmSS.setLimits(MainV5.eaLimitHigh, MainV5.eaLimitLow);
+        extendArmSS.update();
         // telemetry for debugging
+        if (pathState == -2) telemetry.addData("Time took:", autoTime);
         telemetry.addData("currentState", extendArmState);
         telemetry.addData("extendArm1 Power", extendArm1.getPower());
         telemetry.addData("extendArm2 Power", extendArm2.getPower());
         telemetry.addData("PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
-        telemetry.addData("target", slidesTARGET);
-        telemetry.addData("eaCpos1", eaInches1);
-        telemetry.addData("eaCpos2", eaInches2);
+        telemetry.addData("target", extendArmSS.getTarget());
+        telemetry.addData("eaCpos1", extendArmSS.getInches1());
+        telemetry.addData("eaCpos2", extendArmSS.getInches2());
         telemetry.addData("eaPower", extendArm1.getPower());
-        telemetry.addData("error1", Math.abs(slidesTARGET - eaInches1));
-        telemetry.addData("error2", Math.abs(slidesTARGET - eaInches2));
-        telemetry.addData("errorAvg", (Math.abs(slidesTARGET - eaInches1) + Math.abs(slidesTARGET - eaInches2)) / 2);
+        telemetry.addData("error1", Math.abs(extendArmSS.getTarget() - extendArmSS.getInches1()));
+        telemetry.addData("error2", Math.abs(extendArmSS.getTarget() - extendArmSS.getInches2()));
+        telemetry.addData("errorAvg", (Math.abs(extendArmSS.getTarget() - extendArmSS.getInches1()) + Math.abs(extendArmSS.getTarget() - extendArmSS.getInches2())) / 2);
         telemetry.addData("path state", pathState);
         telemetry.addData("x", follower.getPose().getX());
         telemetry.addData("y", follower.getPose().getY());

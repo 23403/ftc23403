@@ -109,7 +109,7 @@ public class MainV5 extends LinearOpMode {
         public static CustomPresets highBasket = new CustomPresets(
                 33.6,
                 -1.0,
-                -1.0,
+                0.0,
                 1.0,
                 -1.0,
                 0.6,
@@ -118,7 +118,7 @@ public class MainV5 extends LinearOpMode {
         public static CustomPresets lowBasket = new CustomPresets(
                 16.5,
                 -1.0,
-                -1.0,
+                0.0,
                 1.0,
                 -1.0,
                 0.6,
@@ -311,8 +311,8 @@ public class MainV5 extends LinearOpMode {
                     follower.update();
                 }
                 // extendArm code
-                if (presetState != PresetStates.L2_HANG && Math.abs(extendArmSS.getInches1() - MainV5.presets.hang.extendArm != -1.0 ? MainV5.presets.hang.extendArm : extendArmSS.getInches1()) >= 2) {
-                    extendArmSS.update(gamepad2);
+                if (presetState != PresetStates.L2_HANG) {
+                    extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
                 }
                 // submersibleArm code
                 if (gamepad1.dpad_up) {

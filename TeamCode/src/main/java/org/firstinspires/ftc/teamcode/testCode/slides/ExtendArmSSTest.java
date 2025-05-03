@@ -50,7 +50,7 @@ public class ExtendArmSSTest extends LinearOpMode {
                     extendArmSS.moveTo(presetPos);
                 }
                 // update
-                extendArmSS.update(gamepad1);
+                extendArmSS.update(gamepad1.dpad_up, gamepad1.dpad_down);
                 // telemetry
                 telemetry.addData("currentState", extendArmSS.getState());
                 telemetry.addData("power1", extendArmSS.getPower1());

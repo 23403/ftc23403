@@ -21,6 +21,6 @@ dependencies {
     implementation 'com.pedropathing:ftclib:1.0.7' // pedropathing ftclib
     implementation 'com.pedropathing:pedro:1.0.9' // pedropathing
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.16' // ftc dashboard
-    implementation 'xyz.nin1275:metrolib:1.1.0' // MetroLib
+    implementation 'xyz.nin1275:metrolib:1.1.1' // MetroLib
     implementation "com.bylazar:ftcontrol:0.2.1" // ftcontrol
 }
