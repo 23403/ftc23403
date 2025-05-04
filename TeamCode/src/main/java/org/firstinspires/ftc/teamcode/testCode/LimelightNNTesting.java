@@ -1,8 +1,8 @@
 package org.firstinspires.ftc.teamcode.testCode;
 
-
 import com.acmerobotics.dashboard.config.Config;
 import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
+import com.qualcomm.hardware.limelightvision.LLResult;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -29,8 +29,7 @@ public class LimelightNNTesting extends LinearOpMode {
         Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState);
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad previousGamepad1 = new Gamepad();
-        llState = limelight.getState();
-        telemetry.addData("llState", llState);
+        telemetry.addLine("Ready. Waiting for start...");
         telemetry.update();
         waitForStart();
         while (opModeIsActive()) {
@@ -52,7 +51,21 @@ public class LimelightNNTesting extends LinearOpMode {
                 subArm.setPosition(0);
                 rotation.setPosition(0.5);
             }
-            telemetry.addData("llState", llState);
+            // Telemetry for debugging
+            LLResult result = limelight3A.getLatestResult();
+            telemetry.addData("State", llState);
+            telemetry.addData("Valid Result", (result != null && result.isValid()));
+            if (result != null && result.isValid()) {
+                telemetry.addData("Raw tx", result.getTx());
+                telemetry.addData("Raw ty", result.getTy());
+                telemetry.addData("Raw ta", result.getTa());
+            }
+            telemetry.addData("Normalized Rotation (tx)", limelight.getRotation());
+            telemetry.addData("SubArm Position (ty)", limelight.getSubmersible());
+            telemetry.addData("Set Rotation Servo", rotation.getPosition());
+            telemetry.addData("Set SubArm Servo", subArm.getPosition());
+            double offset = (limelight.getRotation() - 0.5) * Vision.Limelight.STRAFE_SCALE;
+            telemetry.addData("Strafe Offset", offset);
             telemetry.update();
         }
     }

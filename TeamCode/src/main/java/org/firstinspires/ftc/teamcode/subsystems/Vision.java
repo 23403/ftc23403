@@ -57,7 +57,7 @@ public class Vision {
         }
         // getters
         public double getRotation() {
-            return tx == -1 ? -1 : MathUtils.clamp(tx, 0.0, 1.0);
+            return tx == -1 ? -1 : MathUtils.clamp(1.0 - tx, 0.0, 1.0);
         }
         public double getSubmersible() {
             return ty == -1 ? -1 : 1.0 - MathUtils.clamp(ty, 0.0, 1.0);
@@ -67,7 +67,7 @@ public class Vision {
         }
         public void strafe() {
             if (follower != null && getRotation() != -1) {
-                double offset = (getRotation() - 0.5) * STRAFE_SCALE; // Negative = left, Positive = right
+                double offset = (getRotation() - 0.5) * STRAFE_SCALE;
                 Pose currentPose = follower.getPose();
                 Pose targetPose = new Pose(
                         currentPose.getX(),              // No forward movement, just strafe
@@ -77,7 +77,7 @@ public class Vision {
                 follower.followPath(new Path(new BezierLine(currentPose, targetPose)));
             }
         }
-        // setter
+        // setters
         public void setState(LimelightState state) {
             this.llState = state;
         }
