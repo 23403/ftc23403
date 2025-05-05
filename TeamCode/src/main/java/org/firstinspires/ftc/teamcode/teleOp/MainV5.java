@@ -93,7 +93,6 @@ public class MainV5 extends LinearOpMode {
     private static PresetStates presetState = PresetStates.NO_PRESET;
     private static RotationStates rotationState = RotationStates.MIDDLE;
     LimelightState llState = LimelightState.INIT;
-
     // presets
     @Config("MainV5 Presets")
     public static class presets {
@@ -356,7 +355,6 @@ public class MainV5 extends LinearOpMode {
                         }
                         break;
                 }
-
                 /**
                  * GAMEPAD 1
                  *   X / ▢         - Transition from Submersible arm to Extend arm
@@ -487,6 +485,9 @@ public class MainV5 extends LinearOpMode {
                     wristCpos1 = 0.42;
                 }
                 // rotate
+                if (rotationalCpos > 0.51) rotationState = RotationStates.RIGHT;
+                if (rotationalCpos < 0.49) rotationState = RotationStates.LEFT;
+                if (rotationalCpos > 0.49 && rotationalCpos < 0.51) rotationState = RotationStates.MIDDLE;
                 if (currentGamepad1.right_trigger > 0 && !(previousGamepad1.right_trigger > 0)) {
                     if (rotationState == RotationStates.MIDDLE) {
                         rotationalCpos = 0.7;

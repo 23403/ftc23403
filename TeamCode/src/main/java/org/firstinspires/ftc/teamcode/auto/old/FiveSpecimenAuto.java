@@ -69,7 +69,6 @@ public class FiveSpecimenAuto extends OpMode {
     private Servo wrist1; // 1x axon
     private Servo claw1; // 1x axon
     private Servo submersibleArm; // 2x axon
-    private Servo submersibleArm2; // 1x axon
     private Servo wrist2; // 1x 20kg
     private Servo claw2; // 1x goBilda speed
     private Servo rotation; // 1x goBilda speed
@@ -637,7 +636,6 @@ public class FiveSpecimenAuto extends OpMode {
         claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
         // sa
         submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 1x axon
-        submersibleArm2 = hardwareMap.get(Servo.class, "subArm"); // 1x axon
         wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 25kg
         claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
