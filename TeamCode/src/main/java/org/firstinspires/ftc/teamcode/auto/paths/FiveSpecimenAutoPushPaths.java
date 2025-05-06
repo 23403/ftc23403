@@ -63,14 +63,14 @@ public class FiveSpecimenAutoPushPaths {
     /* line4e */
     public static PPPoint.beizerCurve moveToPushLoc3Points = new PPPoint.beizerCurve(
             53.9,
-            13,
+            12.8,
             0,
             new PPMP(53.49, 22.5)
     );
     /* line4f */
     public static PPPoint.beizerLine pushBlock3Points = new PPPoint.beizerLine(
             17.3,
-            133,
+            12.8,
             0
     );
     /* line5 */
@@ -81,7 +81,7 @@ public class FiveSpecimenAutoPushPaths {
     );
     /* line6 */
     public static PPPoint.beizerLine grabSpecimen2Points = new PPPoint.beizerLine(
-            17.5,
+            18,
             35.8,
             0
     );
