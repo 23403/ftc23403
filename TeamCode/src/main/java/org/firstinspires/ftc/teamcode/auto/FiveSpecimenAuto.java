@@ -1,13 +1,13 @@
 package org.firstinspires.ftc.teamcode.auto;
 
-import static org.firstinspires.ftc.teamcode.teleOp.MainV5.eaLimitHigh;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
+import static org.firstinspires.ftc.teamcode.teleOp.MainV5.eaLimitHigh;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -26,16 +26,12 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.auto.paths.FiveSpecimenAutoPushPaths;
-
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
-
-
-
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Timer;
@@ -47,7 +43,7 @@ import xyz.nin1275.utils.Timer;
  * It is a 5 specimen auto with park. It hangs a preloaded specimen and then hang another specimen then push the 3 samples from the ground and hang them.
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
  * @version 1.4, 4/27/25
- **/
+**/
 
 @Config("5 Spec Auto PUSH")
 @Autonomous(name = "5+0 push", group = ".ftc23403")
@@ -58,15 +54,15 @@ public class FiveSpecimenAuto extends OpMode {
     public static Integer pauses = 200;
     private DashboardPoseTracker dashboardPoseTracker;
     private PoseUpdater poseUpdater;
-
-
+    ElapsedTime autoTimeE = new ElapsedTime();
+    private double autoTime;
     /** store the state of our auto. **/
     private int pathState;
     // servos
     private Servo swiper; // 1x goBilda speed
     private Servo arm; // 2x axon
     private Servo wrist1; // 1x axon
-    private Servo claw1; // 1x axon
+    private Servo claw1; // 1x goBilda speed
     private Servo submersibleArm; // 2x axon
     private Servo wrist2; // 1x axon
     private Servo claw2; // 1x goBilda speed
@@ -267,10 +263,10 @@ public class FiveSpecimenAuto extends OpMode {
                 if (follower.isBusy() && angleDiffDegrees(Math.toDegrees(follower.getPose().getHeading()), FiveSpecimenAutoPushPaths.parkPoints.getEndHeading()) <= 2) submersible.subFull();
                 if (!follower.isBusy()) setPathState(-1);
                 break;
-
-
-
-
+            case -1: /* done */
+                autoTime = autoTimeE.seconds();
+                setPathState(-2);
+                break;
         }
     }
 
@@ -400,14 +396,14 @@ public class FiveSpecimenAuto extends OpMode {
         extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // servos
-        swiper = hardwareMap.get(Servo.class, "swiper"); // 1x goBilda torque
+        swiper = hardwareMap.get(Servo.class, "swiper"); // 1x goBilda speed
         // ea
         arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
         wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
         claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
         // sa
         submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 2x axon
-        wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x 25kg
+        wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon
         claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
         rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
         // directions
@@ -429,10 +425,10 @@ public class FiveSpecimenAuto extends OpMode {
         // starting pos
         claw1.setPosition(1);
         arm.setPosition(0.23);
-        wrist1.setPosition(0.5);
+        wrist1.setPosition(1);
         claw1(1);
         arm(0.23);
-        wrist1(0.5);
+        wrist1(1);
         // movement
         pathTimer = new com.pedropathing.util.Timer();
         opmodeTimer = new com.pedropathing.util.Timer();
@@ -461,14 +457,14 @@ public class FiveSpecimenAuto extends OpMode {
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();
         // servos
-        wrist1.setPosition(wristCpos1);
-        wrist2.setPosition(wristCpos2);
-        claw1.setPosition(clawCpos1);
-        claw2.setPosition(clawCpos2);
-        arm.setPosition(armCpos);
-        submersibleArm.setPosition(subArmCpos);
-        swiper.setPosition(swiperCpos);
-        rotation.setPosition(rotationalCpos);
+        if (Math.abs(wrist1.getPosition() - wristCpos1) > 0.01) wrist1.setPosition(wristCpos1);
+        if (Math.abs(wrist2.getPosition() - wristCpos2) > 0.01) wrist2.setPosition(wristCpos2);
+        if (Math.abs(claw1.getPosition() - clawCpos1) > 0.01) claw1.setPosition(clawCpos1);
+        if (Math.abs(claw2.getPosition() - clawCpos2) > 0.01) claw2.setPosition(clawCpos2);
+        if (Math.abs(arm.getPosition() - armCpos) > 0.01) arm.setPosition(armCpos);
+        if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.01) submersibleArm.setPosition(subArmCpos);
+        if (Math.abs(swiper.getPosition() - swiperCpos) > 0.01) swiper.setPosition(swiperCpos);
+        if (Math.abs(rotation.getPosition() - rotationalCpos) > 0.01) rotation.setPosition(rotationalCpos);
         // extendArm code
         controller.setPID(Math.sqrt(P), I, D);
         // Get current positions
@@ -524,7 +520,7 @@ public class FiveSpecimenAuto extends OpMode {
             }
         }
         // telemetry for debugging
-
+        if (pathState == -2) telemetry.addData("Time took:", autoTime);
         telemetry.addData("currentState", extendArmState);
         telemetry.addData("extendArm1 Power", extendArm1.getPower());
         telemetry.addData("extendArm2 Power", extendArm2.getPower());
