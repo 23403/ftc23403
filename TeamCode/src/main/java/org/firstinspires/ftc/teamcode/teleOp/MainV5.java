@@ -66,7 +66,7 @@ public class MainV5 extends LinearOpMode {
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
     **/
     // servos
-    public static double wristCpos1 = 0.5;
+    public static double wristCpos1 = 1;
     public static double clawCpos1 = 1;
     public static double swiperCpos = 0;
     public static double wristCpos2 = 1;
@@ -228,8 +228,15 @@ public class MainV5 extends LinearOpMode {
         gamepad1.setLedColor(0, 255, 255, -1);
         gamepad2.setLedColor(0, 255, 0, -1);
         LynxUtils.setLynxColor(true, true, 255, 0, 255);
-        // misc
+        // starting pos
+        wrist1.setPosition(wristCpos1);
+        wrist2.setPosition(wristCpos2);
         claw1.setPosition(clawCpos1);
+        claw2.setPosition(clawCpos2);
+        arm.setPosition(armCpos);
+        submersibleArm.setPosition(subArmCpos);
+        swiper.setPosition(swiperCpos);
+        rotation.setPosition(rotationalCpos);
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
         if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
@@ -267,14 +274,14 @@ public class MainV5 extends LinearOpMode {
                 currentGamepad1.copy(gamepad1);
                 currentGamepad2.copy(gamepad2);
                 // servos
-                if (Math.abs(wrist1.getPosition() - wristCpos1) > 0.01) wrist1.setPosition(wristCpos1);
-                if (Math.abs(wrist2.getPosition() - wristCpos2) > 0.01) wrist2.setPosition(wristCpos2);
-                if (Math.abs(claw1.getPosition() - clawCpos1) > 0.01) claw1.setPosition(clawCpos1);
-                if (Math.abs(claw2.getPosition() - clawCpos2) > 0.01) claw2.setPosition(clawCpos2);
-                if (Math.abs(arm.getPosition() - armCpos) > 0.01) arm.setPosition(armCpos);
-                if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.01) submersibleArm.setPosition(subArmCpos);
-                if (Math.abs(swiper.getPosition() - swiperCpos) > 0.01) swiper.setPosition(swiperCpos);
-                if (Math.abs(rotation.getPosition() - rotationalCpos) > 0.01) rotation.setPosition(rotationalCpos);
+                if (Math.abs(wrist1.getPosition() - wristCpos1) > 0.02) wrist1.setPosition(wristCpos1);
+                if (Math.abs(wrist2.getPosition() - wristCpos2) > 0.02) wrist2.setPosition(wristCpos2);
+                if (Math.abs(claw1.getPosition() - clawCpos1) > 0.02) claw1.setPosition(clawCpos1);
+                if (Math.abs(claw2.getPosition() - clawCpos2) > 0.02) claw2.setPosition(clawCpos2);
+                if (Math.abs(arm.getPosition() - armCpos) > 0.02) arm.setPosition(armCpos);
+                if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.02) submersibleArm.setPosition(subArmCpos);
+                if (Math.abs(swiper.getPosition() - swiperCpos) > 0.02) swiper.setPosition(swiperCpos);
+                if (Math.abs(rotation.getPosition() - rotationalCpos) > 0.02) rotation.setPosition(rotationalCpos);
                 // field side
                 if (currentGamepad1.share && !previousGamepad1.share) redSide = !redSide;
                 // toggle debug

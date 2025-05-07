@@ -107,7 +107,7 @@ public class FiveSpecimenAutoPushPaths {
     public static PPPoint.beizerCurve parkPoints = new PPPoint.beizerCurve(
             16.8,
             49.23,
-            -130,
+            230,
             new PPMP(27.2, 69.3)
     );
 
