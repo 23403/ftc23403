@@ -545,6 +545,7 @@ public class MainV5 extends LinearOpMode {
         }
         if (isStopRequested()) {
             // stop code
+            LynxUtils.setLynxColor(true, true, 0, 255, 0);
             // turn off servos on the servo hub or spm if we get them
             arm.getController().pwmDisable();
             submersibleArm.getController().pwmDisable();

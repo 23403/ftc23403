@@ -26,6 +26,7 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.auto.paths.FiveSpecimenAutoPushPaths;
+import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
 
@@ -390,8 +391,8 @@ public class FiveSpecimenAuto extends OpMode {
         Calibrate.Auto.clearEverything();
         hardwareMap.get(IMU.class, ThreeWheelIMUConstants.IMU_HardwareMapName).resetYaw();
         controller = new PIDController(Math.sqrt(P), I, D);
-
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
+        LynxUtils.setLynxColor(true, true, 255, 0, 255);
         // motors
         extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
@@ -553,6 +554,7 @@ public class FiveSpecimenAuto extends OpMode {
     /** stop **/
     @Override
     public void stop() {
+        LynxUtils.setLynxColor(true, true, 0, 255, 0);
         Calibrate.Auto.saveLastKnownPos(follower.getPose());
     }
 }
