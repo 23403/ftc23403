@@ -206,7 +206,7 @@ public class FiveSpecimenAuto extends OpMode {
                     grabSpecimen2Started = true;
                 }
                 if (!follower.isBusy()) {
-                    claw.close(1);
+                    claw1.setPosition(1);
                     claw1(1);
                     Timer.wait(pauses);
                     setPathState(6);
@@ -424,14 +424,14 @@ public class FiveSpecimenAuto extends OpMode {
         Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, extendArm1, extendArm2);
         resetTimer.reset();
         // starting pos
-        wrist1.setPosition(wristCpos1);
-        wrist2.setPosition(wristCpos2);
-        claw1.setPosition(clawCpos1);
-        claw2.setPosition(clawCpos2);
-        arm.setPosition(armCpos);
-        submersibleArm.setPosition(subArmCpos);
-        swiper.setPosition(swiperCpos);
-        rotation.setPosition(rotationalCpos);
+        wrist1.setPosition(1);
+        wrist2.setPosition(0.9);
+        claw1.setPosition(1);
+        claw2.setPosition(1);
+        arm.setPosition(0.23);
+        submersibleArm.setPosition(1);
+        swiper.setPosition(1);
+        rotation.setPosition(0.52);
         // movement
         pathTimer = new com.pedropathing.util.Timer();
         opmodeTimer = new com.pedropathing.util.Timer();
