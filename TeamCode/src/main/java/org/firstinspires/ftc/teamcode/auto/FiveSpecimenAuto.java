@@ -43,7 +43,7 @@ import xyz.nin1275.utils.Timer;
  * Finished code  @  4/27/25  @  4:17 pm
  * It is a 5 specimen auto with park. It hangs a preloaded specimen and then hang another specimen then push the 3 samples from the ground and hang them.
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
- * @version 1.4, 4/27/25
+ * @version 1.5, 5/8/25
 **/
 
 @Config("5 Spec Auto PUSH")
@@ -118,6 +118,7 @@ public class FiveSpecimenAuto extends OpMode {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         presets.scoreStage2();
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
+                        claw1.setPosition(0);
                         claw.open(1);
                         setPathState(1);
                     }
@@ -146,6 +147,7 @@ public class FiveSpecimenAuto extends OpMode {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         presets.scoreStage2();
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
+                        claw1.setPosition(0);
                         claw.open(1);
                         setPathState(3);
                     }
@@ -194,6 +196,7 @@ public class FiveSpecimenAuto extends OpMode {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         presets.scoreStage2();
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
+                        claw1.setPosition(0);
                         claw.open(1);
                         setPathState(5);
                     }
@@ -222,6 +225,7 @@ public class FiveSpecimenAuto extends OpMode {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         presets.scoreStage2();
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
+                        claw1.setPosition(0);
                         claw.open(1);
                         setPathState(7);
                     }
@@ -250,6 +254,7 @@ public class FiveSpecimenAuto extends OpMode {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         presets.scoreStage2();
                     } else if (Math.abs(eaInches1 - 19) <= 2) {
+                        claw1.setPosition(0);
                         claw.open(1);
                         setPathState(9);
                     }
@@ -261,7 +266,7 @@ public class FiveSpecimenAuto extends OpMode {
                     follower.followPath(FiveSpecimenAutoPushPaths.park(), false);
                     parkStarted = true;
                 }
-                if (follower.isBusy() && angleDiffDegrees(Math.toDegrees(follower.getPose().getHeading()), FiveSpecimenAutoPushPaths.parkPoints.getEndHeading()) <= 2) submersible.subFull();
+                // if (follower.isBusy() && angleDiffDegrees(Math.toDegrees(follower.getPose().getHeading()), FiveSpecimenAutoPushPaths.parkPoints.getEndHeading()) <= 2) submersible.subFull();
                 if (!follower.isBusy()) setPathState(-1);
                 break;
             case -1: /* done */

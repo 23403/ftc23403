@@ -17,7 +17,6 @@ import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
 
-
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
@@ -61,17 +60,17 @@ import xyz.nin1275.utils.Timer;
 @TeleOp(name="Main v5", group=".ftc23403")
 public class MainV5 extends LinearOpMode {
     /**
-     * @TODO add color sensor shit
+     * @TODO forget the color sensor just make this perfect for mayors
      * MAIN V5 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
     **/
     // servos
     public static double wristCpos1 = 1;
     public static double clawCpos1 = 1;
-    public static double swiperCpos = 0;
-    public static double wristCpos2 = 1;
+    public static double swiperCpos = 1;
+    public static double wristCpos2 = 0.9;
     public static double clawCpos2 = 1;
-    public static double armCpos = 0.18;
+    public static double armCpos = 0.23;
     public static double subArmCpos = 1;
     public static double rotationalCpos = 0.52;
     // misc
@@ -81,6 +80,7 @@ public class MainV5 extends LinearOpMode {
     public static double wheelSpeedMinEA = 0.7;
     public static double wheelSpeedMinSA = 0.8;
     private double wheelSpeed = wheelSpeedMax;
+    public static double hangPower = 0.8;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
@@ -103,8 +103,8 @@ public class MainV5 extends LinearOpMode {
                 -1.0,
                 0.0,
                 -1.0,
-                0.4,
-                0.97,
+                0.42,
+                0.96,
                 -1.0);
         public static CustomPresets highBasket = new CustomPresets(
                 33.6,
@@ -229,14 +229,14 @@ public class MainV5 extends LinearOpMode {
         gamepad2.setLedColor(0, 255, 0, -1);
         LynxUtils.setLynxColor(true, true, 255, 0, 255);
         // starting pos
-        wrist1.setPosition(wristCpos1);
-        wrist2.setPosition(wristCpos2);
-        claw1.setPosition(clawCpos1);
-        claw2.setPosition(clawCpos2);
-        arm.setPosition(armCpos);
-        submersibleArm.setPosition(subArmCpos);
-        swiper.setPosition(swiperCpos);
-        rotation.setPosition(rotationalCpos);
+        wrist1.setPosition(1);
+        wrist2.setPosition(0.9);
+        claw1.setPosition(1);
+        claw2.setPosition(1);
+        arm.setPosition(0.23);
+        submersibleArm.setPosition(1);
+        swiper.setPosition(1);
+        rotation.setPosition(0.52);
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
         if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
@@ -329,11 +329,11 @@ public class MainV5 extends LinearOpMode {
                         break;
                     case HIGH_BASKET:
                         applyPreset(MainV5.presets.highBasket);
-                        if (clawCpos1 == 0) presetState = PresetStates.TRANSITION;
+                        if (clawCpos1 == 0 || gamepad2.left_trigger > 0) presetState = PresetStates.TRANSITION;
                         break;
                     case LOW_BASKET:
                         applyPreset(MainV5.presets.lowBasket);
-                        if (clawCpos1 == 0) presetState = PresetStates.TRANSITION;
+                        if (clawCpos1 == 0 || gamepad2.left_trigger > 0) presetState = PresetStates.TRANSITION;
                         break;
                     case TRANSITION:
                         applyPreset(MainV5.presets.transition);
@@ -346,8 +346,8 @@ public class MainV5 extends LinearOpMode {
                     case L2_HANG:
                         double target = MainV5.presets.hang.extendArm != -1.0 ? MainV5.presets.hang.extendArm : extendArmSS.getInches1();
                         if (Math.abs(extendArmSS.getInches1() - target) <= 2) {
-                            extendArm1.setPower(-0.8);
-                            extendArm2.setPower(-0.8);
+                            extendArm1.setPower(-hangPower);
+                            extendArm2.setPower(-hangPower);
                         }
                         break;
                 }
@@ -436,7 +436,7 @@ public class MainV5 extends LinearOpMode {
                     presetState = PresetStates.TRANSITION;
                 }
                 // specimen preset
-                if (currentGamepad2.b && !previousGamepad2.b && !gamepad1.options) {
+                if (currentGamepad2.b && !previousGamepad2.b && !gamepad2.options) {
                     if (presetState == PresetStates.NO_PRESET) {
                         applyPreset(MainV5.presets.preSpecimen);
                         presetState = PresetStates.PRE_SPECIMEN_SCORE;
@@ -451,9 +451,9 @@ public class MainV5 extends LinearOpMode {
                     presetState = PresetStates.PRE_SPECIMEN_SCORE;
                 }
                 // claws
-                if (gamepad2.left_trigger > 0 || gamepad2.right_bumper) {
+                if (gamepad2.left_trigger > 0) {
                     clawCpos1 = 0;
-                } else if (gamepad2.right_trigger > 0 || gamepad2.left_bumper) {
+                } else if (gamepad2.right_trigger > 0) {
                     clawCpos1 = 1;
                 }
                 if (gamepad1.left_bumper) {
