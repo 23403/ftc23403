@@ -52,7 +52,7 @@ public class FiveSpecimenAuto extends OpMode {
     private Follower follower;
     private com.pedropathing.util.Timer pathTimer, opmodeTimer;
     public static double speed = 1;
-    public static Integer pauses = 200;
+    public static Integer pauses = 500;
     private DashboardPoseTracker dashboardPoseTracker;
     private PoseUpdater poseUpdater;
     ElapsedTime autoTimeE = new ElapsedTime();
@@ -341,6 +341,7 @@ public class FiveSpecimenAuto extends OpMode {
             submersibleArm(1);
         }
     }
+    @Config("5+0 PUSH PRESETS")
     private static class presets {
         public static void scoreBack() {
             extendArmMove(6.5);
@@ -349,7 +350,7 @@ public class FiveSpecimenAuto extends OpMode {
             FiveSpecimenAuto.claw.close(1);
         }
         public static void scoreStage1() {
-            extendArmMove(10);
+            extendArmMove(9);
             FiveSpecimenAuto.submersible.subIn();
             wrist1(0.6);
             arm(0.23);
