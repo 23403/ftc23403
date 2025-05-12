@@ -72,11 +72,11 @@ public class FiveSpecimenAuto extends OpMode {
     public static double wristCpos1 = 1;
     public static double clawCpos1 = 1;
     public static double swiperCpos = 1;
-    public static double wristCpos2 = 0.9;
+    public static double wristCpos2 = 1;
     public static double clawCpos2 = 1;
-    public static double armCpos = 0.23;
+    public static double armCpos = 0.15;
     public static double subArmCpos = 1;
-    public static double rotationalCpos = 0.52;
+    public static double rotationalCpos = 0;
     // extendArm
     private PIDController controller;
     private DcMotorEx extendArm1;
@@ -189,13 +189,15 @@ public class FiveSpecimenAuto extends OpMode {
             case 4: /* line5 */
                 if (!scoreSpecimen2Started) {
                     presets.scoreStage1();
+                    // extendArmMove(10);
                     follower.followPath(FiveSpecimenAutoPushPaths.scoreSpecimen2(), false);
                     scoreSpecimen2Started = true;
                 }
                 if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         presets.scoreStage2();
-                    } else if (Math.abs(eaInches1 - 19) <= 2) {
+                        // extendArmMove(11);
+                    } else if (Math.abs(eaInches1 - 20) <= 2) {
                         claw1.setPosition(0);
                         claw.open(1);
                         setPathState(5);
@@ -218,13 +220,15 @@ public class FiveSpecimenAuto extends OpMode {
             case 6: /* line7 */
                 if (!scoreSpecimen3Started) {
                     presets.scoreStage1();
+                    // extendArmMove(10);
                     follower.followPath(FiveSpecimenAutoPushPaths.scoreSpecimen3(), false);
                     scoreSpecimen3Started = true;
                 }
                 if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         presets.scoreStage2();
-                    } else if (Math.abs(eaInches1 - 19) <= 2) {
+                        // extendArmMove(11);
+                    } else if (Math.abs(eaInches1 - 20) <= 2) {
                         claw1.setPosition(0);
                         claw.open(1);
                         setPathState(7);
@@ -247,13 +251,15 @@ public class FiveSpecimenAuto extends OpMode {
             case 8: /* line9 */
                 if (!scoreSpecimen4Started) {
                     presets.scoreStage1();
+                    // extendArmMove(10);
                     follower.followPath(FiveSpecimenAutoPushPaths.scoreSpecimen4(), false);
                     scoreSpecimen4Started = true;
                 }
                 if (!follower.isBusy() && extendArmState == ExtendArmStates.PRESET_REACHED) {
                     if (Math.abs(eaInches1 - 18.3) > 2) {
                         presets.scoreStage2();
-                    } else if (Math.abs(eaInches1 - 19) <= 2) {
+                        // extendArmMove(11);
+                    } else if (Math.abs(eaInches1 - 20) <= 2) {
                         claw1.setPosition(0);
                         claw.open(1);
                         setPathState(9);
@@ -350,14 +356,14 @@ public class FiveSpecimenAuto extends OpMode {
             FiveSpecimenAuto.claw.close(1);
         }
         public static void scoreStage1() {
-            extendArmMove(9);
+            extendArmMove(10);
             FiveSpecimenAuto.submersible.subIn();
             wrist1(0.6);
             arm(0.23);
             FiveSpecimenAuto.claw.close(1);
         }
         public static void scoreStage2() {
-            extendArmMove(19);
+            extendArmMove(20);
         }
         public static void transition() {
             extendArmMove(0);
@@ -431,13 +437,13 @@ public class FiveSpecimenAuto extends OpMode {
         resetTimer.reset();
         // starting pos
         wrist1.setPosition(1);
-        wrist2.setPosition(0.9);
+        wrist2.setPosition(1);
         claw1.setPosition(1);
         claw2.setPosition(1);
-        arm.setPosition(0.23);
+        arm.setPosition(0.15);
         submersibleArm.setPosition(1);
         swiper.setPosition(1);
-        rotation.setPosition(0.52);
+        rotation.setPosition(0);
         // movement
         pathTimer = new com.pedropathing.util.Timer();
         opmodeTimer = new com.pedropathing.util.Timer();
@@ -466,14 +472,14 @@ public class FiveSpecimenAuto extends OpMode {
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();
         // servos
-        if (Math.abs(wrist1.getPosition() - wristCpos1) > 0.01) wrist1.setPosition(wristCpos1);
-        if (Math.abs(wrist2.getPosition() - wristCpos2) > 0.01) wrist2.setPosition(wristCpos2);
-        if (Math.abs(claw1.getPosition() - clawCpos1) > 0.01) claw1.setPosition(clawCpos1);
-        if (Math.abs(claw2.getPosition() - clawCpos2) > 0.01) claw2.setPosition(clawCpos2);
-        if (Math.abs(arm.getPosition() - armCpos) > 0.01) arm.setPosition(armCpos);
-        if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.01) submersibleArm.setPosition(subArmCpos);
-        if (Math.abs(swiper.getPosition() - swiperCpos) > 0.01) swiper.setPosition(swiperCpos);
-        if (Math.abs(rotation.getPosition() - rotationalCpos) > 0.01) rotation.setPosition(rotationalCpos);
+        if (Math.abs(wrist1.getPosition() - wristCpos1) > 0.02) wrist1.setPosition(wristCpos1);
+        if (Math.abs(wrist2.getPosition() - wristCpos2) > 0.02) wrist2.setPosition(wristCpos2);
+        if (Math.abs(claw1.getPosition() - clawCpos1) > 0.02) claw1.setPosition(clawCpos1);
+        if (Math.abs(claw2.getPosition() - clawCpos2) > 0.02) claw2.setPosition(clawCpos2);
+        if (Math.abs(arm.getPosition() - armCpos) > 0.02) arm.setPosition(armCpos);
+        if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.02) submersibleArm.setPosition(subArmCpos);
+        if (Math.abs(swiper.getPosition() - swiperCpos) > 0.02) swiper.setPosition(swiperCpos);
+        if (Math.abs(rotation.getPosition() - rotationalCpos) > 0.02) rotation.setPosition(rotationalCpos);
         // extendArm code
         controller.setPID(Math.sqrt(P), I, D);
         // Get current positions

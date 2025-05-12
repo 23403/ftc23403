@@ -68,11 +68,11 @@ public class MainV5 extends LinearOpMode {
     public static double wristCpos1 = 1;
     public static double clawCpos1 = 1;
     public static double swiperCpos = 1;
-    public static double wristCpos2 = 0.9;
+    public static double wristCpos2 = 1;
     public static double clawCpos2 = 1;
-    public static double armCpos = 0.23;
+    public static double armCpos = 0.15;
     public static double subArmCpos = 1;
-    public static double rotationalCpos = 0.52;
+    public static double rotationalCpos = 0;
     // misc
     public static boolean redSide = true;
     public static boolean debugMode = false;
@@ -214,9 +214,6 @@ public class MainV5 extends LinearOpMode {
         claw1.scaleRange(0, 0.4);
         submersibleArm.scaleRange(0.45, 1);
         swiper.scaleRange(0.3, 0.87);
-        // turn on pwm servos
-        arm.getController().pwmEnable();
-        submersibleArm.getController().pwmEnable();
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -230,13 +227,13 @@ public class MainV5 extends LinearOpMode {
         LynxUtils.setLynxColor(true, true, 255, 0, 255);
         // starting pos
         wrist1.setPosition(1);
-        wrist2.setPosition(0.9);
+        wrist2.setPosition(1);
         claw1.setPosition(1);
         claw2.setPosition(1);
-        arm.setPosition(0.23);
+        arm.setPosition(0.15);
         submersibleArm.setPosition(1);
         swiper.setPosition(1);
-        rotation.setPosition(0.52);
+        rotation.setPosition(0);
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
         if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
@@ -553,9 +550,6 @@ public class MainV5 extends LinearOpMode {
         if (isStopRequested()) {
             // stop code
             LynxUtils.setLynxColor(true, true, 0, 255, 0);
-            // turn off servos on the servo hub or spm if we get them
-            arm.getController().pwmDisable();
-            submersibleArm.getController().pwmDisable();
         }
     }
     // preset controls
