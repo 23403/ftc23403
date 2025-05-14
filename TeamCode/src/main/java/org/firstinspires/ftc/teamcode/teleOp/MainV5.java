@@ -72,7 +72,8 @@ public class MainV5 extends LinearOpMode {
     public static double clawCpos2 = 1;
     public static double armCpos = 0.15;
     public static double subArmCpos = 1;
-    public static double rotationalCpos = 0;
+    public static double rotationalCpos1 = 0;
+    public static double rotationalCpos2 = 0;
     // misc
     public static boolean redSide = true;
     public static boolean debugMode = false;
@@ -204,15 +205,16 @@ public class MainV5 extends LinearOpMode {
         Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 2x axon
         Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon
         Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
-        Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
+        Servo rotation1 = hardwareMap.get(Servo.class, "rotation1"); // 1x goBilda speed
+        Servo rotation2 = hardwareMap.get(Servo.class, "rotation2"); // 1x axon
         // limits
         claw2.scaleRange(0.01, 0.08);
-        wrist2.scaleRange(0.05, 0.88);
-        rotation.scaleRange(0.43, 0.55);
+        wrist2.scaleRange(0.05, 0.8);
+        rotation1.scaleRange(0.43, 0.55);
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
-        submersibleArm.scaleRange(0.45, 1);
+        submersibleArm.scaleRange(0.385, 0.85);
         swiper.scaleRange(0.3, 0.87);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
@@ -233,7 +235,8 @@ public class MainV5 extends LinearOpMode {
         arm.setPosition(0.15);
         submersibleArm.setPosition(1);
         swiper.setPosition(1);
-        rotation.setPosition(0);
+        rotation1.setPosition(0);
+        rotation2.setPosition(0);
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
         if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
@@ -278,7 +281,8 @@ public class MainV5 extends LinearOpMode {
                 if (Math.abs(arm.getPosition() - armCpos) > 0.02) arm.setPosition(armCpos);
                 if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.02) submersibleArm.setPosition(subArmCpos);
                 if (Math.abs(swiper.getPosition() - swiperCpos) > 0.02) swiper.setPosition(swiperCpos);
-                if (Math.abs(rotation.getPosition() - rotationalCpos) > 0.02) rotation.setPosition(rotationalCpos);
+                if (Math.abs(rotation1.getPosition() - rotationalCpos1) > 0.02) rotation1.setPosition(rotationalCpos1);
+                if (Math.abs(rotation2.getPosition() - rotationalCpos2) > 0.02) rotation2.setPosition(rotationalCpos2);
                 // field side
                 if (currentGamepad1.share && !previousGamepad1.share) redSide = !redSide;
                 // toggle debug
@@ -392,7 +396,7 @@ public class MainV5 extends LinearOpMode {
                     // clawCpos2 = 0;
                     // wristCpos2 = 0.5;
                     subArmCpos = limelight.getSubmersible();
-                    rotationalCpos = limelight.getRotation();
+                    rotationalCpos1 = limelight.getRotation();
                     limelight.strafe();
                     Timer.wait(200);
                     // wristCpos2 = 0;
@@ -478,23 +482,23 @@ public class MainV5 extends LinearOpMode {
                     wristCpos1 = 0.42;
                 }
                 // rotate
-                if (rotationalCpos > 0.51) rotationState = RotationStates.RIGHT;
-                if (rotationalCpos < 0.49) rotationState = RotationStates.LEFT;
-                if (rotationalCpos > 0.49 && rotationalCpos < 0.51) rotationState = RotationStates.MIDDLE;
+                if (rotationalCpos1 > 0.51) rotationState = RotationStates.RIGHT;
+                if (rotationalCpos1 < 0.49) rotationState = RotationStates.LEFT;
+                if (rotationalCpos1 > 0.49 && rotationalCpos1 < 0.51) rotationState = RotationStates.MIDDLE;
                 if (currentGamepad1.right_trigger > 0 && !(previousGamepad1.right_trigger > 0)) {
                     if (rotationState == RotationStates.MIDDLE) {
-                        rotationalCpos = 0.7;
+                        rotationalCpos1 = 0.7;
                         rotationState = RotationStates.RIGHT;
                     } else if (rotationState == RotationStates.LEFT) {
-                        rotationalCpos = 0.5;
+                        rotationalCpos1 = 0.5;
                         rotationState = RotationStates.MIDDLE;
                     }
                 } else if (currentGamepad1.left_trigger > 0 && !(previousGamepad1.left_trigger > 0)) {
                     if (rotationState == RotationStates.MIDDLE) {
-                        rotationalCpos = 0.2;
+                        rotationalCpos1 = 0.2;
                         rotationState = RotationStates.LEFT;
                     } else if (rotationState == RotationStates.RIGHT) {
-                        rotationalCpos = 0.5;
+                        rotationalCpos1 = 0.5;
                         rotationState = RotationStates.MIDDLE;
                     }
                 }
@@ -539,7 +543,8 @@ public class MainV5 extends LinearOpMode {
                 telemetryM.addData(true, "Claw Position2:", claw2.getPosition());
                 telemetryM.addData(true, "Arm Position:", arm.getPosition());
                 telemetryM.addData(true, "Swiper Position:", swiper.getPosition());
-                telemetryM.addData(true, "Rotation Position:", rotation.getPosition());
+                telemetryM.addData(true, "Rotation Position1:", rotation1.getPosition());
+                telemetryM.addData(true, "Rotation Position2:", rotation2.getPosition());
                 telemetryM.addData(true, "Red side?", redSide);
                 telemetryM.addData(true, "slides reset timer", extendArmSS.getResetTimer().milliseconds());
                 telemetryM.addData(true, "extendArm1 Power", extendArm1.getPower());
@@ -562,7 +567,7 @@ public class MainV5 extends LinearOpMode {
         wristCpos1 = preset.wrist1 != -1.0 ? preset.wrist1 : wristCpos1;
         clawCpos1 = preset.claw1 != -1.0 ? preset.claw1 : clawCpos1;
         armCpos = preset.arm != -1.0 ? preset.arm : armCpos;
-        rotationalCpos = preset.rotational != -1.0 ? preset.rotational : rotationalCpos;
+        rotationalCpos1 = preset.rotational != -1.0 ? preset.rotational : rotationalCpos1;
         extendArmSS.moveTo(slidesTARGET);
     }
 }

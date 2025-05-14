@@ -75,7 +75,8 @@ public class MainV6 extends LinearOpMode {
     public static double clawCpos2 = 1;
     public static double armCpos = 0.15;
     public static double subArmCpos = 1;
-    public static double rotationalCpos = 0;
+    public static double rotationalCpos1 = 0;
+    public static double rotationalCpos2 = 0;
     // misc
     public static boolean redSide = true;
     public static boolean debugMode = false;
@@ -135,15 +136,16 @@ public class MainV6 extends LinearOpMode {
         Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 2x axon
         Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon
         Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
-        Servo rotation = hardwareMap.get(Servo.class, "rotation"); // 1x goBilda speed
+        Servo rotation1 = hardwareMap.get(Servo.class, "rotation1"); // 1x goBilda speed
+        Servo rotation2 = hardwareMap.get(Servo.class, "rotation2"); // 1x axon
         // limits
         claw2.scaleRange(0.01, 0.08);
-        wrist2.scaleRange(0.05, 0.88);
-        rotation.scaleRange(0.43, 0.55);
+        wrist2.scaleRange(0.05, 0.8);
+        rotation1.scaleRange(0.43, 0.55);
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
-        submersibleArm.scaleRange(0.45, 1);
+        submersibleArm.scaleRange(0.385, 0.85);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -161,7 +163,8 @@ public class MainV6 extends LinearOpMode {
         claw2.setPosition(1);
         arm.setPosition(0.15);
         submersibleArm.setPosition(1);
-        rotation.setPosition(0);
+        rotation1.setPosition(0);
+        rotation2.setPosition(0);
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
         if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
@@ -205,7 +208,8 @@ public class MainV6 extends LinearOpMode {
                 if (Math.abs(claw2.getPosition() - clawCpos2) > 0.02) claw2.setPosition(clawCpos2);
                 if (Math.abs(arm.getPosition() - armCpos) > 0.02) arm.setPosition(armCpos);
                 if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.02) submersibleArm.setPosition(subArmCpos);
-                if (Math.abs(rotation.getPosition() - rotationalCpos) > 0.02) rotation.setPosition(rotationalCpos);
+                if (Math.abs(rotation1.getPosition() - rotationalCpos1) > 0.02) rotation1.setPosition(rotationalCpos1);
+                if (Math.abs(rotation2.getPosition() - rotationalCpos2) > 0.02) rotation2.setPosition(rotationalCpos2);
                 // toggle debug
                 if (currentGamepad1.options && !previousGamepad1.options) debugMode = !debugMode;
                 // movements
@@ -249,11 +253,14 @@ public class MainV6 extends LinearOpMode {
                 switch (subStates) {
                     case MOVE_OUT:
                         subArmCpos = 0;
-                        if (true) wristCpos2 = 0.8;
+                        rotationalCpos1 = 0.5;
+                        if (true) {
+                            wristCpos2 = 0;
+                            clawCpos2 = 0;
+                        }
                         break;
                     case GRAB:
-                        wristCpos2 = 1;
-                        Timer.wait(100);
+                        subArmCpos = 0;
                         clawCpos2 = 1;
                         break;
                     case RETURN:
@@ -312,7 +319,7 @@ public class MainV6 extends LinearOpMode {
                 // controls
                 switch (mode) {
                     case SUBMERSIBLE:
-                        if (currentGamepad1.x && !previousGamepad1.x) {
+                        if (currentGamepad1.a && !previousGamepad1.a) {
                             switch (subStates) {
                                 case MOVE_OUT:
                                     subStates = SubModeStates.GRAB;
@@ -355,7 +362,7 @@ public class MainV6 extends LinearOpMode {
                                     break;
                             }
                         }
-                        if (currentGamepad2.x && !previousGamepad2.x) {
+                        if (currentGamepad2.a && !previousGamepad2.a) {
                             switch (specStates) {
                                 case PRE_SPECIMEN:
                                 case RETURN:
@@ -371,14 +378,14 @@ public class MainV6 extends LinearOpMode {
                         break;
                 }
                 // rotate
-                if (rotationalCpos > 0.51) rotationState = RotationStates.RIGHT;
-                if (rotationalCpos < 0.49) rotationState = RotationStates.LEFT;
-                if (rotationalCpos > 0.49 && rotationalCpos < 0.51) rotationState = RotationStates.MIDDLE;
+                if (rotationalCpos1 > 0.51) rotationState = RotationStates.RIGHT;
+                if (rotationalCpos1 < 0.49) rotationState = RotationStates.LEFT;
+                if (rotationalCpos1 > 0.49 && rotationalCpos1 < 0.51) rotationState = RotationStates.MIDDLE;
                 if (currentGamepad1.right_trigger > 0 && !(previousGamepad1.right_trigger > 0)) {
-                    rotationalCpos = 0.5;
+                    rotationalCpos1 = 0.5;
                     rotationState = RotationStates.MIDDLE;
                 } else if (currentGamepad1.left_trigger > 0 && !(previousGamepad1.left_trigger > 0)) {
-                    rotationalCpos = 0;
+                    rotationalCpos1 = 0;
                     rotationState = RotationStates.LEFT;
                 }
                 // extendArm and subArm slowdown
@@ -403,6 +410,9 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "extendArmState", extendArmState);
                 telemetryM.addData(true, "presetState", presetState);
                 telemetryM.addData(true, "rotationState", rotationState);
+                telemetryM.addData(true, "subState", subStates);
+                telemetryM.addData(true, "specState", specStates);
+                telemetryM.addData(true, "basketState", basketsStates);
                 telemetryM.addData(true, "llState", llState);
                 telemetryM.addData(true, "PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
                 telemetryM.addData(true, "target", slidesTARGET);
@@ -421,7 +431,7 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "Claw Position1:", claw1.getPosition());
                 telemetryM.addData(true, "Claw Position2:", claw2.getPosition());
                 telemetryM.addData(true, "Arm Position:", arm.getPosition());
-                telemetryM.addData(true, "Rotation Position:", rotation.getPosition());
+                telemetryM.addData(true, "Rotation Position:", rotation1.getPosition());
                 telemetryM.addData(true, "Red side?", redSide);
                 telemetryM.addData(true, "slides reset timer", extendArmSS.getResetTimer().milliseconds());
                 telemetryM.addData(true, "extendArm1 Power", extendArm1.getPower());
@@ -444,7 +454,7 @@ public class MainV6 extends LinearOpMode {
         wristCpos1 = preset.wrist1 != -1.0 ? preset.wrist1 : wristCpos1;
         clawCpos1 = preset.claw1 != -1.0 ? preset.claw1 : clawCpos1;
         armCpos = preset.arm != -1.0 ? preset.arm : armCpos;
-        rotationalCpos = preset.rotational != -1.0 ? preset.rotational : rotationalCpos;
+        rotationalCpos1 = preset.rotational != -1.0 ? preset.rotational : rotationalCpos1;
         extendArmSS.moveTo(slidesTARGET);
     }
 }
