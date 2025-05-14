@@ -40,8 +40,12 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
+import org.firstinspires.ftc.teamcode.variables.enums.ModeStates;
 import org.firstinspires.ftc.teamcode.variables.enums.PresetStates;
 import org.firstinspires.ftc.teamcode.variables.enums.RotationStates;
+import org.firstinspires.ftc.teamcode.variables.enums.subEnums.BasketsModeStates;
+import org.firstinspires.ftc.teamcode.variables.enums.subEnums.SpecModeStates;
+import org.firstinspires.ftc.teamcode.variables.enums.subEnums.SubModeStates;
 
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -67,7 +71,6 @@ public class MainV6 extends LinearOpMode {
     // servos
     public static double wristCpos1 = 1;
     public static double clawCpos1 = 1;
-    public static double swiperCpos = 1;
     public static double wristCpos2 = 1;
     public static double clawCpos2 = 1;
     public static double armCpos = 0.15;
@@ -89,11 +92,16 @@ public class MainV6 extends LinearOpMode {
     public static double eaLimitLow = 0;
     public static boolean eaCorrection = true;
     public static SlidesSS extendArmSS;
+    boolean openClaw = false;
     // states
     SlidersStates extendArmState = SlidersStates.FLOATING;
     private static PresetStates presetState = PresetStates.NO_PRESET;
     private static RotationStates rotationState = RotationStates.MIDDLE;
     LimelightState llState = LimelightState.INIT;
+    private static ModeStates mode = ModeStates.SUBMERSIBLE;
+    private static SubModeStates subStates = SubModeStates.RETURN;
+    private static SpecModeStates specStates = SpecModeStates.GRAB;
+    private static BasketsModeStates basketsStates = BasketsModeStates.RETURN;
     @Override
     public void runOpMode() {
         // hardware
@@ -119,7 +127,6 @@ public class MainV6 extends LinearOpMode {
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // servos
-        Servo swiper = hardwareMap.get(Servo.class, "swiper"); // 1x goBilda speed
         // ea
         Servo arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
@@ -137,12 +144,10 @@ public class MainV6 extends LinearOpMode {
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
         submersibleArm.scaleRange(0.45, 1);
-        swiper.scaleRange(0.3, 0.87);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
-        swiper.setDirection(Servo.Direction.REVERSE);
         // breaks
         Motors.setBrakes(leftFront, rightFront, leftRear, rightRear);
         // colors
@@ -156,7 +161,6 @@ public class MainV6 extends LinearOpMode {
         claw2.setPosition(1);
         arm.setPosition(0.15);
         submersibleArm.setPosition(1);
-        swiper.setPosition(1);
         rotation.setPosition(0);
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
@@ -201,10 +205,7 @@ public class MainV6 extends LinearOpMode {
                 if (Math.abs(claw2.getPosition() - clawCpos2) > 0.02) claw2.setPosition(clawCpos2);
                 if (Math.abs(arm.getPosition() - armCpos) > 0.02) arm.setPosition(armCpos);
                 if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.02) submersibleArm.setPosition(subArmCpos);
-                if (Math.abs(swiper.getPosition() - swiperCpos) > 0.02) swiper.setPosition(swiperCpos);
                 if (Math.abs(rotation.getPosition() - rotationalCpos) > 0.02) rotation.setPosition(rotationalCpos);
-                // field side
-                if (currentGamepad1.share && !previousGamepad1.share) redSide = !redSide;
                 // toggle debug
                 if (currentGamepad1.options && !previousGamepad1.options) debugMode = !debugMode;
                 // movements
@@ -234,50 +235,38 @@ public class MainV6 extends LinearOpMode {
                     rightFront.setPower(0);
                     rightRear.setPower(0);
                 }
+                // claw
+                clawCpos1 = openClaw ? 0 : 1;
                 // extendArm code
-                if (presetState != PresetStates.L2_HANG) extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
+                extendArmSS.update(gamepad2.right_stick_y > 0.1, gamepad2.right_stick_y < 0.1);
                 // submersibleArm code
-                if (gamepad1.dpad_up) {
+                if (gamepad1.right_stick_y > 0.1) {
                     subArmCpos = 0;
-                } else if (gamepad1.dpad_down) {
+                } else if (gamepad1.right_stick_y < 0.1) {
                     subArmCpos = 1;
                 }
                 // preset code
-                switch (presetState) {
-                    case HUMAN_PLAYER:
-                        applyPreset(MainV5.presets.humanPlayer);
-                        presetState = PresetStates.NO_PRESET;
+                switch (subStates) {
+                    case MOVE_OUT:
+                        subArmCpos = 0;
+                        if (true) wristCpos2 = 0.8;
                         break;
-                    case HIGH_BASKET:
-                        applyPreset(MainV5.presets.highBasket);
-                        if (clawCpos1 == 0 || gamepad2.left_trigger > 0) presetState = PresetStates.TRANSITION;
+                    case GRAB:
+                        wristCpos2 = 1;
+                        Timer.wait(100);
+                        clawCpos2 = 1;
                         break;
-                    case LOW_BASKET:
-                        applyPreset(MainV5.presets.lowBasket);
-                        if (clawCpos1 == 0 || gamepad2.left_trigger > 0) presetState = PresetStates.TRANSITION;
-                        break;
-                    case TRANSITION:
+                    case RETURN:
                         applyPreset(MainV5.presets.transition);
-                        presetState = PresetStates.NO_PRESET;
-                        break;
-                    case SCORE_SPECIMEN:
-                        double scoreTarget = MainV5.presets.scoreSpecimen.extendArm != -1.0 ? MainV5.presets.scoreSpecimen.extendArm : extendArmSS.getInches1();
-                        if (Math.abs(extendArmSS.getInches1() - scoreTarget) <= 2) presetState = PresetStates.HUMAN_PLAYER;
-                        break;
-                    case L2_HANG:
-                        double target = MainV5.presets.hang.extendArm != -1.0 ? MainV5.presets.hang.extendArm : extendArmSS.getInches1();
-                        if (Math.abs(extendArmSS.getInches1() - target) <= 2) {
-                            extendArm1.setPower(-hangPower);
-                            extendArm2.setPower(-hangPower);
-                        }
+                        presetState = PresetStates.TRANSITION;
                         break;
                 }
                 /**
                  * GAMEPAD 1
-                 *   X / ▢         - Transition from Submersible arm to Extend arm
-                 *   Y / Δ         - L2 hang
-                 *   B / O         - Grab from Human Player Preset
-                 *   A / X         - Grab using Limelight
+                 *   X / ▢         - N/A
+                 *   Y / Δ         - N/A
+                 *   B / O         - N/A
+                 *   A / X         - N/A
                  *
                  *                    ________
                  *                   / ______ \\
@@ -292,44 +281,13 @@ public class MainV6 extends LinearOpMode {
                  *                \\.          .'
                  *                  \\________/
                 */
-                // humanPlayer preset
-                if (gamepad1.b) {
-                    presetState = PresetStates.HUMAN_PLAYER;
-                }
-                // transition preset
-                if (gamepad1.x) {
-                    presetState = PresetStates.TRANSITION;
-                }
-                // l2 hang
-                if (currentGamepad1.y && !previousGamepad1.y) {
-                    if (presetState == PresetStates.NO_PRESET) {
-                        applyPreset(MainV5.presets.preHang);
-                        presetState = PresetStates.PRE_L2_HANG;
-                    } else if (presetState == PresetStates.PRE_L2_HANG) {
-                        applyPreset(MainV5.presets.hang);
-                        presetState = PresetStates.L2_HANG;
-                    }
-                }
-                // limelight
-                if (currentGamepad1.a && !previousGamepad1.a && !gamepad1.options) {
-                    limelight.setState(LimelightState.MOVING_TO_SAMPLE);
-                    // clawCpos2 = 0;
-                    // wristCpos2 = 0.5;
-                    subArmCpos = limelight.getSubmersible();
-                    rotationalCpos = limelight.getRotation();
-                    limelight.strafe();
-                    Timer.wait(200);
-                    // wristCpos2 = 0;
-                    // clawCpos2 = 1;
-                    limelight.setState(LimelightState.SAMPLE_REACHED);
-                    // presetState = PresetStates.TRANSITION;
-                }
+
                 /**
                  * GAMEPAD 2
-                 *   X / ▢         - Transition from Submersible arm to Extend arm
-                 *   Y / Δ         - Place in High Basket
-                 *   B / O         - Score Specimen Preset
-                 *   A / X         - Place in Low basket
+                 *   X / ▢         - N/A
+                 *   Y / Δ         - N/A
+                 *   B / O         - N/A
+                 *   A / X         - N/A
                  *
                  *                    ________
                  *                   / ______ \\
@@ -344,83 +302,84 @@ public class MainV6 extends LinearOpMode {
                  *                \\.          .'
                  *                  \\________/
                 */
-                // high basket preset
-                if (gamepad2.y) {
-                    presetState = PresetStates.HIGH_BASKET;
+                // modes
+                if (gamepad1.dpad_down) mode = ModeStates.SUBMERSIBLE;
+                if (gamepad2.dpad_up) mode = ModeStates.BASKETS;
+                if (gamepad2.dpad_down) {
+                    mode = ModeStates.SPECIMEN;
+                    presetState = PresetStates.HUMAN_PLAYER;
                 }
-                // low basket preset
-                if (gamepad2.a) {
-                    presetState = PresetStates.LOW_BASKET;
-                }
-                // transition preset
-                if (gamepad2.x) {
-                    presetState = PresetStates.TRANSITION;
-                }
-                // specimen preset
-                if (currentGamepad2.b && !previousGamepad2.b && !gamepad2.options) {
-                    if (presetState == PresetStates.NO_PRESET) {
-                        applyPreset(MainV5.presets.preSpecimen);
-                        presetState = PresetStates.PRE_SPECIMEN_SCORE;
-                    } else if (presetState == PresetStates.PRE_SPECIMEN_SCORE) {
-                        applyPreset(MainV5.presets.scoreSpecimen);
-                        presetState = PresetStates.SCORE_SPECIMEN;
-                    }
-                }
-                // auto move arm to score when we pickup from human player
-                if (armCpos == MainV5.presets.humanPlayer.arm && wristCpos1 == MainV5.presets.humanPlayer.wrist1 && clawCpos1 == 1 && moving) {
-                    applyPreset(MainV5.presets.preSpecimen);
-                    presetState = PresetStates.PRE_SPECIMEN_SCORE;
-                }
-                // claws
-                if (gamepad2.left_trigger > 0) {
-                    clawCpos1 = 0;
-                } else if (gamepad2.right_trigger > 0) {
-                    clawCpos1 = 1;
-                }
-                if (gamepad1.left_bumper) {
-                    clawCpos2 = 0;
-                } else if (gamepad1.right_bumper) {
-                    clawCpos2 = 1;
-                }
-                // wrist
-                if (gamepad1.dpad_right) {
-                    wristCpos2 = 0;
-                } else if (gamepad1.dpad_left) {
-                    wristCpos2 = 1;
-                }
-                if (gamepad2.dpad_left) {
-                    wristCpos1 = 0;
-                } else if(gamepad2.dpad_right) {
-                    wristCpos1 = 0.6;
-                }
-                // arm
-                if (gamepad2.right_stick_y > 0.3) {
-                    armCpos = 0.23;
-                    wristCpos1 = 0.6;
-                } else if (gamepad2.right_stick_y < -0.3) {
-                    armCpos = 0.96;
-                    wristCpos1 = 0.42;
+                // controls
+                switch (mode) {
+                    case SUBMERSIBLE:
+                        if (currentGamepad1.x && !previousGamepad1.x) {
+                            switch (subStates) {
+                                case MOVE_OUT:
+                                    subStates = SubModeStates.GRAB;
+                                    break;
+                                case GRAB:
+                                    subStates = SubModeStates.RETURN;
+                                    break;
+                                case RETURN:
+                                    subStates = SubModeStates.MOVE_OUT;
+                                    break;
+                            }
+                        }
+                        if (currentGamepad1.b && !previousGamepad1.b) {
+                            switch (subStates) {
+                                case MOVE_OUT:
+                                case THROW:
+                                    subStates = SubModeStates.RETURN;
+                                    break;
+                                case GRAB:
+                                    subStates = SubModeStates.MOVE_OUT;
+                                    break;
+                                case RETURN:
+                                    subStates = SubModeStates.THROW;
+                                    break;
+                            }
+                        }
+                        if (currentGamepad1.y && !previousGamepad1.y) {
+                            subStates = SubModeStates.RETURN;
+                        }
+                        break;
+                    case SPECIMEN:
+                        if (currentGamepad2.b && !previousGamepad2.b) {
+                            switch (specStates) {
+                                case PRE_SPECIMEN:
+                                    specStates = SpecModeStates.SCORE;
+                                    break;
+                                case GRAB:
+                                case RETURN:
+                                    specStates = SpecModeStates.PRE_SPECIMEN;
+                                    break;
+                            }
+                        }
+                        if (currentGamepad2.x && !previousGamepad2.x) {
+                            switch (specStates) {
+                                case PRE_SPECIMEN:
+                                case RETURN:
+                                    specStates = SpecModeStates.GRAB;
+                                    break;
+                            }
+                        }
+                        if (currentGamepad2.y && !previousGamepad2.y) {
+                            specStates = SpecModeStates.RETURN;
+                        }
+                        break;
+                    case BASKETS:
+                        break;
                 }
                 // rotate
                 if (rotationalCpos > 0.51) rotationState = RotationStates.RIGHT;
                 if (rotationalCpos < 0.49) rotationState = RotationStates.LEFT;
                 if (rotationalCpos > 0.49 && rotationalCpos < 0.51) rotationState = RotationStates.MIDDLE;
                 if (currentGamepad1.right_trigger > 0 && !(previousGamepad1.right_trigger > 0)) {
-                    if (rotationState == RotationStates.MIDDLE) {
-                        rotationalCpos = 0.7;
-                        rotationState = RotationStates.RIGHT;
-                    } else if (rotationState == RotationStates.LEFT) {
-                        rotationalCpos = 0.5;
-                        rotationState = RotationStates.MIDDLE;
-                    }
+                    rotationalCpos = 0.5;
+                    rotationState = RotationStates.MIDDLE;
                 } else if (currentGamepad1.left_trigger > 0 && !(previousGamepad1.left_trigger > 0)) {
-                    if (rotationState == RotationStates.MIDDLE) {
-                        rotationalCpos = 0.2;
-                        rotationState = RotationStates.LEFT;
-                    } else if (rotationState == RotationStates.RIGHT) {
-                        rotationalCpos = 0.5;
-                        rotationState = RotationStates.MIDDLE;
-                    }
+                    rotationalCpos = 0;
+                    rotationState = RotationStates.LEFT;
                 }
                 // extendArm and subArm slowdown
                 if (extendArmSS.getInches1() >= eaLimitHigh / 2) {
@@ -462,7 +421,6 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "Claw Position1:", claw1.getPosition());
                 telemetryM.addData(true, "Claw Position2:", claw2.getPosition());
                 telemetryM.addData(true, "Arm Position:", arm.getPosition());
-                telemetryM.addData(true, "Swiper Position:", swiper.getPosition());
                 telemetryM.addData(true, "Rotation Position:", rotation.getPosition());
                 telemetryM.addData(true, "Red side?", redSide);
                 telemetryM.addData(true, "slides reset timer", extendArmSS.getResetTimer().milliseconds());
