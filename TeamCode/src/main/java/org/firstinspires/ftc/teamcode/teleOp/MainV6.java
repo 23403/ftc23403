@@ -253,7 +253,6 @@ public class MainV6 extends LinearOpMode {
                 switch (subStates) {
                     case MOVE_OUT:
                         subArmCpos = 0;
-                        rotationalCpos1 = 0.5;
                         if (true) {
                             wristCpos2 = 0;
                             clawCpos2 = 0;
@@ -262,10 +261,6 @@ public class MainV6 extends LinearOpMode {
                     case GRAB:
                         subArmCpos = 0;
                         clawCpos2 = 1;
-                        break;
-                    case RETURN:
-                        applyPreset(MainV5.presets.transition);
-                        presetState = PresetStates.TRANSITION;
                         break;
                 }
                 /**
@@ -325,9 +320,12 @@ public class MainV6 extends LinearOpMode {
                                     subStates = SubModeStates.GRAB;
                                     break;
                                 case GRAB:
+                                    applyPreset(MainV5.presets.transition);
+                                    presetState = PresetStates.TRANSITION;
                                     subStates = SubModeStates.RETURN;
                                     break;
                                 case RETURN:
+                                    rotationalCpos1 = 0.5;
                                     subStates = SubModeStates.MOVE_OUT;
                                     break;
                             }
@@ -342,6 +340,7 @@ public class MainV6 extends LinearOpMode {
                                     subStates = SubModeStates.MOVE_OUT;
                                     break;
                                 case RETURN:
+                                    // throw the stuff
                                     subStates = SubModeStates.THROW;
                                     break;
                             }
