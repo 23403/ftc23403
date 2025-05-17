@@ -8,9 +8,10 @@ public class CustomPresets {
     public Double wrist2;
     public Double wrist1;
     public Double arm;
-    public Double rotational;
+    public Double rotational1;
+    public Double rotational2;
 
-    public CustomPresets(double extendArm, Double subArm, Double claw2, Double claw1, Double wrist2, Double wrist1, Double arm, Double rotational) {
+    public CustomPresets(double extendArm, Double subArm, Double claw2, Double claw1, Double wrist2, Double wrist1, Double arm, Double rotational2, Double rotational1) {
         this.extendArm = extendArm;
         this.subArm = subArm;
         this.claw2 = claw2;
@@ -18,6 +19,7 @@ public class CustomPresets {
         this.wrist2 = wrist2;
         this.wrist1 = wrist1;
         this.arm = arm;
-        this.rotational = rotational;
+        this.rotational1 = rotational1;
+        this.rotational2 = rotational2;
     }
 }

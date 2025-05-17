@@ -29,13 +29,11 @@ import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.ColorRangeSensor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
@@ -52,7 +50,6 @@ import xyz.nin1275.enums.SlidersStates;
 import xyz.nin1275.subsystems.SlidesSS;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.Motors;
-import xyz.nin1275.utils.Sensor;
 import xyz.nin1275.utils.Timer;
 
 @Configurable
@@ -67,7 +64,6 @@ public class MainV5 extends LinearOpMode {
     // servos
     public static double wristCpos1 = 1;
     public static double clawCpos1 = 1;
-    public static double swiperCpos = 1;
     public static double wristCpos2 = 1;
     public static double clawCpos2 = 1;
     public static double armCpos = 0.15;
@@ -106,7 +102,8 @@ public class MainV5 extends LinearOpMode {
                 -1.0,
                 0.42,
                 0.96,
-                -1.0);
+                -1.0,
+                0.0);
         public static CustomPresets highBasket = new CustomPresets(
                 33.6,
                 -1.0,
@@ -115,7 +112,8 @@ public class MainV5 extends LinearOpMode {
                 -1.0,
                 0.6,
                 0.8,
-                -1.0);
+                -1.0,
+                0.0);
         public static CustomPresets lowBasket = new CustomPresets(
                 16.5,
                 -1.0,
@@ -124,7 +122,8 @@ public class MainV5 extends LinearOpMode {
                 -1.0,
                 0.6,
                 0.8,
-                -1.0);
+                -1.0,
+                0.0);
         public static CustomPresets transition = new CustomPresets(
                 eaLimitLow,
                 1.0,
@@ -133,7 +132,8 @@ public class MainV5 extends LinearOpMode {
                 1.0,
                 0.5,
                 0.18,
-                0.52);
+                0.52,
+                0.0);
         public static CustomPresets preSpecimen = new CustomPresets(
                 10,
                 -1.0,
@@ -142,6 +142,7 @@ public class MainV5 extends LinearOpMode {
                 -1.0,
                 0.6,
                 0.23,
+                -1.0,
                 -1.0);
         public static CustomPresets scoreSpecimen = new CustomPresets(
                 19.5,
@@ -151,6 +152,7 @@ public class MainV5 extends LinearOpMode {
                 -1.0,
                 0.6,
                 0.23,
+                -1.0,
                 -1.0);
         public static CustomPresets preHang = new CustomPresets(
                 33.6,
@@ -160,9 +162,11 @@ public class MainV5 extends LinearOpMode {
                 1.0,
                 0.5,
                 0.18,
-                0.52);
+                0.52,
+                0.0);
         public static CustomPresets hang = new CustomPresets(
                 eaLimitLow,
+                -1.0,
                 -1.0,
                 -1.0,
                 -1.0,
@@ -176,8 +180,7 @@ public class MainV5 extends LinearOpMode {
         // hardware
         Follower follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         PID controller = new PID(Math.sqrt(P), I, D);
-        ColorRangeSensor sensor = hardwareMap.get(ColorRangeSensor.class, "sensor");
-        MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower, sensor);
+        MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         TelemetryM telemetryM = new TelemetryM(telemetry, debugMode);
         Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
@@ -195,18 +198,16 @@ public class MainV5 extends LinearOpMode {
         DcMotorEx rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
-        // servos
-        Servo swiper = hardwareMap.get(Servo.class, "swiper"); // 1x goBilda speed
         // ea
         Servo arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
         Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
         Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
+        Servo rotation1 = hardwareMap.get(Servo.class, "rotation2"); // 1x axon
         // sa
         Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 2x axon
         Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon
         Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
-        Servo rotation1 = hardwareMap.get(Servo.class, "rotation1"); // 1x goBilda speed
-        Servo rotation2 = hardwareMap.get(Servo.class, "rotation2"); // 1x axon
+        Servo rotation2 = hardwareMap.get(Servo.class, "rotation1"); // 1x goBilda speed
         // limits
         claw2.scaleRange(0.01, 0.08);
         wrist2.scaleRange(0.05, 0.8);
@@ -215,12 +216,10 @@ public class MainV5 extends LinearOpMode {
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
         submersibleArm.scaleRange(0.385, 0.85);
-        swiper.scaleRange(0.3, 0.87);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
-        swiper.setDirection(Servo.Direction.REVERSE);
         // breaks
         Motors.setBrakes(leftFront, rightFront, leftRear, rightRear);
         // colors
@@ -234,9 +233,16 @@ public class MainV5 extends LinearOpMode {
         claw2.setPosition(1);
         arm.setPosition(0.15);
         submersibleArm.setPosition(1);
-        swiper.setPosition(1);
         rotation1.setPosition(0);
         rotation2.setPosition(0);
+        wristCpos1 = 1;
+        clawCpos1 = 1;
+        wristCpos2 = 1;
+        clawCpos2 = 1;
+        armCpos = 0.15;
+        subArmCpos = 1;
+        rotationalCpos2 = 0;
+        rotationalCpos1 = 0;
         // calibration
         hardwareMap.get(IMU.class, "imu").resetYaw();
         if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
@@ -280,7 +286,6 @@ public class MainV5 extends LinearOpMode {
                 if (Math.abs(claw2.getPosition() - clawCpos2) > 0.02) claw2.setPosition(clawCpos2);
                 if (Math.abs(arm.getPosition() - armCpos) > 0.02) arm.setPosition(armCpos);
                 if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.02) submersibleArm.setPosition(subArmCpos);
-                if (Math.abs(swiper.getPosition() - swiperCpos) > 0.02) swiper.setPosition(swiperCpos);
                 if (Math.abs(rotation1.getPosition() - rotationalCpos1) > 0.02) rotation1.setPosition(rotationalCpos1);
                 if (Math.abs(rotation2.getPosition() - rotationalCpos2) > 0.02) rotation2.setPosition(rotationalCpos2);
                 // field side
@@ -532,17 +537,12 @@ public class MainV5 extends LinearOpMode {
                 telemetryM.addData(true, "preset error1", Math.abs(slidesTARGET - extendArmSS.getInches1()));
                 telemetryM.addData(true, "preset error2", Math.abs(slidesTARGET - extendArmSS.getInches2()));
                 telemetryM.addData(true, "preset errorAvg", (Math.abs(slidesTARGET - extendArmSS.getInches1()) + Math.abs(slidesTARGET - extendArmSS.getInches2())) / 2);
-                telemetryM.addData(true, "DEBUG:", "PickUp " + (Sensor.pickUpRed() ? "RED" : Sensor.pickUpBlue() ? "BLUE" : Sensor.pickUpYellow() ? "YELLOW" : "NONE"));
-                telemetryM.addData(true, "DEBUG:", "Grabbed " + (Sensor.isRedGrabbed() ? "RED" : Sensor.isBlueGrabbed() ? "BLUE" : Sensor.isYellowGrabbed() ? "YELLOW" : "NONE"));
-                telemetryM.addData(true, "Sensor Distance MM:", sensor.getDistance(DistanceUnit.MM));
-                telemetryM.addData(true, "Sensor RGBA:", "R: " + sensor.red() + " G: " + sensor.green() + " B: " + sensor.blue() + " A: " + sensor.alpha());
                 telemetryM.addData(true, "Submersible Arm Position:", submersibleArm.getPosition());
                 telemetryM.addData(true, "Wrist Position1:", wrist1.getPosition());
                 telemetryM.addData(true, "Wrist Position2:", wrist2.getPosition());
                 telemetryM.addData(true, "Claw Position1:", claw1.getPosition());
                 telemetryM.addData(true, "Claw Position2:", claw2.getPosition());
                 telemetryM.addData(true, "Arm Position:", arm.getPosition());
-                telemetryM.addData(true, "Swiper Position:", swiper.getPosition());
                 telemetryM.addData(true, "Rotation Position1:", rotation1.getPosition());
                 telemetryM.addData(true, "Rotation Position2:", rotation2.getPosition());
                 telemetryM.addData(true, "Red side?", redSide);
@@ -567,7 +567,9 @@ public class MainV5 extends LinearOpMode {
         wristCpos1 = preset.wrist1 != -1.0 ? preset.wrist1 : wristCpos1;
         clawCpos1 = preset.claw1 != -1.0 ? preset.claw1 : clawCpos1;
         armCpos = preset.arm != -1.0 ? preset.arm : armCpos;
-        rotationalCpos1 = preset.rotational != -1.0 ? preset.rotational : rotationalCpos1;
+        rotationalCpos2 = preset.rotational2 != -1.0 ? preset.rotational2 : rotationalCpos2;
+        rotationalCpos1 = preset.rotational1 != -1.0 ? preset.rotational1 : rotationalCpos1;
         extendArmSS.moveTo(slidesTARGET);
+        presetState = PresetStates.NO_PRESET;
     }
 }
