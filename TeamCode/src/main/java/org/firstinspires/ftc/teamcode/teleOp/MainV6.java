@@ -155,7 +155,7 @@ public class MainV6 extends LinearOpMode {
         // colors
         gamepad1.setLedColor(0, 255, 255, -1);
         gamepad2.setLedColor(0, 255, 0, -1);
-        LynxUtils.setLynxColor(true, true, 255, 0, 255);
+        LynxUtils.setLynxColor(true, true, true, 255, 0, 255);
         // starting pos
         wrist1.setPosition(1);
         wrist2.setPosition(1);
@@ -309,6 +309,7 @@ public class MainV6 extends LinearOpMode {
                                 }
                                 break;
                         }
+                        LynxUtils.setLynxColor(true, true, true, 0, 0, 255);
                         break;
                     case SPECIMEN:
                         if (specStates == SpecModeStates.GRAB) {
@@ -318,6 +319,7 @@ public class MainV6 extends LinearOpMode {
                                 specStates = SpecModeStates.PRE_SPECIMEN;
                             }
                         }
+                        LynxUtils.setLynxColor(true, true, true, 255, 0, 255);
                         break;
                     case BASKETS:
                         switch (basketsStates) {
@@ -329,6 +331,7 @@ public class MainV6 extends LinearOpMode {
                                 }
                                 break;
                         }
+                        LynxUtils.setLynxColor(true, true, true, 255, 0, 0);
                         break;
                 }
                 // controls
@@ -369,6 +372,14 @@ public class MainV6 extends LinearOpMode {
                                 case GRAB:
                                     subStates = SubModeStates.MOVE_OUT;
                                     break;
+                            }
+                        }
+                        if (currentGamepad1.x && !previousGamepad1.x) {
+                            if (subStates == SubModeStates.RETURN) {
+                                subArmCpos = limelight.getSubmersible() == -1 ? 0 : limelight.getSubmersible();
+                                rotationalCpos2 = 0.52;
+                                wristCpos2 = 0.8;
+                                subStates = SubModeStates.MOVE_OUT;
                             }
                         }
                         if (currentGamepad1.y && !previousGamepad1.y) subStates = SubModeStates.RETURN;
@@ -501,9 +512,9 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.update();
             }
         }
-        if (isStopRequested()) {
+        if (isStopRequested() || !isStarted()) {
             // stop code
-            LynxUtils.setLynxColor(true, true, 0, 255, 0);
+            LynxUtils.setLynxColor(true, true, true, 0, 255, 0);
         }
     }
     // preset controls
