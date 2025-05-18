@@ -12,6 +12,8 @@ import androidx.annotation.ColorInt;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
+
 public class LynxUtils {
     private static LynxModule controlHub = null;
     private static LynxModule expansionHub = null;
@@ -38,6 +40,7 @@ public class LynxUtils {
         @ColorInt int color = Color.rgb(R, G, B); // color int
         if (validControlHub) LynxUtils.controlHub.setConstant(color);
         if (validExpansionHub) LynxUtils.expansionHub.setConstant(color);
+        if (validServoHub) LynxUtils.servoHub.setConstant(color);
     }
     public static void setLynxColor(boolean controlHub, boolean expansionHub, int R, int G, int B) {
         @ColorInt int color = Color.rgb(R, G, B); // color int
@@ -63,5 +66,14 @@ public class LynxUtils {
         if (validControlHub) LynxUtils.controlHub.setConstant(color1);
         if (validExpansionHub) LynxUtils.expansionHub.setConstant(color2);
         if (validServoHub) LynxUtils.servoHub.setConstant(color3);
+    }
+    public static double getControlHubCurrent() {
+        return validControlHub ? LynxUtils.controlHub.getCurrent(CurrentUnit.AMPS) : 0;
+    }
+    public static double getExpansionHubCurrent() {
+        return validExpansionHub ? LynxUtils.expansionHub.getCurrent(CurrentUnit.AMPS) : 0;
+    }
+    public static double getServoHubCurrent() {
+        return validServoHub ? LynxUtils.servoHub.getCurrent(CurrentUnit.AMPS) : 0;
     }
 }
