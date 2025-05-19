@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
+import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -125,7 +126,6 @@ public class SubArmSS {
     }
     // loop
     public void update(boolean up, boolean down) {
-        controller.setPID(Math.sqrt(controller.getP()), controller.getI(), controller.getD());
         // vars
         double ff = saCorrection ? F : 0;
         // logic
@@ -148,12 +148,14 @@ public class SubArmSS {
                 subArm1.setPower(controller.getP());
                 subArm2.setPower(controller.getP() + correction);
                 subArmCpos = subArm1.getCurrentPosition();
+                Motors.setMode(DcMotorEx.RunMode.RUN_TO_POSITION, subArm1, subArm2);
                 sliderState = SlidersStates.MANUAL_MOVEMENT;
             } else if (Math.abs(inches1 - saLimitLow) > 2 && sliderState != SlidersStates.MOVING_TO_PRESET) {
                 subArm1.setTargetPosition(subArmCpos);
                 subArm2.setTargetPosition(subArmCpos);
                 subArm1.setPower(ff);
                 subArm2.setPower(ff);
+                Motors.setMode(DcMotorEx.RunMode.RUN_TO_POSITION, subArm1, subArm2);
                 if (sliderState == SlidersStates.PRESET_REACHED) Timer.wait(500);
                 sliderState = saCorrection ? SlidersStates.FORCE_FEED_BACK : SlidersStates.FLOATING;
             }
@@ -178,13 +180,14 @@ public class SubArmSS {
             // reset slides 0 pos
             if (sliderState == SlidersStates.RESETTING_ZERO_POS) {
                 if (resetTimer.milliseconds() < 200) {
+                    Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, subArm1, subArm2);
                     subArm1.setPower(-0.1);
                     subArm2.setPower(-0.1);
                 } else {
                     subArm1.setPower(0);
                     subArm2.setPower(0);
                     Motors.resetEncoders(subArm1, subArm2);
-                    Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, subArm1, subArm2);
+                    Motors.setMode(DcMotorEx.RunMode.RUN_TO_POSITION, subArm1, subArm2);
                     sliderState = SlidersStates.ZERO_POS_RESET;
                 }
             }
@@ -196,6 +199,7 @@ public class SubArmSS {
                 subArm1.setPower(controller.getP());
                 subArm2.setPower(controller.getP() + correction);
                 subArmCpos = subArm1.getCurrentPosition();
+                Motors.setMode(DcMotorEx.RunMode.RUN_TO_POSITION, subArm1, subArm2);
                 if (Math.abs(inches1 - slidesTARGET) < 1) sliderState = SlidersStates.PRESET_REACHED;
             }
         } else {
@@ -212,10 +216,12 @@ public class SubArmSS {
                 subArm.setTargetPosition((int) ((target / INCHES_PER_REV) * CPR));
                 subArm.setPower(controller.getP());
                 subArmCpos = subArm.getCurrentPosition();
+                Motors.setMode(DcMotorEx.RunMode.RUN_TO_POSITION, subArm);
                 sliderState = SlidersStates.MANUAL_MOVEMENT;
             } else if (Math.abs(inches - saLimitLow) > 2 && sliderState != SlidersStates.MOVING_TO_PRESET) {
                 subArm.setTargetPosition(subArmCpos);
                 subArm.setPower(ff);
+                Motors.setMode(DcMotorEx.RunMode.RUN_TO_POSITION, subArm);
                 if (sliderState == SlidersStates.PRESET_REACHED) Timer.wait(500);
                 sliderState = saCorrection ? SlidersStates.FORCE_FEED_BACK : SlidersStates.FLOATING;
             }
@@ -240,11 +246,12 @@ public class SubArmSS {
             // reset slides 0 pos
             if (sliderState == SlidersStates.RESETTING_ZERO_POS) {
                 if (resetTimer.milliseconds() < 200) {
+                    Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, subArm);
                     subArm.setPower(-0.1);
                 } else {
                     subArm.setPower(0);
                     Motors.resetEncoders(subArm);
-                    Motors.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER, subArm);
+                    Motors.setMode(DcMotorEx.RunMode.RUN_TO_POSITION, subArm);
                     sliderState = SlidersStates.ZERO_POS_RESET;
                 }
             }
@@ -253,13 +260,13 @@ public class SubArmSS {
                 subArm.setTargetPosition((int) ((slidesTARGET / INCHES_PER_REV) * CPR));
                 subArm.setPower(controller.getP());
                 subArmCpos = subArm.getCurrentPosition();
+                Motors.setMode(DcMotorEx.RunMode.RUN_TO_POSITION, subArm);
                 if (Math.abs(inches - slidesTARGET) < 1) sliderState = SlidersStates.PRESET_REACHED;
             }
         }
     }
     // loop
     public void update() {
-        controller.setPID(Math.sqrt(controller.getP()), controller.getI(), controller.getD());
         // vars
         double ff = saCorrection ? F : 0;
         // logic
@@ -382,7 +389,7 @@ public class SubArmSS {
         sliderState = SlidersStates.MOVING_TO_PRESET;
     }
     public void updatePIDKFValues(double p, double i, double d, double K, double F) {
-        controller.setPID(Math.sqrt(p), i, d);
+        controller.setPID(p, i, d);
         this.K = K;
         this.F = F;
     }

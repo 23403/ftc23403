@@ -7,7 +7,6 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.subsystems.SubArmSS;
-import org.firstinspires.ftc.teamcode.teleOp.MainV5;
 
 import xyz.nin1275.controllers.PID;
 
@@ -41,6 +40,7 @@ public class SubArmSSTest extends LinearOpMode {
                 // values
                 subArmSS.setSaCorrection(saCorrection);
                 subArmSS.setLimits(saLimitHigh, saLimitLow);
+                subArmSS.updatePIDKFValues(P, 0, 0, 0, F);
                 // preset
                 if (gamepad1.b) {
                     subArmSS.moveTo(presetPos);

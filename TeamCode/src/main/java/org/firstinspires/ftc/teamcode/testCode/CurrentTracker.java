@@ -4,6 +4,7 @@ import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
@@ -11,6 +12,7 @@ import org.firstinspires.ftc.teamcode.utils.TelemetryM;
 @Autonomous(name="Current Tracker", group="tools_ftc23403")
 public class CurrentTracker extends OpMode {
     private TelemetryM telemetryM;
+    ElapsedTime time = new ElapsedTime();
     /**
      * Initialization code.
      */
@@ -32,7 +34,10 @@ public class CurrentTracker extends OpMode {
     @Override
     public void loop() {
         // colors
-        LynxUtils.setLynxColor((int)(Math.random()*255), (int)(Math.random()*255), (int)(Math.random()*255));
+        if (time.milliseconds() > 100) {
+            LynxUtils.setLynxColor((int)(Math.random()*255), (int)(Math.random()*255), (int)(Math.random()*255));
+            time.reset();
+        }
         // telemetry
         telemetryM.addData("Control Hub Current", LynxUtils.getControlHubCurrent());
         telemetryM.addData("Expansion Hub Current", LynxUtils.getExpansionHubCurrent());
