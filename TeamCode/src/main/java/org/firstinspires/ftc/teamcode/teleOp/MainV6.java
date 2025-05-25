@@ -27,6 +27,7 @@ import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -34,6 +35,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
@@ -48,6 +50,10 @@ import org.firstinspires.ftc.teamcode.variables.enums.subEnums.SpecModeStates;
 import org.firstinspires.ftc.teamcode.variables.enums.subEnums.SubModeStates;
 import org.firstinspires.ftc.teamcode.variables.presets.MainV6Presets;
 
+import java.util.List;
+
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+import dev.frozenmilk.dairy.cachinghardware.CachingServo;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
@@ -84,8 +90,13 @@ public class MainV6 extends LinearOpMode {
     public static double wheelSpeedMinEA = 0.7;
     public static double wheelSpeedMinSA = 0.8;
     private double wheelSpeed = wheelSpeedMax;
+    // power draw
+    ElapsedTime loopTime;
+    public static boolean bulkRead = true;
+    private static boolean brOFF = false;
+    private static boolean brON = false;
     // odometry
-    public static boolean odoDrive = false;
+    public static boolean odoDrive = true;
     // extend arm
     public static double slidesTARGET = 0;
     public static double eaLimitHigh = 33.6;
@@ -112,6 +123,7 @@ public class MainV6 extends LinearOpMode {
         TelemetryM telemetryM = new TelemetryM(telemetry, debugMode);
         Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState, follower);
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         LynxUtils.initLynx(hardwareMap);
         AnalogInput subArm1 = hardwareMap.get(AnalogInput.class, "subArm1");
         AnalogInput arm1 = hardwareMap.get(AnalogInput.class, "arm1");
@@ -121,23 +133,23 @@ public class MainV6 extends LinearOpMode {
         Gamepad previousGamepad1 = new Gamepad();
         Gamepad previousGamepad2 = new Gamepad();
         // motors
-        DcMotorEx leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
-        DcMotorEx leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
-        DcMotorEx rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
-        DcMotorEx rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
-        DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
-        DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
+        CachingDcMotorEx leftFront = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "leftFront"));
+        CachingDcMotorEx leftRear = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "leftRear"));
+        CachingDcMotorEx rightFront = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "rightFront"));
+        CachingDcMotorEx rightRear = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "rightRear"));
+        CachingDcMotorEx extendArm1 = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "ExtendArm1"));
+        CachingDcMotorEx extendArm2 = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "ExtendArm2"));
         // servos
         // ea
-        Servo arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
-        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
-        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
-        Servo rotation1 = hardwareMap.get(Servo.class, "rotation2"); // 1x axon
+        CachingServo arm = new CachingServo(hardwareMap.get(Servo.class, "arm")); // 2x axon max
+        CachingServo wrist1 = new CachingServo(hardwareMap.get(Servo.class, "wrist1")); // 1x axon mini
+        CachingServo claw1 = new CachingServo(hardwareMap.get(Servo.class, "claw1")); // 1x axon mini
+        CachingServo rotation1 = new CachingServo(hardwareMap.get(Servo.class, "rotation2")); // 1x axon max
         // sa
-        Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 2x axon
-        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon
-        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
-        Servo rotation2 = hardwareMap.get(Servo.class, "rotation1"); // 1x goBilda speed
+        CachingServo submersibleArm = new CachingServo(hardwareMap.get(Servo.class, "subArm")); // 1x axon max : 1x 25kg
+        CachingServo wrist2 = new CachingServo(hardwareMap.get(Servo.class, "wrist2")); // 1x axon mini
+        CachingServo claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x axon mini
+        CachingServo rotation2 = new CachingServo(hardwareMap.get(Servo.class, "rotation1")); // 1x axon max
         // limits
         claw2.scaleRange(0.01, 0.08);
         wrist2.scaleRange(0.05, 0.8);
@@ -174,6 +186,12 @@ public class MainV6 extends LinearOpMode {
         rotationalCpos2 = 0;
         rotationalCpos1 = 0;
         // calibration
+        if (bulkRead) {
+            brON = true;
+            for (LynxModule hub : allHubs) {
+                hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+            }
+        }
         hardwareMap.get(IMU.class, "imu").resetYaw();
         if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
         else follower.setStartingPose(new Pose(9,63.4,0));
@@ -187,6 +205,9 @@ public class MainV6 extends LinearOpMode {
         Drawing.sendPacket();
         // setup slides
         extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection, false);
+        // misc
+        loopTime = new ElapsedTime();
+        loopTime.reset();
         // telemetry
         telemetryM.addLine("BEASTKIT Team 23403!");
         telemetryM.addLine(true, "INIT DONE!");
@@ -213,14 +234,31 @@ public class MainV6 extends LinearOpMode {
                 currentGamepad1.copy(gamepad1);
                 currentGamepad2.copy(gamepad2);
                 // servos
-                if (Math.abs(wrist1.getPosition() - wristCpos1) > 0.02) wrist1.setPosition(wristCpos1);
-                if (Math.abs(wrist2.getPosition() - wristCpos2) > 0.02) wrist2.setPosition(wristCpos2);
-                if (Math.abs(claw1.getPosition() - clawCpos1) > 0.02) claw1.setPosition(clawCpos1);
-                if (Math.abs(claw2.getPosition() - clawCpos2) > 0.02) claw2.setPosition(clawCpos2);
-                if (Math.abs(arm.getPosition() - armCpos) > 0.02) arm.setPosition(armCpos);
-                if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.02) submersibleArm.setPosition(subArmCpos);
-                if (Math.abs(rotation1.getPosition() - rotationalCpos1) > 0.02) rotation1.setPosition(rotationalCpos1);
-                if (Math.abs(rotation2.getPosition() - rotationalCpos2) > 0.02) rotation2.setPosition(rotationalCpos2);
+                wrist1.setPosition(wristCpos1);
+                wrist2.setPosition(wristCpos2);
+                claw1.setPosition(clawCpos1);
+                claw2.setPosition(clawCpos2);
+                arm.setPosition(armCpos);
+                submersibleArm.setPosition(subArmCpos);
+                rotation1.setPosition(rotationalCpos1);
+                rotation2.setPosition(rotationalCpos2);
+                // bulk read
+                if (bulkRead) {
+                    for (LynxModule hub : allHubs) {
+                        if (!brON) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
+                        hub.clearBulkCache();
+                        brON = true;
+                        brOFF = false;
+                    }
+                } else {
+                    if (!brOFF) {
+                        for (LynxModule hub : allHubs) {
+                            hub.setBulkCachingMode(LynxModule.BulkCachingMode.OFF);
+                        }
+                        brOFF = true;
+                        brON = false;
+                    }
+                }
                 // toggle debug
                 if (currentGamepad1.options && !previousGamepad1.options) debugMode = !debugMode;
                 // movements
@@ -512,7 +550,9 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "Control Hub Current", LynxUtils.getControlHubCurrent());
                 telemetryM.addData(true, "Expansion Hub Current", LynxUtils.getExpansionHubCurrent());
                 telemetryM.addData(true, "Servo Hub Current", LynxUtils.getServoHubCurrent());
+                telemetryM.addData(true, "Loop Times", loopTime.milliseconds());
                 telemetryM.update();
+                loopTime.reset();
             }
         }
         if (isStopRequested() || !isStarted()) {

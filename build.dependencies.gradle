@@ -5,6 +5,7 @@ repositories {
     maven { url= 'https://maven.pedropathing.com/' }
     maven { url = 'https://repo.nicevape.lol/output/' }
     maven { url = "https://mymaven.bylazar.com/releases" }
+    maven { url = "https://repo.dairy.foundation/releases" }
 }
 
 dependencies {
@@ -23,4 +24,5 @@ dependencies {
     implementation 'com.acmerobotics.dashboard:dashboard:0.4.16' // ftc dashboard
     implementation 'xyz.nin1275:metrolib:1.1.1' // MetroLib
     implementation "com.bylazar:ftcontrol:0.2.1" // ftcontrol
+    implementation "dev.frozenmilk.dairy:CachingHardware:1.0.0" // CachingHardware
 }

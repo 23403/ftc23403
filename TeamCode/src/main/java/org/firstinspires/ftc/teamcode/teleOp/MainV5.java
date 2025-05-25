@@ -33,6 +33,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
@@ -78,6 +79,7 @@ public class MainV5 extends LinearOpMode {
     public static double wheelSpeedMinSA = 0.8;
     private double wheelSpeed = wheelSpeedMax;
     public static double hangPower = 0.8;
+    ElapsedTime loopTime;
     // odometry
     public static boolean odoDrive = false;
     // extend arm
@@ -257,6 +259,9 @@ public class MainV5 extends LinearOpMode {
         Drawing.sendPacket();
         // setup slides
         extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection, false);
+        // misc
+        loopTime = new ElapsedTime();
+        loopTime.reset();
         // telemetry
         telemetryM.addLine("BEASTKIT Team 23403!");
         telemetryM.addLine(true, "INIT DONE!");
@@ -549,7 +554,9 @@ public class MainV5 extends LinearOpMode {
                 telemetryM.addData(true, "slides reset timer", extendArmSS.getResetTimer().milliseconds());
                 telemetryM.addData(true, "extendArm1 Power", extendArm1.getPower());
                 telemetryM.addData(true, "extendArm2 Power", extendArm2.getPower());
+                telemetryM.addData(true, "Loop Times", loopTime.milliseconds());
                 telemetryM.update();
+                loopTime.reset();
             }
         }
         if (isStopRequested()) {
