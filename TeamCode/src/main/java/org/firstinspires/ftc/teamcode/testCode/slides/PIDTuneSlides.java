@@ -10,20 +10,22 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 
+import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+
 @Config("PID Tune Slides")
 @Autonomous(name="PID Tune Slides", group="test_ftc23403")
 public class PIDTuneSlides extends OpMode {
-    private DcMotorEx extendArm1;
-    private DcMotorEx extendArm2;
+    private CachingDcMotorEx extendArm1;
+    private CachingDcMotorEx extendArm2;
     private PIDController controller;
-    public static double P = 0.6;
+    public static double P = 0;
     public static double I = 0;
     public static double D = 0;
-    public static double F = 0.1;
+    public static double F = 0;
     public static double K = 0.05;
     public static double TARGET = 0;
-    public static double CPR = 384.16; // counts per revolution
-    public static double INCHES_PER_REV = 4.8; // how far the arm travels linearly per motor revolution
+    public static double CPR = 145.1; // counts per revolution
+    public static double INCHES_PER_REV = 1.81; // how far the arm travels linearly per motor revolution
 
 
     /**
@@ -34,8 +36,8 @@ public class PIDTuneSlides extends OpMode {
         // set the PID values
         controller = new PIDController(Math.sqrt(P), I, D);
         // hardware
-        extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
-        extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
+        extendArm1 = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "ExtendArm1"));
+        extendArm2 = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "ExtendArm2"));
         // reverse
         extendArm2.setDirection(DcMotorSimple.Direction.REVERSE);
         // reset encoders

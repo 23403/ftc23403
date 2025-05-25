@@ -39,6 +39,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
+import org.firstinspires.ftc.teamcode.utils.CombinedServo;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
@@ -68,7 +69,7 @@ import xyz.nin1275.utils.Motors;
 @TeleOp(name="Main v6", group=".ftc23403")
 public class MainV6 extends LinearOpMode {
     /**
-     * @TODO add in everything
+     * @TODO driver practice bro
      * @TODO fix all the movements using state systems for everything
      * @TODO get all the new modes working and stuff
      * MAIN V6 BY DAVID
@@ -125,8 +126,8 @@ public class MainV6 extends LinearOpMode {
         Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState, follower);
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         LynxUtils.initLynx(hardwareMap);
-        AnalogInput subArm1 = hardwareMap.get(AnalogInput.class, "subArm1");
-        AnalogInput arm1 = hardwareMap.get(AnalogInput.class, "arm1");
+        AnalogInput subArms = hardwareMap.get(AnalogInput.class, "subArm1");
+        AnalogInput arms = hardwareMap.get(AnalogInput.class, "arm1");
         // gamepads
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad currentGamepad2 = new Gamepad();
@@ -141,15 +142,19 @@ public class MainV6 extends LinearOpMode {
         CachingDcMotorEx extendArm2 = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "ExtendArm2"));
         // servos
         // ea
-        CachingServo arm = new CachingServo(hardwareMap.get(Servo.class, "arm")); // 2x axon max
+        CachingServo arm1 = new CachingServo(hardwareMap.get(Servo.class, "arm1")); // 1x axon max
+        CachingServo arm2 = new CachingServo(hardwareMap.get(Servo.class, "arm2")); // 1x axon max
         CachingServo wrist1 = new CachingServo(hardwareMap.get(Servo.class, "wrist1")); // 1x axon mini
         CachingServo claw1 = new CachingServo(hardwareMap.get(Servo.class, "claw1")); // 1x axon mini
         CachingServo rotation1 = new CachingServo(hardwareMap.get(Servo.class, "rotation2")); // 1x axon max
+        CombinedServo arm = new CombinedServo(arm1, arm2); // 2x axon max
         // sa
-        CachingServo submersibleArm = new CachingServo(hardwareMap.get(Servo.class, "subArm")); // 1x axon max : 1x 25kg
+        CachingServo submersibleArm1 = new CachingServo(hardwareMap.get(Servo.class, "subArm1")); // 1x axon max
+        CachingServo submersibleArm2 = new CachingServo(hardwareMap.get(Servo.class, "subArm2")); // 1x 25kg
         CachingServo wrist2 = new CachingServo(hardwareMap.get(Servo.class, "wrist2")); // 1x axon mini
         CachingServo claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x axon mini
         CachingServo rotation2 = new CachingServo(hardwareMap.get(Servo.class, "rotation1")); // 1x axon max
+        CombinedServo subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 1x axon max : 1x 25kg
         // limits
         claw2.scaleRange(0.01, 0.08);
         wrist2.scaleRange(0.05, 0.8);
@@ -157,7 +162,7 @@ public class MainV6 extends LinearOpMode {
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
-        submersibleArm.scaleRange(0.385, 0.85);
+        subArm.scaleRange(0.385, 0.85);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -174,7 +179,7 @@ public class MainV6 extends LinearOpMode {
         claw1.setPosition(1);
         claw2.setPosition(1);
         arm.setPosition(0.15);
-        submersibleArm.setPosition(1);
+        subArm.setPosition(1);
         rotation1.setPosition(0);
         rotation2.setPosition(0);
         wristCpos1 = 1;
@@ -226,8 +231,8 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.setDebug(debugMode);
                 boolean moving = Math.abs(gamepad1.left_stick_x) > 0 || Math.abs(gamepad1.left_stick_y) > 0 || Math.abs(gamepad1.right_stick_x) > 0;
                 // analog
-                double subArmPos = subArm1.getVoltage() / 3.3 * 360;
-                double armPos = arm1.getVoltage() / 3.3 * 360;
+                double subArmPos = subArms.getVoltage() / 3.3 * 360;
+                double armPos = arms.getVoltage() / 3.3 * 360;
                 // gamepad stuff
                 previousGamepad1.copy(currentGamepad1);
                 previousGamepad2.copy(currentGamepad2);
@@ -239,7 +244,7 @@ public class MainV6 extends LinearOpMode {
                 claw1.setPosition(clawCpos1);
                 claw2.setPosition(clawCpos2);
                 arm.setPosition(armCpos);
-                submersibleArm.setPosition(subArmCpos);
+                subArm.setPosition(subArmCpos);
                 rotation1.setPosition(rotationalCpos1);
                 rotation2.setPosition(rotationalCpos2);
                 // bulk read
@@ -535,7 +540,7 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "preset error1", Math.abs(slidesTARGET - extendArmSS.getInches1()));
                 telemetryM.addData(true, "preset error2", Math.abs(slidesTARGET - extendArmSS.getInches2()));
                 telemetryM.addData(true, "preset errorAvg", (Math.abs(slidesTARGET - extendArmSS.getInches1()) + Math.abs(slidesTARGET - extendArmSS.getInches2())) / 2);
-                telemetryM.addData(true, "Submersible Arm Position:", submersibleArm.getPosition());
+                telemetryM.addData(true, "Submersible Arm Position:", subArm.getPosition());
                 telemetryM.addData(true, "Wrist Position1:", wrist1.getPosition());
                 telemetryM.addData(true, "Wrist Position2:", wrist2.getPosition());
                 telemetryM.addData(true, "Claw Position1:", claw1.getPosition());

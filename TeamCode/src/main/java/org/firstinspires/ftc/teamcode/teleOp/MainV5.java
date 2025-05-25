@@ -37,6 +37,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
+import org.firstinspires.ftc.teamcode.utils.CombinedServo;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
@@ -200,16 +201,21 @@ public class MainV5 extends LinearOpMode {
         DcMotorEx rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
         DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
+        // servos
         // ea
-        Servo arm = hardwareMap.get(Servo.class, "arm"); // 2x axon
-        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon
-        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x goBilda speed
-        Servo rotation1 = hardwareMap.get(Servo.class, "rotation2"); // 1x axon
+        Servo arm1 = hardwareMap.get(Servo.class, "arm1"); // 1x axon max
+        Servo arm2 = hardwareMap.get(Servo.class, "arm2"); // 1x axon max
+        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon mini
+        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x axon mini
+        Servo rotation1 = hardwareMap.get(Servo.class, "rotation2"); // 1x axon max
+        CombinedServo arm = new CombinedServo(arm1, arm2); // 2x axon max
         // sa
-        Servo submersibleArm = hardwareMap.get(Servo.class, "subArm"); // 2x axon
-        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon
-        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x goBilda speed
-        Servo rotation2 = hardwareMap.get(Servo.class, "rotation1"); // 1x goBilda speed
+        Servo submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon max
+        Servo submersibleArm2 = hardwareMap.get(Servo.class, "subArm2"); // 1x 25kg
+        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon mini
+        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x axon mini
+        Servo rotation2 = hardwareMap.get(Servo.class, "rotation1"); // 1x axon max
+        CombinedServo subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 1x axon max : 1x 25kg
         // limits
         claw2.scaleRange(0.01, 0.08);
         wrist2.scaleRange(0.05, 0.8);
@@ -217,7 +223,7 @@ public class MainV5 extends LinearOpMode {
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
-        submersibleArm.scaleRange(0.385, 0.85);
+        subArm.scaleRange(0.385, 0.85);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
@@ -234,7 +240,7 @@ public class MainV5 extends LinearOpMode {
         claw1.setPosition(1);
         claw2.setPosition(1);
         arm.setPosition(0.15);
-        submersibleArm.setPosition(1);
+        subArm.setPosition(1);
         rotation1.setPosition(0);
         rotation2.setPosition(0);
         wristCpos1 = 1;
@@ -290,7 +296,7 @@ public class MainV5 extends LinearOpMode {
                 if (Math.abs(claw1.getPosition() - clawCpos1) > 0.02) claw1.setPosition(clawCpos1);
                 if (Math.abs(claw2.getPosition() - clawCpos2) > 0.02) claw2.setPosition(clawCpos2);
                 if (Math.abs(arm.getPosition() - armCpos) > 0.02) arm.setPosition(armCpos);
-                if (Math.abs(submersibleArm.getPosition() - subArmCpos) > 0.02) submersibleArm.setPosition(subArmCpos);
+                if (Math.abs(subArm.getPosition() - subArmCpos) > 0.02) subArm.setPosition(subArmCpos);
                 if (Math.abs(rotation1.getPosition() - rotationalCpos1) > 0.02) rotation1.setPosition(rotationalCpos1);
                 if (Math.abs(rotation2.getPosition() - rotationalCpos2) > 0.02) rotation2.setPosition(rotationalCpos2);
                 // field side
@@ -542,7 +548,7 @@ public class MainV5 extends LinearOpMode {
                 telemetryM.addData(true, "preset error1", Math.abs(slidesTARGET - extendArmSS.getInches1()));
                 telemetryM.addData(true, "preset error2", Math.abs(slidesTARGET - extendArmSS.getInches2()));
                 telemetryM.addData(true, "preset errorAvg", (Math.abs(slidesTARGET - extendArmSS.getInches1()) + Math.abs(slidesTARGET - extendArmSS.getInches2())) / 2);
-                telemetryM.addData(true, "Submersible Arm Position:", submersibleArm.getPosition());
+                telemetryM.addData(true, "Submersible Arm Position:", subArm.getPosition());
                 telemetryM.addData(true, "Wrist Position1:", wrist1.getPosition());
                 telemetryM.addData(true, "Wrist Position2:", wrist2.getPosition());
                 telemetryM.addData(true, "Claw Position1:", claw1.getPosition());
