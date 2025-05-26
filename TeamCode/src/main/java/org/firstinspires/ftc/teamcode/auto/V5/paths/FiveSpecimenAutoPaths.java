@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto.paths;
+package org.firstinspires.ftc.teamcode.auto.V5.paths;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.localization.Pose;
@@ -11,7 +11,7 @@ import com.pedropathing.pathgen.Point;
 import xyz.nin1275.custom.PPMP;
 import xyz.nin1275.custom.PPPoint;
 
-@Config("5+0 Auto Paths")
+// @Config("5+0 Auto Paths")
 public class FiveSpecimenAutoPaths {
     /* start pos */
     public static Pose startPos = new Pose(9, 63.4, Math.toRadians(-180));

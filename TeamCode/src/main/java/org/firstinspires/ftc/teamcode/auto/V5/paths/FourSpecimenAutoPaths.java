@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.auto.paths;
+package org.firstinspires.ftc.teamcode.auto.V5.paths;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.pedropathing.localization.Pose;
@@ -11,19 +11,19 @@ import com.pedropathing.pathgen.Point;
 import xyz.nin1275.custom.PPMP;
 import xyz.nin1275.custom.PPPoint;
 
-@Config("5+0 PUSH Auto Paths")
-public class FiveSpecimenAutoPushPaths {
+// @Config("4+0 Auto Paths")
+public class FourSpecimenAutoPaths {
     /* start pos */
-    public static final Pose startPos = new Pose(9, 63.4, Math.toRadians(0));
+    public  static final Pose startPos = new Pose(9, 63.4, Math.toRadians(0));
     /* line1 */
     public static PPPoint.beizerLine preloadPoints = new PPPoint.beizerLine(
-            31.9,
+            37.1,
             61.1,
             0
     );
     /* line2 */
     public static PPPoint.beizerLine grabSpecimen1Points = new PPPoint.beizerLine(
-            21.5,
+            21.65,
             35.8,
             0
     );
@@ -43,7 +43,7 @@ public class FiveSpecimenAutoPushPaths {
     );
     /* line4b */
     public static PPPoint.beizerLine pushBlock1Points = new PPPoint.beizerLine(
-            19,
+            17.6,
             28,
             0
     );
@@ -56,58 +56,46 @@ public class FiveSpecimenAutoPushPaths {
     );
     /* line4d */
     public static PPPoint.beizerLine pushBlock2Points = new PPPoint.beizerLine(
-            23.5,
+            17.6,
             20.3,
             0
     );
     /* line4e */
     public static PPPoint.beizerCurve moveToPushLoc3Points = new PPPoint.beizerCurve(
             53.9,
-            12.8,
+            13.3,
             0,
             new PPMP(53.49, 22.5)
     );
     /* line4f */
     public static PPPoint.beizerLine pushBlock3Points = new PPPoint.beizerLine(
-            15.3,
-            12.8,
+            17.3,
+            11.8,
             0
     );
-    /* line5 */
+    /* line10 */
     public static PPPoint.beizerLine scoreSpecimen2Points = new PPPoint.beizerLine(
             34,
             68,
             0
     );
-    /* line6 */
+    /* line11 */
     public static PPPoint.beizerLine grabSpecimen2Points = new PPPoint.beizerLine(
-            17.5,
+            18.5,
             35.8,
             0
     );
-    /* line7 */
+    /* line12 */
     public static PPPoint.beizerLine scoreSpecimen3Points = new PPPoint.beizerLine(
             33,
             67,
             0
     );
-    /* line8 */
-    public static PPPoint.beizerLine grabSpecimen3Points = new PPPoint.beizerLine(
-            17,
-            35.8,
-            0
-    );
-    /* line9 */
-    public static PPPoint.beizerLine scoreSpecimen4Points = new PPPoint.beizerLine(
-            32,
-            66,
-            0
-    );
-    /* line10 */
+    /* line13 */
     public static PPPoint.beizerCurve parkPoints = new PPPoint.beizerCurve(
             16.8,
             49.23,
-            230,
+            -130,
             new PPMP(27.2, 69.3)
     );
 
@@ -234,35 +222,11 @@ public class FiveSpecimenAutoPushPaths {
                 .setZeroPowerAccelerationMultiplier(8)
                 .build();
     }
-    /* line6 */
-    public static PathChain grabSpecimen3() {
-        return new PathBuilder()
-                .addPath(new BezierLine(
-                                scoreSpecimen3Points.getEndPoint(),
-                                grabSpecimen3Points.getEndPoint()
-                        )
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(grabSpecimen3Points.getEndHeading()))
-                .setZeroPowerAccelerationMultiplier(5)
-                .build();
-    }
     /* line8 */
-    public static PathChain scoreSpecimen4() {
-        return new PathBuilder()
-                .addPath(new BezierLine(
-                                grabSpecimen3Points.getEndPoint(),
-                                scoreSpecimen4Points.getEndPoint()
-                        )
-                )
-                .setConstantHeadingInterpolation(Math.toRadians(scoreSpecimen4Points.getEndHeading()))
-                .setZeroPowerAccelerationMultiplier(8)
-                .build();
-    }
-    /* line9 */
     public static PathChain park() {
         return new PathBuilder()
                 .addPath(new BezierLine(
-                        scoreSpecimen4Points.getEndPoint(),
+                        scoreSpecimen3Points.getEndPoint(),
                         parkPoints.getEndPoint()
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(parkPoints.getEndHeading()))
