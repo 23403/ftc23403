@@ -174,22 +174,14 @@ public class MainV6 extends LinearOpMode {
         gamepad2.setLedColor(0, 255, 0, -1);
         LynxUtils.setLynxColor(255, 0, 255);
         // starting pos
-        wristCpos1 = 1;
-        clawCpos1 = 1;
-        wristCpos2 = 1;
-        clawCpos2 = 1;
-        armCpos = 0.15;
-        subArmCpos = 1;
-        rotationalCpos2 = 0;
-        rotationalCpos1 = 0;
-        wrist1.setPosition(wristCpos1);
-        wrist2.setPosition(wristCpos2);
-        claw1.setPosition(clawCpos1);
-        claw2.setPosition(clawCpos2);
-        arm.setPosition(armCpos);
-        subArm.setPosition(subArmCpos);
-        rotation1.setPosition(rotationalCpos1);
-        rotation2.setPosition(rotationalCpos2);
+        wrist1.setPosition(wristCpos1 = 1);
+        wrist2.setPosition(wristCpos2 = 1);
+        claw1.setPosition(clawCpos1 = 1);
+        claw2.setPosition(clawCpos2 = 1);
+        arm.setPosition(armCpos = 0.15);
+        subArm.setPosition(subArmCpos = 1);
+        rotation1.setPosition(rotationalCpos1 = 0);
+        rotation2.setPosition(rotationalCpos2 = 0);
         // calibration
         if (bulkRead) {
             brON = true;
@@ -316,19 +308,17 @@ public class MainV6 extends LinearOpMode {
                 switch (presetState) {
                     case HUMAN_PLAYER:
                         applyPreset(MainV6Presets.humanPlayer);
-                        presetState = PresetStates.NO_PRESET;
                         break;
                     case HIGH_BASKET:
                         applyPreset(MainV6Presets.highBasket);
-                        if (clawCpos1 == 0 || gamepad2.left_trigger > 0) presetState = PresetStates.TRANSITION;
+                        if (clawCpos1 == 0 || openClaw) presetState = PresetStates.TRANSITION;
                         break;
                     case LOW_BASKET:
                         applyPreset(MainV6Presets.lowBasket);
-                        if (clawCpos1 == 0 || gamepad2.left_trigger > 0) presetState = PresetStates.TRANSITION;
+                        if (clawCpos1 == 0 || openClaw) presetState = PresetStates.TRANSITION;
                         break;
                     case TRANSITION:
                         applyPreset(MainV6Presets.transition);
-                        presetState = PresetStates.NO_PRESET;
                         break;
                     case SCORE_SPECIMEN:
                         double scoreTarget = MainV6Presets.scoreSpecimen.extendArm != -1.0 ? MainV6Presets.scoreSpecimen.extendArm : extendArmSS.getInches1();
