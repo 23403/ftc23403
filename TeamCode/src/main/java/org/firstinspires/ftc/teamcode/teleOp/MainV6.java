@@ -104,7 +104,6 @@ public class MainV6 extends LinearOpMode {
     public static double eaLimitLow = 0;
     public static boolean eaCorrection = true;
     public static SlidesSS extendArmSS;
-    public static boolean openClaw = false;
     // states
     SlidersStates extendArmState = SlidersStates.FLOATING;
     private static PresetStates presetState = PresetStates.NO_PRESET;
@@ -286,9 +285,8 @@ public class MainV6 extends LinearOpMode {
                     rightRear.setPower(0);
                 }
                 // claw
-                if (gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0) openClaw = true;
-                else if (!(currentGamepad2.right_trigger > 0) && previousGamepad2.left_trigger > 0) openClaw = false;
-                clawCpos1 = openClaw ? 0 : 1;
+                if (gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0) clawCpos1 = 0;
+                else if (!(currentGamepad2.right_trigger > 0) && previousGamepad2.left_trigger > 0) clawCpos1 = 1;
                 // extendArm code
                 extendArmSS.update(gamepad2.right_stick_y > 0.5, gamepad2.right_stick_y < 0.5);
                 // submersibleArm code
@@ -311,11 +309,11 @@ public class MainV6 extends LinearOpMode {
                         break;
                     case HIGH_BASKET:
                         applyPreset(MainV6Presets.highBasket);
-                        if (clawCpos1 == 0 || openClaw) presetState = PresetStates.TRANSITION;
+                        if (clawCpos1 == 0) presetState = PresetStates.TRANSITION;
                         break;
                     case LOW_BASKET:
                         applyPreset(MainV6Presets.lowBasket);
-                        if (clawCpos1 == 0 || openClaw) presetState = PresetStates.TRANSITION;
+                        if (clawCpos1 == 0) presetState = PresetStates.TRANSITION;
                         break;
                     case TRANSITION:
                         applyPreset(MainV6Presets.transition);
@@ -358,7 +356,7 @@ public class MainV6 extends LinearOpMode {
                         switch (basketsStates) {
                             case HIGH:
                             case LOW:
-                                if (clawCpos1 == 0 || gamepad2.left_trigger > 0 || gamepad2.right_trigger > 0 || openClaw) {
+                                if (clawCpos1 == 0 || gamepad2.left_trigger > 0 || gamepad2.right_trigger > 0) {
                                     presetState = PresetStates.TRANSITION;
                                     basketsStates = BasketsModeStates.RETURN;
                                 }
