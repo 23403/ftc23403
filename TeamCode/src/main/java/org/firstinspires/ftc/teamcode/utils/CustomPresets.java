@@ -22,4 +22,14 @@ public class CustomPresets {
         this.rotational1 = rotational1;
         this.rotational2 = rotational2;
     }
+    public CustomPresets(double extendArm, Double subArm, Double claw2, Double claw1, Double wrist2, Double wrist1, Double arm, Double rotational) {
+        this.extendArm = extendArm;
+        this.subArm = subArm;
+        this.claw2 = claw2;
+        this.claw1 = claw1;
+        this.wrist2 = wrist2;
+        this.wrist1 = wrist1;
+        this.arm = arm;
+        this.rotational1 = rotational;
+    }
 }

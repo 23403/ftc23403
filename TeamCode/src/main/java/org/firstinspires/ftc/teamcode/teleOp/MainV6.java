@@ -174,14 +174,6 @@ public class MainV6 extends LinearOpMode {
         gamepad2.setLedColor(0, 255, 0, -1);
         LynxUtils.setLynxColor(255, 0, 255);
         // starting pos
-        wrist1.setPosition(1);
-        wrist2.setPosition(1);
-        claw1.setPosition(1);
-        claw2.setPosition(1);
-        arm.setPosition(0.15);
-        subArm.setPosition(1);
-        rotation1.setPosition(0);
-        rotation2.setPosition(0);
         wristCpos1 = 1;
         clawCpos1 = 1;
         wristCpos2 = 1;
@@ -190,6 +182,14 @@ public class MainV6 extends LinearOpMode {
         subArmCpos = 1;
         rotationalCpos2 = 0;
         rotationalCpos1 = 0;
+        wrist1.setPosition(wristCpos1);
+        wrist2.setPosition(wristCpos2);
+        claw1.setPosition(clawCpos1);
+        claw2.setPosition(clawCpos2);
+        arm.setPosition(armCpos);
+        subArm.setPosition(subArmCpos);
+        rotation1.setPosition(rotationalCpos1);
+        rotation2.setPosition(rotationalCpos2);
         // calibration
         if (bulkRead) {
             brON = true;
@@ -209,7 +209,7 @@ public class MainV6 extends LinearOpMode {
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();
         // setup slides
-        extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection, false);
+        extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV6.eaLimitHigh, MainV6.eaLimitLow, eaCorrection, false);
         // misc
         loopTime = new ElapsedTime();
         loopTime.reset();
@@ -226,7 +226,7 @@ public class MainV6 extends LinearOpMode {
                 llState = limelight.getState();
                 extendArmState = extendArmSS.getState();
                 extendArmSS.setEaCorrection(eaCorrection);
-                extendArmSS.setLimits(MainV5.eaLimitHigh, MainV5.eaLimitLow);
+                extendArmSS.setLimits(MainV6.eaLimitHigh, MainV6.eaLimitLow);
                 limelight.setFollower(follower);
                 telemetryM.setDebug(debugMode);
                 boolean moving = Math.abs(gamepad1.left_stick_x) > 0 || Math.abs(gamepad1.left_stick_y) > 0 || Math.abs(gamepad1.right_stick_x) > 0;
@@ -265,7 +265,7 @@ public class MainV6 extends LinearOpMode {
                     }
                 }
                 // toggle debug
-                if (currentGamepad1.options && !previousGamepad1.options) debugMode = !debugMode;
+                if ((currentGamepad1.options && !previousGamepad1.options) || (currentGamepad2.options && !previousGamepad2.options)) debugMode = !debugMode;
                 // movements
                 if (!odoDrive) {
                     // drive
@@ -357,7 +357,7 @@ public class MainV6 extends LinearOpMode {
                     case SPECIMEN:
                         if (specStates == SpecModeStates.GRAB) {
                             if (!(currentGamepad2.right_trigger > 0) && previousGamepad2.left_trigger > 0) {
-                                applyPreset(MainV5.presets.preSpecimen);
+                                applyPreset(MainV6Presets.preSpecimen);
                                 presetState = PresetStates.PRE_SPECIMEN_SCORE;
                                 specStates = SpecModeStates.PRE_SPECIMEN;
                             }
@@ -446,12 +446,12 @@ public class MainV6 extends LinearOpMode {
                             switch (specStates) {
                                 case GRAB:
                                 case SCORE:
-                                    applyPreset(MainV5.presets.preSpecimen);
+                                    applyPreset(MainV6Presets.preSpecimen);
                                     presetState = PresetStates.PRE_SPECIMEN_SCORE;
                                     specStates = SpecModeStates.PRE_SPECIMEN;
                                     break;
                                 case PRE_SPECIMEN:
-                                    applyPreset(MainV5.presets.scoreSpecimen);
+                                    applyPreset(MainV6Presets.scoreSpecimen);
                                     presetState = PresetStates.SCORE_SPECIMEN;
                                     specStates = SpecModeStates.SCORE;
                                     break;
@@ -527,9 +527,8 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "extendArmState", extendArmState);
                 telemetryM.addData(true, "presetState", presetState);
                 telemetryM.addData(true, "rotationState", rotationState);
-                telemetryM.addData(true, "subState", subStates);
-                telemetryM.addData(true, "specState", specStates);
-                telemetryM.addData(true, "basketState", basketsStates);
+                telemetryM.addData(true, "modeState", mode == ModeStates.SUBMERSIBLE ? "Submersible" : mode == ModeStates.SPECIMEN ? "Specimen" : "Baskets");
+                telemetryM.addData(true, mode == ModeStates.SUBMERSIBLE ? "subState" : mode == ModeStates.SPECIMEN ? "specState" : "basketState", mode == ModeStates.SUBMERSIBLE ? subStates : mode == ModeStates.SPECIMEN ? specStates : basketsStates);
                 telemetryM.addData(true, "llState", llState);
                 telemetryM.addData(true, "subArmPos", subArmPos);
                 telemetryM.addData(true, "armPos", armPos);

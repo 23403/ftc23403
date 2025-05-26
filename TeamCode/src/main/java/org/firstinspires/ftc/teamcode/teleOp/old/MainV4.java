@@ -301,7 +301,7 @@ public class MainV4 extends LinearOpMode {
                     wristCpos1 = presets.humanPlayer.wrist1 != -1.0 ? presets.humanPlayer.wrist1 : wristCpos1;
                     clawCpos1 = presets.humanPlayer.claw1 != -1.0 ? presets.humanPlayer.claw1 : clawCpos1;
                     armCpos = presets.humanPlayer.arm != -1.0 ? presets.humanPlayer.arm : armCpos;
-                    rotationalCpos = presets.humanPlayer.rotational != -1.0 ? presets.humanPlayer.rotational : rotationalCpos;
+                    rotationalCpos = presets.humanPlayer.rotational1 != -1.0 ? presets.humanPlayer.rotational1 : rotationalCpos;
                     preset = true;
                 }
                 // limelight grabbing
@@ -346,7 +346,7 @@ public class MainV4 extends LinearOpMode {
                     wristCpos1 = presets.highBasket.wrist1 != -1.0 ? presets.highBasket.wrist1 : wristCpos1;
                     clawCpos1 = presets.highBasket.claw1 != -1.0 ? presets.highBasket.claw1 : clawCpos1;
                     armCpos = presets.highBasket.arm != -1.0 ? presets.highBasket.arm : armCpos;
-                    rotationalCpos = presets.highBasket.rotational != -1.0 ? presets.highBasket.rotational : rotationalCpos;
+                    rotationalCpos = presets.highBasket.rotational1 != -1.0 ? presets.highBasket.rotational1 : rotationalCpos;
                     preset = true;
                 }
                 // low basket pos
@@ -359,7 +359,7 @@ public class MainV4 extends LinearOpMode {
                     wristCpos1 = presets.lowBasket.wrist1 != -1.0 ? presets.lowBasket.wrist1 : wristCpos1;
                     clawCpos1 = presets.lowBasket.claw1 != -1.0 ? presets.lowBasket.claw1 : clawCpos1;
                     armCpos = presets.lowBasket.arm != -1.0 ? presets.lowBasket.arm : armCpos;
-                    rotationalCpos = presets.lowBasket.rotational != -1.0 ? presets.lowBasket.rotational : rotationalCpos;
+                    rotationalCpos = presets.lowBasket.rotational1 != -1.0 ? presets.lowBasket.rotational1 : rotationalCpos;
                     preset = true;
                 }
                 // transition pos
@@ -372,7 +372,7 @@ public class MainV4 extends LinearOpMode {
                     wristCpos1 = presets.transition.wrist1 != -1.0 ? presets.transition.wrist1 : wristCpos1;
                     clawCpos1 = presets.transition.claw1 != -1.0 ? presets.transition.claw1 : clawCpos1;
                     armCpos = presets.transition.arm != -1.0 ? presets.transition.arm : armCpos;
-                    rotationalCpos = presets.transition.rotational != -1.0 ? presets.transition.rotational : rotationalCpos;
+                    rotationalCpos = presets.transition.rotational1 != -1.0 ? presets.transition.rotational1 : rotationalCpos;
                     preset = true;
                 }
                 // specimen pos
@@ -385,7 +385,7 @@ public class MainV4 extends LinearOpMode {
                     wristCpos1 = presets.specimen.wrist1 != -1.0 ? presets.specimen.wrist1 : wristCpos1;
                     clawCpos1 = presets.specimen.claw1 != -1.0 ? presets.specimen.claw1 : clawCpos1;
                     armCpos = presets.specimen.arm != -1.0 ? presets.specimen.arm : armCpos;
-                    rotationalCpos = presets.specimen.rotational != -1.0 ? presets.specimen.rotational : rotationalCpos;
+                    rotationalCpos = presets.specimen.rotational1 != -1.0 ? presets.specimen.rotational1 : rotationalCpos;
                     preset = true;
                 }
                 if (preset) {
