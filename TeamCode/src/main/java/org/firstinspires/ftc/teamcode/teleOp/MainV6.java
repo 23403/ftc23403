@@ -122,6 +122,7 @@ public class MainV6 extends LinearOpMode {
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         TelemetryM telemetryM = new TelemetryM(telemetry, debugMode);
         Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
+        limelight3A.setPollRateHz(50);
         Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState, follower);
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         LynxUtils.initLynx(hardwareMap);
@@ -480,6 +481,53 @@ public class MainV6 extends LinearOpMode {
                             }
                         }
                         if (currentGamepad2.y && !previousGamepad2.y) basketsStates = BasketsModeStates.RETURN;
+                        // submersible code
+                        if (currentGamepad1.a && !previousGamepad1.a) {
+                            switch (subStates) {
+                                case RETURN:
+                                    subArmCpos = 0;
+                                    rotationalCpos2 = 0.52;
+                                    wristCpos2 = 0.8;
+                                    subStates = SubModeStates.MOVE_OUT;
+                                    break;
+                                case MOVE_OUT:
+                                    clawCpos2 = 1;
+                                    subStates = SubModeStates.GRAB;
+                                    break;
+                                case GRAB:
+                                    presetState = PresetStates.TRANSITION;
+                                    subStates = SubModeStates.RETURN;
+                                    break;
+                            }
+                        }
+                        if (currentGamepad1.b && !previousGamepad1.b) {
+                            switch (subStates) {
+                                case MOVE_OUT:
+                                case THROW:
+                                    presetState = PresetStates.TRANSITION;
+                                    subStates = SubModeStates.RETURN;
+                                    break;
+                                case RETURN:
+                                    subArmCpos = 0;
+                                    rotationalCpos2 = 0.52;
+                                    wristCpos2 = 0.8;
+                                    clawCpos2 = 0;
+                                    subStates = SubModeStates.THROW;
+                                    break;
+                                case GRAB:
+                                    subStates = SubModeStates.MOVE_OUT;
+                                    break;
+                            }
+                        }
+                        if (currentGamepad1.x && !previousGamepad1.x) {
+                            if (subStates == SubModeStates.RETURN) {
+                                subArmCpos = limelight.getSubmersible() == -1 ? 0 : limelight.getSubmersible();
+                                rotationalCpos2 = 0.52;
+                                wristCpos2 = 0.8;
+                                subStates = SubModeStates.MOVE_OUT;
+                            }
+                        }
+                        if (currentGamepad1.y && !previousGamepad1.y) subStates = SubModeStates.RETURN;
                         break;
                 }
                 // rotate

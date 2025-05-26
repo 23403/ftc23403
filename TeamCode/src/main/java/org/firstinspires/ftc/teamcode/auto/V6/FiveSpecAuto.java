@@ -50,7 +50,7 @@ import xyz.nin1275.utils.Timer;
  * It is a 5 specimen auto with park. It hangs a preloaded specimen then pushes the 3 samples from the ground and hang them.
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
  * @version 1.6, 5/26/25
- **/
+**/
 
 @Config("5 Spec Auto PUSH")
 @Autonomous(name = "5+0 push", group = ".ftc23403")
@@ -191,7 +191,7 @@ public class FiveSpecAuto extends OpMode {
                 if (!follower.isBusy()) {
                     FiveSpecAuto.claw.close(1);
                     Timer.wait(pauses);
-                    setPathState(6);
+                    setPathState(5);
                 }
                 break;
             case 5: /* line5 */
@@ -591,6 +591,8 @@ public class FiveSpecAuto extends OpMode {
         telemetryM.addData(true, "error1", Math.abs(slidesTARGET - extendArmSS.getInches1()));
         telemetryM.addData(true, "error2", Math.abs(slidesTARGET - extendArmSS.getInches2()));
         telemetryM.addData(true, "errorAvg", (Math.abs(slidesTARGET - extendArmSS.getInches1()) + Math.abs(slidesTARGET - extendArmSS.getInches2())) / 2);
+        telemetryM.addData(true, "subArmPos", subArmPos);
+        telemetryM.addData(true, "armPos", armPos);
         telemetryM.addData(true, "Submersible Arm Position:", subArm.getPosition());
         telemetryM.addData(true, "Wrist Position1:", wrist1.getPosition());
         telemetryM.addData(true, "Wrist Position2:", wrist2.getPosition());
@@ -617,7 +619,7 @@ public class FiveSpecAuto extends OpMode {
     @Override
     public void start() {
         opmodeTimer.resetTimer();
-        setPathState(0);
+        setPathState(1);
     }
 
     /** stop **/
