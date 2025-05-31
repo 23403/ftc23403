@@ -18,14 +18,14 @@ public class PIDTuneSlides extends OpMode {
     private CachingDcMotorEx extendArm1;
     private CachingDcMotorEx extendArm2;
     private PIDController controller;
-    public static double P = 0;
+    public static double P = 0.05;
     public static double I = 0;
     public static double D = 0;
-    public static double F = 0;
+    public static double F = 0.35;
     public static double K = 0.05;
     public static double TARGET = 0;
     public static double CPR = 145.1; // counts per revolution
-    public static double INCHES_PER_REV = 1.81; // how far the arm travels linearly per motor revolution
+    public static double INCHES_PER_REV = 4.2; // how far the arm travels linearly per motor revolution
 
 
     /**

@@ -129,8 +129,8 @@ public class MainV6 extends LinearOpMode {
         Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState, follower);
         List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         LynxUtils.initLynx(hardwareMap);
-        AnalogInput subArms = hardwareMap.get(AnalogInput.class, "subArm1");
-        AnalogInput arms = hardwareMap.get(AnalogInput.class, "arm1");
+        AnalogInput subArms = hardwareMap.get(AnalogInput.class, "subArms");
+        AnalogInput arms = hardwareMap.get(AnalogInput.class, "arms");
         // gamepads
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad currentGamepad2 = new Gamepad();

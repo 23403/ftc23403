@@ -431,7 +431,7 @@ public class outreachTeleOp extends LinearOpMode {
         wristCpos1 = preset.wrist1 != -1.0 ? preset.wrist1 : wristCpos1;
         clawCpos1 = preset.claw1 != -1.0 ? preset.claw1 : clawCpos1;
         armCpos = preset.arm != -1.0 ? preset.arm : armCpos;
-        rotationalCpos = preset.rotational != -1.0 ? preset.rotational : rotationalCpos;
+        rotationalCpos = preset.rotational1 != -1.0 ? preset.rotational1 : rotationalCpos;
         extendArmSS.moveTo(slidesTARGET);
     }
 }
