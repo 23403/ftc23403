@@ -18,47 +18,73 @@ public class FConstants {
         FollowerConstants.rightFrontMotorDirection = DcMotorSimple.Direction.FORWARD;
         FollowerConstants.rightRearMotorDirection = DcMotorSimple.Direction.FORWARD;
 
-        FollowerConstants.mass = 9.0718474;
-
         FollowerConstants.xMovement = 46.7468496303;
         FollowerConstants.yMovement = 22.9086578708;
 
         FollowerConstants.forwardZeroPowerAcceleration = -21.5054019464;
         FollowerConstants.lateralZeroPowerAcceleration = -45.4943839364;
 
-        /**
-         ** STEPS FOR BASIC PID TUNING **
-         *** HAVE SECONDARY TUNING OFF WHEN DOING THIS STEP ***
-         * P - For power which will overshoot. You want to have very little overshoot but still have power
-         * I - For overshooting. Only use this once in a lifetime if you can't get D working properly for some reason.
-         * D - For de-overshooting. When you increase this you remove the overshoot but too much D value will undershoot which is bad
-         ** STEPS FOR SECONDARY/ADVANCED PID TUNING **
-         *** USE THE GRAPH WHEN TUNING! ***
-         * P - For power which will overshoot. You want to get everything as close to the 0 value as possible on the graph
-         * I - For overshooting. Only use this once in a lifetime if you can't get D working properly for some reason.
-         * D - For de-overshooting. You want to get everything as close to the 0 value as possible on the graph
-        **/
+        FollowerConstants.mass = 9.0718474;
 
-        // pid for translational
-        FollowerConstants.translationalPIDFCoefficients.setCoefficients(0.085,0,0.000818,0);
-        FollowerConstants.useSecondaryTranslationalPID = false;
-        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(0,0,0,0); // SECONDARY TUNING
-        // pid for heading
-        FollowerConstants.headingPIDFCoefficients.setCoefficients(0.8,0,0.0455,0);
-        FollowerConstants.useSecondaryHeadingPID = false;
-        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(0,0,0,0); // SECONDARY TUNING
-        // pid for drive
-        FollowerConstants.drivePIDFCoefficients.setCoefficients(0.02,0,0.0000054,0.6,0);
-        FollowerConstants.useSecondaryDrivePID = false;
-        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(0,0,0,0.6,0); // SECONDARY TUNING
-
-        FollowerConstants.zeroPowerAccelerationMultiplier = 4;
         FollowerConstants.centripetalScaling = 0.001;
 
-        FollowerConstants.pathEndTimeoutConstraint = 50;
-        FollowerConstants.pathEndTValueConstraint = 0.95;
+        FollowerConstants.zeroPowerAccelerationMultiplier = 4;
+
         FollowerConstants.pathEndVelocityConstraint = 0.1;
         FollowerConstants.pathEndTranslationalConstraint = 0.1;
         FollowerConstants.pathEndHeadingConstraint = 0.007;
+        FollowerConstants.pathEndTValueConstraint = 0.95;
+        FollowerConstants.pathEndTimeoutConstraint = 50;
+
+        // pid for translational
+        FollowerConstants.translationalPIDFCoefficients.setCoefficients(
+                0.085,
+                0,
+                0.000818,
+                0
+        ); // BASIC TUNING
+        FollowerConstants.translationalPIDFFeedForward = 0.02;
+        FollowerConstants.useSecondaryTranslationalPID = false;
+        FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(
+                0,
+                0,
+                0,
+                0
+        ); // SECONDARY TUNING
+        FollowerConstants.secondaryTranslationalPIDFFeedForward = 0.0005;
+        // pid for heading
+        FollowerConstants.headingPIDFCoefficients.setCoefficients(
+                0.8,
+                0,
+                0.0455,
+                0
+        ); // BASIC TUNING
+        FollowerConstants.headingPIDFFeedForward = 0.01;
+        FollowerConstants.useSecondaryHeadingPID = false;
+        FollowerConstants.secondaryHeadingPIDFCoefficients.setCoefficients(
+                0,
+                0,
+                0,
+                0
+        ); // SECONDARY TUNING
+        FollowerConstants.secondaryHeadingPIDFFeedForward = 0.0005;
+        // pid for drive
+        FollowerConstants.drivePIDFCoefficients.setCoefficients(
+                0.02,
+                0,
+                0.0000054,
+                0.6,
+                0
+        ); // BASIC TUNING
+        FollowerConstants.drivePIDFFeedForward = 0.01;
+        FollowerConstants.useSecondaryDrivePID = false;
+        FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(
+                0,
+                0,
+                0,
+                0.6,
+                0
+        ); // SECONDARY TUNING
+        FollowerConstants.secondaryDrivePIDFFeedForward = 0.01;
     }
 }
