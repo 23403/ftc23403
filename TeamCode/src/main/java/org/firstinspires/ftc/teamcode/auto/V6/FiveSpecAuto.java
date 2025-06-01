@@ -26,7 +26,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.auto.V6.paths.FiveSpecAutoPaths;
 import org.firstinspires.ftc.teamcode.teleOp.MainV6;
-import org.firstinspires.ftc.teamcode.utils.CombinedServo;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
@@ -43,6 +42,7 @@ import xyz.nin1275.enums.SlidersStates;
 import xyz.nin1275.subsystems.SlidesSS;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.Timer;
+import xyz.nin1275.utils.CombinedServo;
 
 /**
  * BeastKit V6 auto
@@ -269,7 +269,7 @@ public class FiveSpecAuto extends OpMode {
                     follower.followPath(FiveSpecAutoPaths.park(), true);
                     parkStarted = true;
                 }
-                // if (follower.isBusy() && angleDiffDegrees(Math.toDegrees(follower.getPose().getHeading()), FiveSpecAutoPaths.parkPoints.getEndHeading()) <= 2) submersible.subFull();
+                if (follower.isBusy() && angleDiffDegrees(Math.toDegrees(follower.getPose().getHeading()), FiveSpecAutoPaths.parkPoints.getEndHeading()) <= 2) submersible.subFull();
                 if (!follower.isBusy()) setPathState(-1);
                 break;
             case -1: /* done */
@@ -277,6 +277,11 @@ public class FiveSpecAuto extends OpMode {
                 setPathState(-2);
                 break;
         }
+    }
+    // util
+    public static double angleDiffDegrees(double a, double b) {
+        double diff = ((a - b + 180) % 360 + 360) % 360 - 180;
+        return Math.abs(diff);
     }
     /** movements logic **/
     private static void extendArmMove(double pos) {
@@ -553,6 +558,7 @@ public class FiveSpecAuto extends OpMode {
         extendArmSS.update(false, false);
         extendArmSS.setEaCorrection(eaCorrection);
         extendArmSS.setLimits(MainV6.eaLimitHigh, MainV6.eaLimitLow);
+        extendArmSS.setMaxSpeedDown(MainV6.EA_MAX_SPEED_DOWN);
         extendArmState = extendArmSS.getState();
         // preset code
         switch (presetState) {

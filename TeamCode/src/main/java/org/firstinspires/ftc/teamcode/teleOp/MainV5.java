@@ -37,7 +37,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
-import org.firstinspires.ftc.teamcode.utils.CombinedServo;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
@@ -53,6 +52,7 @@ import xyz.nin1275.subsystems.SlidesSS;
 import xyz.nin1275.utils.Calibrate;
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Timer;
+import xyz.nin1275.utils.CombinedServo;
 
 @Configurable
 @Config("MainV5")
@@ -89,6 +89,7 @@ public class MainV5 extends LinearOpMode {
     public static double eaLimitLow = 0;
     public static boolean eaCorrection = true;
     public static SlidesSS extendArmSS;
+    public static double EA_MAX_SPEED_DOWN = -0.4;
     // states
     SlidersStates extendArmState = SlidersStates.FLOATING;
     private static PresetStates presetState = PresetStates.NO_PRESET;
@@ -282,6 +283,7 @@ public class MainV5 extends LinearOpMode {
                 extendArmState = extendArmSS.getState();
                 extendArmSS.setEaCorrection(eaCorrection);
                 extendArmSS.setLimits(MainV5.eaLimitHigh, MainV5.eaLimitLow);
+                extendArmSS.setMaxSpeedDown(EA_MAX_SPEED_DOWN);
                 limelight.setFollower(follower);
                 telemetryM.setDebug(debugMode);
                 boolean moving = gamepad1.left_stick_x > 0 || gamepad1.left_stick_x < 0 || gamepad1.left_stick_y > 0 || gamepad1.left_stick_y < 0 || gamepad1.right_stick_x > 0 || gamepad1.right_stick_x < 0;
@@ -300,9 +302,9 @@ public class MainV5 extends LinearOpMode {
                 if (Math.abs(rotation1.getPosition() - rotationalCpos1) > 0.02) rotation1.setPosition(rotationalCpos1);
                 if (Math.abs(rotation2.getPosition() - rotationalCpos2) > 0.02) rotation2.setPosition(rotationalCpos2);
                 // field side
-                if (currentGamepad1.share && !previousGamepad1.share) redSide = !redSide;
+                if ((currentGamepad1.share && !previousGamepad1.share) || (currentGamepad2.share && !previousGamepad2.share)) redSide = !redSide;
                 // toggle debug
-                if (currentGamepad1.options && !previousGamepad1.options) debugMode = !debugMode;
+                if ((currentGamepad1.options && !previousGamepad1.options) || (currentGamepad2.options && !previousGamepad2.options)) debugMode = !debugMode;
                 // movements
                 if (!odoDrive) {
                     // drive
@@ -565,9 +567,9 @@ public class MainV5 extends LinearOpMode {
                 loopTime.reset();
             }
         }
-        if (isStopRequested()) {
+        if (isStopRequested() || !isStarted()) {
             // stop code
-            LynxUtils.setLynxColor(true, true, 0, 255, 0);
+            LynxUtils.setLynxColor(0, 255, 0);
         }
     }
     // preset controls

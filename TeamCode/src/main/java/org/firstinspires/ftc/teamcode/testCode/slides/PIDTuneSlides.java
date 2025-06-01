@@ -27,10 +27,9 @@ public class PIDTuneSlides extends OpMode {
     public static double CPR = 145.1; // counts per revolution
     public static double INCHES_PER_REV = 4.2; // how far the arm travels linearly per motor revolution
 
-
     /**
      * Initialization code.
-     */
+    **/
     @Override
     public void init() {
         // set the PID values
@@ -55,7 +54,7 @@ public class PIDTuneSlides extends OpMode {
 
     /**
      * This updates the FTC Dashboard telemetry with the ERROR values and target pos and current pos for easy tuning and debugging!
-     */
+    **/
     @Override
     public void loop() {
         // Update PID values

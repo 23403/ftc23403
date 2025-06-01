@@ -33,7 +33,6 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
 import org.firstinspires.ftc.teamcode.teleOp.MainV6;
-import org.firstinspires.ftc.teamcode.utils.CombinedServo;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
@@ -42,6 +41,7 @@ import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
 import xyz.nin1275.MetroLib;
 import xyz.nin1275.utils.Calibrate;
+import xyz.nin1275.utils.CombinedServo;
 
 /**
  * MetroBotics/Code Conductors auto using odometry.

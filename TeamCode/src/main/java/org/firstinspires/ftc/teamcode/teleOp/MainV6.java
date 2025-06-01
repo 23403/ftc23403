@@ -5,7 +5,7 @@
  * based off of MainV5 but better
  * started recoding at 5/12/25  @  11:38 am
  * finished recoding at 5/17/25 @ 11:32 am
- * robot v6 expected to be finished building by 5/24/25
+ * robot v6 finished building at 5/31/25
 ***/
 package org.firstinspires.ftc.teamcode.teleOp;
 
@@ -39,7 +39,6 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
-import org.firstinspires.ftc.teamcode.utils.CombinedServo;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
@@ -62,6 +61,7 @@ import xyz.nin1275.controllers.PID;
 import xyz.nin1275.enums.SlidersStates;
 import xyz.nin1275.subsystems.SlidesSS;
 import xyz.nin1275.utils.Calibrate;
+import xyz.nin1275.utils.CombinedServo;
 import xyz.nin1275.utils.Motors;
 
 @Configurable
@@ -113,6 +113,7 @@ public class MainV6 extends LinearOpMode {
     private static BasketsModeStates basketsStates = BasketsModeStates.RETURN;
     // config stuff
     public static double SUB_THROW_POS = 188;
+    public static double EA_MAX_SPEED_DOWN = -0.4;
     public static boolean redSide = true;
     public static boolean debugMode = false;
     public static double wheelSpeedMax = 1;
@@ -222,6 +223,7 @@ public class MainV6 extends LinearOpMode {
                 extendArmState = extendArmSS.getState();
                 extendArmSS.setEaCorrection(eaCorrection);
                 extendArmSS.setLimits(MainV6.eaLimitHigh, MainV6.eaLimitLow);
+                extendArmSS.setMaxSpeedDown(EA_MAX_SPEED_DOWN);
                 limelight.setFollower(follower);
                 telemetryM.setDebug(debugMode);
                 boolean moving = Math.abs(gamepad1.left_stick_x) > 0 || Math.abs(gamepad1.left_stick_y) > 0 || Math.abs(gamepad1.right_stick_x) > 0;
@@ -255,6 +257,8 @@ public class MainV6 extends LinearOpMode {
                         brON = false;
                     }
                 }
+                // field side
+                if ((currentGamepad1.share && !previousGamepad1.share) || (currentGamepad2.share && !previousGamepad2.share)) redSide = !redSide;
                 // toggle debug
                 if ((currentGamepad1.options && !previousGamepad1.options) || (currentGamepad2.options && !previousGamepad2.options)) debugMode = !debugMode;
                 // movements
