@@ -488,6 +488,7 @@ public class FiveSpecAuto extends OpMode {
         armPos = arms.getVoltage() / 3.3 * 360;
         // directions
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
+        subArm.setDirection(Servo.Direction.REVERSE, 1);
         // limits
         claw2.scaleRange(0.01, 0.08);
         wrist2.scaleRange(0.05, 0.8);
@@ -495,7 +496,7 @@ public class FiveSpecAuto extends OpMode {
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.6);
         claw1.scaleRange(0, 0.4);
-        subArm.scaleRange(0.385, 0.85);
+        subArm.scaleRange(0.13, 0.41);
         // extendArm
         extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV6.eaLimitHigh, MainV6.eaLimitLow, eaCorrection, false);
         // colors
