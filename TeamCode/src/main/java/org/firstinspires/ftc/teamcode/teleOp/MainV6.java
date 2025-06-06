@@ -52,7 +52,7 @@ import org.firstinspires.ftc.teamcode.variables.presets.MainV6Presets;
 
 import java.util.List;
 
-import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
+// import dev.frozenmilk.dairy.cachinghardware.DcMotorEx;
 import dev.frozenmilk.dairy.cachinghardware.CachingServo;
 import pedroPathing.constants.FConstants;
 import pedroPathing.constants.LConstants;
@@ -91,9 +91,6 @@ public class MainV6 extends LinearOpMode {
     private double wheelSpeed = wheelSpeedMax;
     // power draw
     ElapsedTime loopTime;
-    public static boolean bulkRead = true;
-    private static boolean brOFF = false;
-    private static boolean brON = false;
     // odometry
     public static boolean odoDrive = true;
     // extend arm
@@ -138,35 +135,35 @@ public class MainV6 extends LinearOpMode {
         Gamepad previousGamepad1 = new Gamepad();
         Gamepad previousGamepad2 = new Gamepad();
         // motors
-        CachingDcMotorEx leftFront = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "leftFront"));
-        CachingDcMotorEx leftRear = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "leftRear"));
-        CachingDcMotorEx rightFront = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "rightFront"));
-        CachingDcMotorEx rightRear = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "rightRear"));
-        CachingDcMotorEx extendArm1 = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "ExtendArm1"));
-        CachingDcMotorEx extendArm2 = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "ExtendArm2"));
+        DcMotorEx leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        DcMotorEx leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
+        DcMotorEx rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        DcMotorEx rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
+        DcMotorEx extendArm1 = hardwareMap.get(DcMotorEx.class, "ExtendArm1");
+        DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         // servos
         // ea
-        CachingServo arm1 = new CachingServo(hardwareMap.get(Servo.class, "arm1")); // 1x axon max
-        CachingServo arm2 = new CachingServo(hardwareMap.get(Servo.class, "arm2")); // 1x axon max
-        CachingServo wrist1 = new CachingServo(hardwareMap.get(Servo.class, "wrist1")); // 1x axon mini
-        CachingServo claw1 = new CachingServo(hardwareMap.get(Servo.class, "claw1")); // 1x axon mini
-        CachingServo rotation1 = new CachingServo(hardwareMap.get(Servo.class, "rotation2")); // 1x axon max
+        Servo arm1 = hardwareMap.get(Servo.class, "arm1"); // 1x axon max
+        Servo arm2 = hardwareMap.get(Servo.class, "arm2"); // 1x axon max
+        Servo wrist1 = hardwareMap.get(Servo.class, "wrist1"); // 1x axon mini
+        Servo claw1 = hardwareMap.get(Servo.class, "claw1"); // 1x axon mini
+        Servo rotation1 = hardwareMap.get(Servo.class, "rotation2"); // 1x axon max
         CombinedServo arm = new CombinedServo(arm1, arm2); // 2x axon max
         // sa
-        CachingServo submersibleArm1 = new CachingServo(hardwareMap.get(Servo.class, "subArm1")); // 1x axon max
-        CachingServo submersibleArm2 = new CachingServo(hardwareMap.get(Servo.class, "subArm2")); // 1x 25kg
-        CachingServo wrist2 = new CachingServo(hardwareMap.get(Servo.class, "wrist2")); // 1x axon mini
-        CachingServo claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x axon mini
-        CachingServo rotation2 = new CachingServo(hardwareMap.get(Servo.class, "rotation1")); // 1x axon max
+        Servo submersibleArm1 = hardwareMap.get(Servo.class, "subArm1"); // 1x axon max
+        Servo submersibleArm2 = hardwareMap.get(Servo.class, "subArm2"); // 1x 25kg
+        Servo wrist2 = hardwareMap.get(Servo.class, "wrist2"); // 1x axon mini
+        Servo claw2 = hardwareMap.get(Servo.class, "claw2"); // 1x axon mini
+        Servo rotation2 = hardwareMap.get(Servo.class, "rotation1"); // 1x axon max
         CombinedServo subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 1x axon max : 1x 25kg
         // limits
-        claw2.scaleRange(0, 0.6);
+        claw2.scaleRange(0.08, 0.45);
         wrist2.scaleRange(0.1, 0.86);
         rotation1.scaleRange(0, 0.55);
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.58);
-        claw1.scaleRange(0, 0.63);
-        subArm.scaleRange(0.13, 0.41);
+        claw1.scaleRange(0, 0.43);
+        subArm.scaleRange(0.2, 0.55);
         rotation2.scaleRange(0.02, 0.565);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
@@ -178,7 +175,7 @@ public class MainV6 extends LinearOpMode {
         // colors
         gamepad1.setLedColor(0, 255, 255, -1);
         gamepad2.setLedColor(0, 255, 0, -1);
-        LynxUtils.setLynxColor(255, 0, 255);
+        LynxUtils.setLynxColor(true, true, 255, 0, 255);
         // starting pos
         wrist1.setPosition(wristCpos1 = 1);
         wrist2.setPosition(wristCpos2 = 1);
@@ -188,13 +185,6 @@ public class MainV6 extends LinearOpMode {
         subArm.setPosition(subArmCpos = 1);
         rotation1.setPosition(rotationalCpos1 = 0);
         rotation2.setPosition(rotationalCpos2 = 0);
-        // calibration
-        if (bulkRead) {
-            brON = true;
-            for (LynxModule hub : allHubs) {
-                hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-            }
-        }
         hardwareMap.get(IMU.class, "imu").resetYaw();
         if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
         else follower.setStartingPose(new Pose(9,63.4,0));
@@ -230,35 +220,24 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.setDebug(debugMode);
                 boolean moving = Math.abs(gamepad1.left_stick_x) > 0 || Math.abs(gamepad1.left_stick_y) > 0 || Math.abs(gamepad1.right_stick_x) > 0;
                 // analog
-                double subArmPos = subArms.getVoltage() / 3.3 * 360;
-                double armPos = arms.getVoltage() / 3.3 * 360;
+                // double subArmPos = subArms.getVoltage() / 3.3 * 360;
+                // double armPos = arms.getVoltage() / 3.3 * 360;
                 // gamepad stuff
                 previousGamepad1.copy(currentGamepad1);
                 previousGamepad2.copy(currentGamepad2);
                 currentGamepad1.copy(gamepad1);
                 currentGamepad2.copy(gamepad2);
+                /*
                 // servos
-                wrist1.setPosition(wristCpos1);
-                wrist2.setPosition(wristCpos2);
-                claw1.setPosition(clawCpos1);
-                claw2.setPosition(clawCpos2);
-                arm.setPosition(armCpos);
-                subArm.setPosition(subArmCpos);
-                rotation1.setPosition(rotationalCpos1);
-                rotation2.setPosition(rotationalCpos2);
-                // bulk read
-                for (LynxModule hub : allHubs) {
-                    if (bulkRead) {
-                        if (!brON) hub.setBulkCachingMode(LynxModule.BulkCachingMode.MANUAL);
-                        hub.clearBulkCache();
-                        brON = true;
-                        brOFF = false;
-                    } else {
-                        if (!brOFF) hub.setBulkCachingMode(LynxModule.BulkCachingMode.OFF);
-                        brOFF = true;
-                        brON = false;
-                    }
-                }
+                if (Math.abs(wrist1.getPosition() - wristCpos1) > 0.02) wrist1.setPosition(wristCpos1);
+                if (Math.abs(wrist2.getPosition() - wristCpos2) > 0.02) wrist2.setPosition(wristCpos2);
+                if (Math.abs(claw1.getPosition() - clawCpos1) > 0.02) claw1.setPosition(clawCpos1);
+                if (Math.abs(claw2.getPosition() - clawCpos2) > 0.02) claw2.setPosition(clawCpos2);
+                if (Math.abs(arm.getPosition() - armCpos) > 0.02) arm.setPosition(armCpos);
+                if (Math.abs(subArm.getPosition() - subArmCpos) > 0.02) subArm.setPosition(subArmCpos);
+                if (Math.abs(rotation1.getPosition() - rotationalCpos1) > 0.02) rotation1.setPosition(rotationalCpos1);
+                if (Math.abs(rotation2.getPosition() - rotationalCpos2) > 0.02) rotation2.setPosition(rotationalCpos2);
+                */
                 // field side
                 if ((currentGamepad1.share && !previousGamepad1.share) || (currentGamepad2.share && !previousGamepad2.share)) redSide = !redSide;
                 // toggle debug
@@ -331,25 +310,25 @@ public class MainV6 extends LinearOpMode {
                 // modes code
                 switch (mode) {
                     case SPECIMEN:
-                        handleSpecimenMode(currentGamepad2, previousGamepad2);
-                        handleSubmersibleMode(subArmPos);
-                        LynxUtils.setLynxColor(255, 0, 0);
+                        // handleSpecimenMode(currentGamepad2, previousGamepad2);
+                        // handleSubmersibleMode();
+                        LynxUtils.setLynxColor(true, true, 255, 0, 0);
                         break;
                     case BASKETS:
-                        handleBasketsMode(gamepad2);
-                        handleSubmersibleMode(subArmPos);
-                        LynxUtils.setLynxColor(255, 0, 255);
+                        // handleBasketsMode(gamepad2);
+                        // handleSubmersibleMode();
+                        LynxUtils.setLynxColor(true, true, 255, 0, 255);
                         break;
                 }
                 // controls
                 switch (mode) {
                     case SPECIMEN:
-                        handleSpecimenControls(currentGamepad2, previousGamepad2);
-                        handleSubmersibleControls(currentGamepad1, previousGamepad1, limelight);
+                        // handleSpecimenControls(currentGamepad2, previousGamepad2);
+                        // handleSubmersibleControls(currentGamepad1, previousGamepad1, limelight);
                         break;
                     case BASKETS:
-                        handleBasketsControls(currentGamepad2, previousGamepad2);
-                        handleSubmersibleControls(currentGamepad1, previousGamepad1, limelight);
+                        // handleBasketsControls(currentGamepad2, previousGamepad2);
+                        // handleSubmersibleControls(currentGamepad1, previousGamepad1, limelight);
                         break;
                 }
                 // rotate
@@ -388,8 +367,8 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "modeState", mode == ModeStates.SUBMERSIBLE ? "Submersible" : mode == ModeStates.SPECIMEN ? "Specimen" : "Baskets");
                 telemetryM.addData(true, mode == ModeStates.SUBMERSIBLE ? "subState" : mode == ModeStates.SPECIMEN ? "specState" : "basketState", mode == ModeStates.SUBMERSIBLE ? subStates : mode == ModeStates.SPECIMEN ? specStates : basketsStates);
                 telemetryM.addData(true, "llState", llState);
-                telemetryM.addData(true, "subArmPos", subArmPos);
-                telemetryM.addData(true, "armPos", armPos);
+                // telemetryM.addData(true, "subArmPos", subArmPos);
+                // telemetryM.addData(true, "armPos", armPos);
                 telemetryM.addData(true, "PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
                 telemetryM.addData(true, "target", slidesTARGET);
                 telemetryM.addData(true, "eaCpos1", extendArmSS.getInches1());
@@ -419,7 +398,7 @@ public class MainV6 extends LinearOpMode {
         }
         if (isStopRequested() || !isStarted()) {
             // stop code
-            LynxUtils.setLynxColor(0, 255, 0);
+            LynxUtils.setLynxColor(true, true, 0, 255, 0);
         }
     }
     // preset controls
@@ -438,16 +417,16 @@ public class MainV6 extends LinearOpMode {
         presetState = PresetStates.NO_PRESET;
     }
     // handles
-    public void handleSubmersibleMode(double subArmPos) {
+    public void handleSubmersibleMode() {
         switch (subStates) {
             case MOVE_OUT:
-                if (subArmPos > SUB_THROW_POS) {
+                if (0 > SUB_THROW_POS) {
                     wristCpos2 = 0;
                     clawCpos2 = 0;
                 }
                 break;
             case THROW:
-                if (subArmPos > SUB_THROW_POS) {
+                if (0 > SUB_THROW_POS) {
                     presetState = PresetStates.TRANSITION;
                     subStates = SubModeStates.RETURN;
                 }

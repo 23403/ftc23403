@@ -109,12 +109,12 @@ public class MainV5 extends LinearOpMode {
                 -1.0,
                 0.0);
         public static CustomPresets highBasket = new CustomPresets(
-                33.6,
+                27,
                 -1.0,
                 0.0,
                 1.0,
                 -1.0,
-                0.6,
+                0.4,
                 0.8,
                 -1.0,
                 0.0);
@@ -134,12 +134,12 @@ public class MainV5 extends LinearOpMode {
                 1.0,
                 0.0,
                 1.0,
-                0.5,
-                0.18,
-                0.52,
+                0.6,
+                0.15,
+                0.0,
                 0.0);
         public static CustomPresets preSpecimen = new CustomPresets(
-                10,
+                7,
                 -1.0,
                 -1.0,
                 1.0,
@@ -149,7 +149,7 @@ public class MainV5 extends LinearOpMode {
                 -1.0,
                 -1.0);
         public static CustomPresets scoreSpecimen = new CustomPresets(
-                19.5,
+                20,
                 -1.0,
                 -1.0,
                 1.0,
@@ -218,13 +218,13 @@ public class MainV5 extends LinearOpMode {
         Servo rotation2 = hardwareMap.get(Servo.class, "rotation1"); // 1x axon max
         CombinedServo subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 1x axon max : 1x 25kg
         // limits
-        claw2.scaleRange(0, 0.6);
+        claw2.scaleRange(0.08, 0.45);
         wrist2.scaleRange(0.1, 0.86);
         rotation1.scaleRange(0, 0.55);
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.58);
-        claw1.scaleRange(0, 0.63);
-        subArm.scaleRange(0.13, 0.41);
+        claw1.scaleRange(0, 0.43);
+        subArm.scaleRange(0.2, 0.55);
         rotation2.scaleRange(0.02, 0.565);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);

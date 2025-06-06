@@ -18,13 +18,13 @@ public class FConstants {
         FollowerConstants.rightFrontMotorDirection = DcMotorSimple.Direction.FORWARD;
         FollowerConstants.rightRearMotorDirection = DcMotorSimple.Direction.FORWARD;
 
-        FollowerConstants.xMovement = 46.7468496303;
-        FollowerConstants.yMovement = 22.9086578708;
+        FollowerConstants.xMovement = 76.0046440113;
+        FollowerConstants.yMovement = 44.9396642203;
 
-        FollowerConstants.forwardZeroPowerAcceleration = -21.5054019464;
-        FollowerConstants.lateralZeroPowerAcceleration = -45.4943839364;
+        FollowerConstants.forwardZeroPowerAcceleration = -28.947587181978584;
+        FollowerConstants.lateralZeroPowerAcceleration = -67.6236691398;
 
-        FollowerConstants.mass = 9.0718474;
+        FollowerConstants.mass = 13.3;
 
         FollowerConstants.centripetalScaling = 0.001;
 
@@ -38,25 +38,25 @@ public class FConstants {
 
         // pid for translational
         FollowerConstants.translationalPIDFCoefficients.setCoefficients(
-                0.085,
+                0.025,
                 0,
-                0.000818,
+                0.002,
                 0
         ); // BASIC TUNING
         FollowerConstants.translationalPIDFFeedForward = 0.02;
-        FollowerConstants.useSecondaryTranslationalPID = false;
+        FollowerConstants.useSecondaryTranslationalPID = true;
         FollowerConstants.secondaryTranslationalPIDFCoefficients.setCoefficients(
+                0.15,
                 0,
-                0,
-                0,
+                0.01,
                 0
         ); // SECONDARY TUNING
         FollowerConstants.secondaryTranslationalPIDFFeedForward = 0.0005;
         // pid for heading
         FollowerConstants.headingPIDFCoefficients.setCoefficients(
-                0.8,
+                0.7,
                 0,
-                0.0455,
+                0.05,
                 0
         ); // BASIC TUNING
         FollowerConstants.headingPIDFFeedForward = 0.01;
@@ -70,14 +70,14 @@ public class FConstants {
         FollowerConstants.secondaryHeadingPIDFFeedForward = 0.0005;
         // pid for drive
         FollowerConstants.drivePIDFCoefficients.setCoefficients(
-                0.02,
+                0.0145,
                 0,
-                0.0000054,
+                0.0025,
                 0.6,
                 0
         ); // BASIC TUNING
         FollowerConstants.drivePIDFFeedForward = 0.01;
-        FollowerConstants.useSecondaryDrivePID = false;
+        FollowerConstants.useSecondaryDrivePID = true;
         FollowerConstants.secondaryDrivePIDFCoefficients.setCoefficients(
                 0,
                 0,
