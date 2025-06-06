@@ -218,19 +218,19 @@ public class MainV5 extends LinearOpMode {
         Servo rotation2 = hardwareMap.get(Servo.class, "rotation1"); // 1x axon max
         CombinedServo subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 1x axon max : 1x 25kg
         // limits
-        claw2.scaleRange(0.08, 0.45);
+        claw2.scaleRange(0.1, 0.38);
         wrist2.scaleRange(0.1, 0.86);
         rotation1.scaleRange(0, 0.55);
         arm.scaleRange(0.12, 1);
         wrist1.scaleRange(0, 0.58);
         claw1.scaleRange(0, 0.43);
-        subArm.scaleRange(0.2, 0.55);
+        subArm.scaleRange(0.25, 0.47);
         rotation2.scaleRange(0.02, 0.565);
         // reverse
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
-        subArm.setDirection(Servo.Direction.REVERSE, 1);
+        claw2.setDirection(Servo.Direction.REVERSE);
         // breaks
         Motors.setBrakes(leftFront, rightFront, leftRear, rightRear);
         // colors

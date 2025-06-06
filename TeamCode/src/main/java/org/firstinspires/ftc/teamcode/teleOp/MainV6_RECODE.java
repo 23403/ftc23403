@@ -63,8 +63,8 @@ import xyz.nin1275.utils.CombinedServo;
 import xyz.nin1275.utils.Motors;
 
 @Configurable
-@Config("MainV6")
-@TeleOp(name="Main v6", group=".ftc23403")
+@Config("MainV6 RR")
+@TeleOp(name="Main v6 RR", group=".ftc23403")
 public class MainV6_RECODE extends LinearOpMode {
     /**
      * @TODO driver practice bro

@@ -22,7 +22,6 @@ public class SubArmMotor extends LinearOpMode {
     @Override
     public void runOpMode() {
         DcMotorEx subArm = hardwareMap.get(DcMotorEx.class, "subArm");
-        subArm.setDirection(DcMotorEx.Direction.REVERSE);
         // init stuff
         resetTimer.reset();
         while (resetTimer.milliseconds() < 500) {
@@ -66,6 +65,10 @@ public class SubArmMotor extends LinearOpMode {
                         subArm.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
                     }
                 }
+                telemetry.addData("subArm Pos", subArm.getCurrentPosition());
+                telemetry.addData("subArmCpos", subArmCpos);
+                telemetry.addData("Power", subArm.getPower());
+                telemetry.update();
             }
         }
     }

@@ -39,7 +39,6 @@ public class SubArmMotorNEWWWW extends LinearOpMode {
     @Override
     public void runOpMode() {
         subArm = hardwareMap.get(DcMotorEx.class, "subArm");
-        subArm.setDirection(DcMotorEx.Direction.REVERSE);
 
         // Pre-start zeroing
         resetTimer.reset();
