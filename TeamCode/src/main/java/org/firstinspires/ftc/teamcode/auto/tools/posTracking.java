@@ -24,8 +24,8 @@ import com.qualcomm.robotcore.hardware.IMU;
 public class posTracking extends OpMode {
     private DashboardPoseTracker dashboardPoseTracker;
     private PoseUpdater poseUpdater;
-    public static double startPosX = 9;
-    public static double startPosY = 63.4;
+    public static double startPosX = 7.6;
+    public static double startPosY = 63.9;
     public static double startPosRotation = 0;
     private final Pose startPos = new Pose(startPosX, startPosY, Math.toRadians(startPosRotation)); // start Pos
 

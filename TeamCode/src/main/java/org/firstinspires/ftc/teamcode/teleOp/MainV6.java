@@ -9,13 +9,13 @@
 ***/
 package org.firstinspires.ftc.teamcode.teleOp;
 
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -27,10 +27,8 @@ import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
-import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
@@ -42,15 +40,11 @@ import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.utils.LynxUtils;
 import org.firstinspires.ftc.teamcode.utils.TelemetryM;
-import org.firstinspires.ftc.teamcode.variables.enums.ModeStates;
 import org.firstinspires.ftc.teamcode.variables.enums.PresetStates;
 import org.firstinspires.ftc.teamcode.variables.enums.RotationStates;
-import org.firstinspires.ftc.teamcode.variables.enums.subEnums.BasketsModeStates;
 import org.firstinspires.ftc.teamcode.variables.enums.subEnums.SpecModeStates;
 import org.firstinspires.ftc.teamcode.variables.enums.subEnums.SubModeStates;
 import org.firstinspires.ftc.teamcode.variables.presets.MainV6Presets;
-
-import java.util.List;
 
 import dev.frozenmilk.dairy.cachinghardware.CachingDcMotorEx;
 import dev.frozenmilk.dairy.cachinghardware.CachingServo;
@@ -69,10 +63,7 @@ import xyz.nin1275.utils.Motors;
 @TeleOp(name="Main v6", group=".ftc23403")
 public class MainV6 extends LinearOpMode {
     /**
-     * @TODO driver practice bro
-     * @TODO fix all the movements using state systems for everything
-     * @TODO get all the new modes working and stuff
-     * @TODO fix all the mode systems
+     * @TODO new controls
      * MAIN V6 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
     **/
@@ -89,11 +80,10 @@ public class MainV6 extends LinearOpMode {
     public static double wheelSpeedMinEA = 0.7;
     public static double wheelSpeedMinSA = 0.8;
     private double wheelSpeed = wheelSpeedMax;
-    // power draw
+    // timers
     ElapsedTime loopTime;
-    public static boolean bulkRead = true;
-    private static boolean brOFF = false;
-    private static boolean brON = false;
+    ElapsedTime subArmThrowTimer;
+    ElapsedTime transitionTimer;
     // odometry
     public static boolean odoDrive = true;
     // extend arm
@@ -107,16 +97,15 @@ public class MainV6 extends LinearOpMode {
     private static PresetStates presetState = PresetStates.NO_PRESET;
     RotationStates rotationState = RotationStates.MIDDLE;
     LimelightState llState = LimelightState.INIT;
-    private static ModeStates mode = ModeStates.SPECIMEN;
-    private static SubModeStates subStates = SubModeStates.RETURN;
-    private static SpecModeStates specStates = SpecModeStates.GRAB;
-    private static BasketsModeStates basketsStates = BasketsModeStates.RETURN;
+    SubModeStates subStates = SubModeStates.RETURN;
+    SpecModeStates specStates = SpecModeStates.GRAB;
     // config stuff
-    public static double SUB_THROW_POS = 188;
+    public static int SUB_THROW_DELAY = 200;
     public static double EA_MAX_SPEED_DOWN = -0.4;
     public static boolean redSide = true;
     public static boolean debugMode = true;
     public static double wheelSpeedMax = 1;
+    public static int TRANSITION_DELAY = 200;
     @Override
     public void runOpMode() {
         // hardware
@@ -128,10 +117,7 @@ public class MainV6 extends LinearOpMode {
         Limelight3A limelight3A = hardwareMap.get(Limelight3A.class, "limelight");
         limelight3A.setPollRateHz(50);
         Vision.Limelight limelight = new Vision.Limelight(limelight3A, llState, follower);
-        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
         LynxUtils.initLynx(hardwareMap);
-        AnalogInput subArms = hardwareMap.get(AnalogInput.class, "subArms");
-        AnalogInput arms = hardwareMap.get(AnalogInput.class, "arms");
         // gamepads
         Gamepad currentGamepad1 = new Gamepad();
         Gamepad currentGamepad2 = new Gamepad();
@@ -153,14 +139,14 @@ public class MainV6 extends LinearOpMode {
         CachingServo rotation1 = new CachingServo(hardwareMap.get(Servo.class, "rotation2")); // 1x axon max
         CombinedServo arm = new CombinedServo(arm1, arm2); // 2x axon max
         // sa
-        CachingServo submersibleArm1 = new CachingServo(hardwareMap.get(Servo.class, "subArm1")); // 1x axon max
-        CachingServo submersibleArm2 = new CachingServo(hardwareMap.get(Servo.class, "subArm2")); // 1x 25kg
+        CachingServo submersibleArm1 = new CachingServo(hardwareMap.get(Servo.class, "subArm1")); // 1x axon mini
+        CachingServo submersibleArm2 = new CachingServo(hardwareMap.get(Servo.class, "subArm2")); // 1x axon mini
         CachingServo wrist2 = new CachingServo(hardwareMap.get(Servo.class, "wrist2")); // 1x axon mini
-        CachingServo claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x axon mini
+        CachingServo claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x 25kg
         CachingServo rotation2 = new CachingServo(hardwareMap.get(Servo.class, "rotation1")); // 1x axon max
-        CombinedServo subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 1x axon max : 1x 25kg
+        CombinedServo subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 2x axon mini
         // limits
-        claw2.scaleRange(0.1, 0.38);
+        claw2.scaleRange(0, 0.27);
         wrist2.scaleRange(0.1, 0.86);
         rotation1.scaleRange(0, 0.55);
         arm.scaleRange(0.12, 1);
@@ -201,8 +187,14 @@ public class MainV6 extends LinearOpMode {
         // setup slides
         extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV6.eaLimitHigh, MainV6.eaLimitLow, eaCorrection, false);
         // misc
+        subStates = SubModeStates.RETURN;
+        specStates = SpecModeStates.GRAB;
         loopTime = new ElapsedTime();
+        subArmThrowTimer = new ElapsedTime();
+        transitionTimer = new ElapsedTime();
         loopTime.reset();
+        subArmThrowTimer.reset();
+        transitionTimer.reset();
         // telemetry
         telemetryM.addLine("BEASTKIT Team 23403!");
         telemetryM.addLine(true, "INIT DONE!");
@@ -221,9 +213,6 @@ public class MainV6 extends LinearOpMode {
                 limelight.setFollower(follower);
                 telemetryM.setDebug(debugMode);
                 boolean moving = Math.abs(gamepad1.left_stick_x) > 0 || Math.abs(gamepad1.left_stick_y) > 0 || Math.abs(gamepad1.right_stick_x) > 0;
-                // analog
-                double subArmPos = subArms.getVoltage() / 3.3 * 360;
-                double armPos = arms.getVoltage() / 3.3 * 360;
                 // gamepad stuff
                 previousGamepad1.copy(currentGamepad1);
                 previousGamepad2.copy(currentGamepad2);
@@ -269,73 +258,195 @@ public class MainV6 extends LinearOpMode {
                     rightFront.setPower(0);
                     rightRear.setPower(0);
                 }
-                // claw
-                if (gamepad2.right_trigger > 0 || gamepad2.left_trigger > 0) clawCpos1 = 0;
-                else if (previousGamepad2.right_trigger > 0 && previousGamepad2.left_trigger > 0) clawCpos1 = 1;
                 // extendArm code
-                extendArmSS.update(gamepad2.right_stick_y > 0.5, gamepad2.right_stick_y < 0.5);
+                extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
                 // submersibleArm code
-                if (gamepad1.right_stick_y > 0.8) {
+                if (gamepad1.dpad_up) {
                     subArmCpos = 0;
-                } else if (gamepad1.right_stick_y < 0.8) {
+                } else if (gamepad1.dpad_down) {
                     subArmCpos = 1;
-                }
-                // toggle modes
-                if (gamepad2.dpad_up) mode = ModeStates.BASKETS;
-                if (gamepad2.dpad_down) {
-                    mode = ModeStates.SPECIMEN;
-                    presetState = PresetStates.HUMAN_PLAYER;
                 }
                 // preset code
                 switch (presetState) {
                     case HUMAN_PLAYER:
                         applyPreset(MainV6Presets.humanPlayer);
+                        presetState = PresetStates.NO_PRESET;
                         break;
                     case HIGH_BASKET:
                         applyPreset(MainV6Presets.highBasket);
-                        if (clawCpos1 == 0) presetState = PresetStates.TRANSITION;
+                        if (clawCpos1 == 0 || gamepad2.right_trigger > 0) presetState = PresetStates.TRANSITION;
                         break;
                     case LOW_BASKET:
                         applyPreset(MainV6Presets.lowBasket);
-                        if (clawCpos1 == 0) presetState = PresetStates.TRANSITION;
+                        if (clawCpos1 == 0 || gamepad2.right_trigger > 0) presetState = PresetStates.TRANSITION;
                         break;
                     case TRANSITION:
                         applyPreset(MainV6Presets.transition);
+                        presetState = PresetStates.NO_PRESET;
                         break;
                     case SCORE_SPECIMEN:
-                        double scoreTarget = MainV6Presets.scoreSpecimen.extendArm != -1.0 ? MainV6Presets.scoreSpecimen.extendArm : extendArmSS.getInches1();
-                        if (Math.abs(extendArmSS.getInches1() - scoreTarget) <= 2) presetState = PresetStates.HUMAN_PLAYER;
+                        if (gamepad2.right_trigger > 0) {
+                            specStates = SpecModeStates.GRAB;
+                            presetState = PresetStates.HUMAN_PLAYER;
+                        }
+                        break;
+                    case SUB_OUT:
+                        applyPreset(MainV6Presets.slidesOut);
+                        presetState = PresetStates.NO_PRESET;
+                        break;
+                    case SUB_THROW:
+                        applyPreset(MainV6Presets.subThrow);
+                        if (subArmThrowTimer.milliseconds() > SUB_THROW_DELAY) {
+                            subStates = SubModeStates.RETURN;
+                            presetState = PresetStates.RETURN;
+                        }
+                        break;
+                    case RETURN:
+                        applyPreset(MainV6Presets.reTurn);
+                        presetState = PresetStates.NO_PRESET;
                         break;
                 }
-                // modes code
-                switch (mode) {
-                    case SPECIMEN:
-                        // mode loop
-                        LynxUtils.setLynxColor(255, 0, 0);
+                /**
+                 * GAMEPAD 1
+                 *   X / ▢         - Transition from Submersible arm to Extend arm
+                 *   Y / Δ         - Limelight grabbing
+                 *   B / O         - Return
+                 *   A / X         - Submersible grabbing and stuff
+                 *
+                 *                    ________
+                 *                   / ______ \\
+                 *     ------------.-'   _  '-..+
+                 *              /   _  ( Y )  _  \\
+                 *             |  ( X )  _  ( B ) |
+                 *        ___  '.      ( A )     /|
+                 *      .'    '.    '-._____.-'  .'
+                 *     |       |                 |
+                 *      '.___.' '.               |
+                 *               '.             /
+                 *                \\.          .'
+                 *                  \\________/
+                 */
+                switch (subStates) {
+                    case MOVE_OUT:
+                        if (currentGamepad1.a && !previousGamepad1.a) {
+                            clawCpos2 = 1;
+                            subStates = SubModeStates.GRAB;
+                        }
+                        if (currentGamepad1.b && !previousGamepad1.b) {
+                            presetState = PresetStates.RETURN;
+                            subStates = SubModeStates.MOVE_OUT;
+                        }
                         break;
-                    case BASKETS:
-                        // mode loop
-                        LynxUtils.setLynxColor(255, 0, 255);
+                    case GRAB:
+                        if (currentGamepad1.a && !previousGamepad1.a) {
+                            presetState = PresetStates.RETURN;
+                            subStates = SubModeStates.RETURN;
+                        }
+                        if (currentGamepad1.b && !previousGamepad1.b) {
+                            clawCpos2 = 0;
+                            subStates = SubModeStates.MOVE_OUT;
+                        }
+                        break;
+                    case THROW:
+                        if (currentGamepad1.a && !previousGamepad1.a) {
+                            presetState = PresetStates.RETURN;
+                            subStates = SubModeStates.RETURN;
+                        }
+                        break;
+                    case RETURN:
+                        if (currentGamepad1.a && !previousGamepad1.a) {
+                            presetState = PresetStates.SUB_OUT;
+                            subStates = SubModeStates.MOVE_OUT;
+                        }
+                        if (currentGamepad1.b && !previousGamepad1.b) {
+                            subArmThrowTimer.reset();
+                            presetState = PresetStates.SUB_THROW;
+                            subStates = SubModeStates.THROW;
+                        }
                         break;
                 }
-                // controls
-                switch (mode) {
-                    case SPECIMEN:
-                        // specimen controls
+                /**
+                 * GAMEPAD 2
+                 *   X / ▢         - Transition from Submersible arm to Extend arm
+                 *   Y / Δ         - Place in High Basket
+                 *   B / O         - Score Specimen Preset
+                 *   A / X         - Place in Low basket
+                 *
+                 *                    ________
+                 *                   / ______ \\
+                 *     ------------.-'   _  '-..+
+                 *              /   _  ( Y )  _  \\
+                 *             |  ( X )  _  ( B ) |
+                 *        ___  '.      ( A )     /|
+                 *      .'    '.    '-._____.-'  .'
+                 *     |       |                 |
+                 *      '.___.' '.               |
+                 *               '.             /
+                 *                \\.          .'
+                 *                  \\________/
+                 */
+                // high basket preset
+                if (gamepad2.y) {
+                    presetState = PresetStates.HIGH_BASKET;
+                }
+                // low basket preset
+                if (gamepad2.x) {
+                    presetState = PresetStates.LOW_BASKET;
+                }
+                if (gamepad2.dpad_right) {
+                    transition();
+                    transitionTimer.reset();
+                    subStates = SubModeStates.RETURN;
+                    specStates = SpecModeStates.RETURN;
+                }
+                if (transitionTimer.milliseconds() > TRANSITION_DELAY && transitionTimer.milliseconds() < TRANSITION_DELAY + 50) transition2();
+                // specimen preset
+                switch (specStates) {
+                    case RETURN:
+                        if (gamepad2.b && !gamepad2.options) specStates = SpecModeStates.GRAB;
                         break;
-                    case BASKETS:
-                        // baskets controls
+                    case GRAB:
+                        if (clawCpos1 == 1 && currentGamepad2.b && !previousGamepad2.b && !gamepad2.options) {
+                            applyPreset(MainV6Presets.preSpecimen);
+                            presetState = PresetStates.PRE_SPECIMEN_SCORE;
+                            specStates = SpecModeStates.PRE_SPECIMEN;
+                        }
+                        if (clawCpos1 == 1 && gamepad2.a) clawCpos1 = 0;
                         break;
+                    case PRE_SPECIMEN:
+                        if (currentGamepad2.b && !previousGamepad2.b && !gamepad2.options) {
+                            applyPreset(MainV6Presets.scoreSpecimen);
+                            presetState = PresetStates.SCORE_SPECIMEN;
+                            specStates = SpecModeStates.SCORE;
+                        }
+                        if (currentGamepad2.a && !previousGamepad2.a) {
+                            presetState = PresetStates.HUMAN_PLAYER;
+                            specStates = SpecModeStates.GRAB;
+                        }
+                        break;
+                }
+                // claws
+                if (gamepad2.right_trigger > 0) {
+                    clawCpos1 = 0;
+                } else if (!(currentGamepad1.right_trigger > 0) && previousGamepad2.right_trigger > 0) {
+                    clawCpos1 = 1;
+                }
+                // arm
+                if (gamepad2.right_stick_y > 0.3) {
+                    armCpos = 0.23;
+                    wristCpos1 = 0.6;
+                } else if (gamepad2.right_stick_y < -0.3) {
+                    armCpos = 0.96;
+                    wristCpos1 = 0.42;
                 }
                 // rotate
-                if (rotationalCpos1 > 0.51) rotationState = RotationStates.RIGHT;
-                else if (rotationalCpos1 < 0.49) rotationState = RotationStates.LEFT;
-                else rotationState = RotationStates.MIDDLE;
+                if (rotationalCpos1 > 0.1) rotationState = RotationStates.LEFT;
+                else if (rotationalCpos1 < 0.1) rotationState = RotationStates.MIDDLE;
                 if (currentGamepad1.left_trigger > 0 && !(previousGamepad1.left_trigger > 0)) {
-                    rotationalCpos1 = 0.5;
+                    rotationalCpos1 = 0;
                     rotationState = RotationStates.MIDDLE;
                 } else if (currentGamepad1.right_trigger > 0 && !(previousGamepad1.right_trigger > 0)) {
-                    rotationalCpos1 = 0;
+                    rotationalCpos1 = 0.5;
                     rotationState = RotationStates.LEFT;
                 }
                 // extendArm and subArm slowdown
@@ -360,11 +471,9 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "extendArmState", extendArmState);
                 telemetryM.addData(true, "presetState", presetState);
                 telemetryM.addData(true, "rotationState", rotationState);
-                telemetryM.addData(true, "modeState", mode == ModeStates.SUBMERSIBLE ? "Submersible" : mode == ModeStates.SPECIMEN ? "Specimen" : "Baskets");
-                telemetryM.addData(true, mode == ModeStates.SUBMERSIBLE ? "subState" : mode == ModeStates.SPECIMEN ? "specState" : "basketState", mode == ModeStates.SUBMERSIBLE ? subStates : mode == ModeStates.SPECIMEN ? specStates : basketsStates);
+                telemetryM.addData(true, "submersible state", subStates);
+                telemetryM.addData(true, "specimen state", specStates);
                 telemetryM.addData(true, "llState", llState);
-                telemetryM.addData(true, "subArmPos", subArmPos);
-                telemetryM.addData(true, "armPos", armPos);
                 telemetryM.addData(true, "PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
                 telemetryM.addData(true, "target", slidesTARGET);
                 telemetryM.addData(true, "eaCpos1", extendArmSS.getInches1());
@@ -384,8 +493,6 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "slides reset timer", extendArmSS.getResetTimer().milliseconds());
                 telemetryM.addData(true, "extendArm1 Power", extendArm1.getPower());
                 telemetryM.addData(true, "extendArm2 Power", extendArm2.getPower());
-                telemetryM.addData(true, "Control Hub Current", LynxUtils.getControlHubCurrent());
-                telemetryM.addData(true, "Expansion Hub Current", LynxUtils.getExpansionHubCurrent());
                 telemetryM.addData(true, "Loop Times", loopTime.milliseconds());
                 telemetryM.update();
                 loopTime.reset();
@@ -409,158 +516,19 @@ public class MainV6 extends LinearOpMode {
         rotationalCpos2 = preset.rotational2 != -1.0 ? preset.rotational2 : rotationalCpos2;
         rotationalCpos1 = preset.rotational1 != -1.0 ? preset.rotational1 : rotationalCpos1;
         extendArmSS.moveTo(slidesTARGET);
-        presetState = PresetStates.NO_PRESET;
     }
-    // handles
-    public void handleSubmersibleMode() {
-        switch (subStates) {
-            case MOVE_OUT:
-                if (0 > SUB_THROW_POS) {
-                    wristCpos2 = 0;
-                    clawCpos2 = 0;
-                }
-                break;
-            case THROW:
-                if (0 > SUB_THROW_POS) {
-                    presetState = PresetStates.TRANSITION;
-                    subStates = SubModeStates.RETURN;
-                }
-                break;
-        }
+
+    public void transition() {
+        subArmCpos = 1;
+        clawCpos2 = 0.8;
+        wristCpos2 = 0.65;
+        armCpos = 0.27;
+        clawCpos1 = 0;
+        wristCpos1 = 0;
     }
-    public void handleSpecimenMode(Gamepad currentGamepad2, Gamepad previousGamepad2) {
-        if (specStates == SpecModeStates.GRAB) {
-            if (!(currentGamepad2.right_trigger > 0) && previousGamepad2.left_trigger > 0) {
-                applyPreset(MainV6Presets.preSpecimen);
-                presetState = PresetStates.PRE_SPECIMEN_SCORE;
-                specStates = SpecModeStates.PRE_SPECIMEN;
-            }
-        }
-    }
-    public void handleBasketsMode(Gamepad gamepad2) {
-        switch (basketsStates) {
-            case HIGH:
-            case LOW:
-                if (clawCpos1 == 0 || gamepad2.left_trigger > 0 || gamepad2.right_trigger > 0) {
-                    presetState = PresetStates.TRANSITION;
-                    basketsStates = BasketsModeStates.RETURN;
-                }
-                break;
-        }
-    }
-    // handle controls
-    public void handleSubmersibleControls(Gamepad currentGamepad1, Gamepad previousGamepad1, Vision.Limelight limelight) {
-        if (currentGamepad1.a && !previousGamepad1.a) {
-            switch (subStates) {
-                case RETURN:
-                    subArmCpos = 0;
-                    rotationalCpos2 = 0.52;
-                    wristCpos2 = 0.8;
-                    subStates = SubModeStates.MOVE_OUT;
-                    break;
-                case MOVE_OUT:
-                    clawCpos2 = 1;
-                    subStates = SubModeStates.GRAB;
-                    break;
-                case GRAB:
-                    presetState = PresetStates.TRANSITION;
-                    subStates = SubModeStates.RETURN;
-                    break;
-            }
-        }
-        if (currentGamepad1.b && !previousGamepad1.b) {
-            switch (subStates) {
-                case MOVE_OUT:
-                case THROW:
-                    presetState = PresetStates.TRANSITION;
-                    subStates = SubModeStates.RETURN;
-                    break;
-                case RETURN:
-                    subArmCpos = 0;
-                    rotationalCpos2 = 0.52;
-                    wristCpos2 = 0.8;
-                    clawCpos2 = 0;
-                    subStates = SubModeStates.THROW;
-                    break;
-                case GRAB:
-                    subStates = SubModeStates.MOVE_OUT;
-                    break;
-            }
-        }
-        if (currentGamepad1.x && !previousGamepad1.x) {
-            if (subStates == SubModeStates.RETURN) {
-                subArmCpos = limelight.getSubmersible() == -1 ? 0 : limelight.getSubmersible();
-                rotationalCpos2 = 0.52;
-                wristCpos2 = 0.8;
-                subStates = SubModeStates.MOVE_OUT;
-            }
-        }
-        if (currentGamepad1.y && !previousGamepad1.y) subStates = SubModeStates.RETURN;
-    }
-    public void handleSpecimenControls(Gamepad currentGamepad2, Gamepad previousGamepad2) {
-        if (currentGamepad2.a && !previousGamepad2.a) {
-            switch (specStates) {
-                case RETURN:
-                case SCORE:
-                case PRE_SPECIMEN:
-                    presetState = PresetStates.HUMAN_PLAYER;
-                    specStates = SpecModeStates.GRAB;
-                    break;
-                case GRAB:
-                    presetState = PresetStates.TRANSITION;
-                    specStates = SpecModeStates.RETURN;
-                    break;
-            }
-        }
-        if (currentGamepad2.b && !previousGamepad2.b) {
-            switch (specStates) {
-                case GRAB:
-                case SCORE:
-                    applyPreset(MainV6Presets.preSpecimen);
-                    presetState = PresetStates.PRE_SPECIMEN_SCORE;
-                    specStates = SpecModeStates.PRE_SPECIMEN;
-                    break;
-                case PRE_SPECIMEN:
-                    applyPreset(MainV6Presets.scoreSpecimen);
-                    presetState = PresetStates.SCORE_SPECIMEN;
-                    specStates = SpecModeStates.SCORE;
-                    break;
-                case RETURN:
-                    presetState = PresetStates.HUMAN_PLAYER;
-                    specStates = SpecModeStates.GRAB;
-                    break;
-            }
-        }
-        if (currentGamepad2.y && !previousGamepad2.y) specStates = SpecModeStates.RETURN;
-    }
-    public void handleBasketsControls(Gamepad currentGamepad2, Gamepad previousGamepad2) {
-        if (currentGamepad2.a && !previousGamepad2.a) {
-            switch (basketsStates) {
-                case LOW:
-                case HIGH:
-                    presetState = PresetStates.TRANSITION;
-                    basketsStates = BasketsModeStates.RETURN;
-                    break;
-            }
-        }
-        if (currentGamepad2.b && !previousGamepad2.b) {
-            switch (basketsStates) {
-                case RETURN:
-                case LOW:
-                    presetState = PresetStates.HIGH_BASKET;
-                    basketsStates = BasketsModeStates.HIGH;
-                    break;
-            }
-        }
-        if (currentGamepad2.x && !previousGamepad2.x) {
-            switch (basketsStates) {
-                case RETURN:
-                case HIGH:
-                    presetState = PresetStates.LOW_BASKET;
-                    basketsStates = BasketsModeStates.LOW;
-                    break;
-            }
-        }
-        if (currentGamepad2.y && !previousGamepad2.y) basketsStates = BasketsModeStates.RETURN;
+    public void transition2() {
+        clawCpos2 = 0.85;
+        rotationalCpos1 = 1;
+        wristCpos2 = 1;
     }
 }

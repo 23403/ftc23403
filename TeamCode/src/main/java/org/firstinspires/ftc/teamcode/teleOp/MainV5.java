@@ -218,7 +218,7 @@ public class MainV5 extends LinearOpMode {
         Servo rotation2 = hardwareMap.get(Servo.class, "rotation1"); // 1x axon max
         CombinedServo subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 1x axon max : 1x 25kg
         // limits
-        claw2.scaleRange(0.1, 0.38);
+        claw2.scaleRange(0, 0.27);
         wrist2.scaleRange(0.1, 0.86);
         rotation1.scaleRange(0, 0.55);
         arm.scaleRange(0.12, 1);
@@ -230,7 +230,6 @@ public class MainV5 extends LinearOpMode {
         leftFront.setDirection(DcMotorEx.Direction.REVERSE);
         leftRear.setDirection(DcMotorEx.Direction.REVERSE);
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
-        claw2.setDirection(Servo.Direction.REVERSE);
         // breaks
         Motors.setBrakes(leftFront, rightFront, leftRear, rightRear);
         // colors
@@ -335,7 +334,7 @@ public class MainV5 extends LinearOpMode {
                     rightRear.setPower(0);
                 }
                 // extendArm code
-                if (presetState != PresetStates.L2_HANG) extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
+                extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
                     subArmCpos = 0;
@@ -363,13 +362,6 @@ public class MainV5 extends LinearOpMode {
                     case SCORE_SPECIMEN:
                         double scoreTarget = MainV5.presets.scoreSpecimen.extendArm != -1.0 ? MainV5.presets.scoreSpecimen.extendArm : extendArmSS.getInches1();
                         if (Math.abs(extendArmSS.getInches1() - scoreTarget) <= 2) presetState = PresetStates.HUMAN_PLAYER;
-                        break;
-                    case L2_HANG:
-                        double target = MainV5.presets.hang.extendArm != -1.0 ? MainV5.presets.hang.extendArm : extendArmSS.getInches1();
-                        if (Math.abs(extendArmSS.getInches1() - target) <= 2) {
-                            extendArm1.setPower(-hangPower);
-                            extendArm2.setPower(-hangPower);
-                        }
                         break;
                 }
                 /**
@@ -399,16 +391,6 @@ public class MainV5 extends LinearOpMode {
                 // transition preset
                 if (gamepad1.x) {
                     presetState = PresetStates.TRANSITION;
-                }
-                // l2 hang
-                if (currentGamepad1.y && !previousGamepad1.y) {
-                    if (presetState == PresetStates.NO_PRESET) {
-                        applyPreset(MainV5.presets.preHang);
-                        presetState = PresetStates.PRE_L2_HANG;
-                    } else if (presetState == PresetStates.PRE_L2_HANG) {
-                        applyPreset(MainV5.presets.hang);
-                        presetState = PresetStates.L2_HANG;
-                    }
                 }
                 // limelight
                 if (currentGamepad1.a && !previousGamepad1.a && !gamepad1.options) {

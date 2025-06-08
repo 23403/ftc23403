@@ -224,7 +224,7 @@ public class outreachTeleOp extends LinearOpMode {
                     rightRear.setPower(0);
                 }
                 // extendArm code
-                if (presetState != PresetStates.L2_HANG) extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
+                extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
                 // submersibleArm code
                 if (gamepad1.dpad_up) {
                     subArmCpos = 0;
@@ -252,13 +252,6 @@ public class outreachTeleOp extends LinearOpMode {
                     case SCORE_SPECIMEN:
                         double scoreTarget = MainV5.presets.scoreSpecimen.extendArm != -1.0 ? MainV5.presets.scoreSpecimen.extendArm : extendArmSS.getInches1();
                         if (Math.abs(extendArmSS.getInches1() - scoreTarget) <= 2) presetState = PresetStates.HUMAN_PLAYER;
-                        break;
-                    case L2_HANG:
-                        double target = MainV5.presets.hang.extendArm != -1.0 ? MainV5.presets.hang.extendArm : extendArmSS.getInches1();
-                        if (Math.abs(extendArmSS.getInches1() - target) <= 2) {
-                            extendArm1.setPower(-0.8);
-                            extendArm2.setPower(-0.8);
-                        }
                         break;
                 }
                 /**
@@ -288,16 +281,6 @@ public class outreachTeleOp extends LinearOpMode {
                 // transition preset
                 if (gamepad1.x) {
                     presetState = PresetStates.TRANSITION;
-                }
-                // l2 hang
-                if (currentGamepad1.y && !previousGamepad1.y) {
-                    if (presetState == PresetStates.NO_PRESET) {
-                        applyPreset(MainV5.presets.preHang);
-                        presetState = PresetStates.PRE_L2_HANG;
-                    } else if (presetState == PresetStates.PRE_L2_HANG) {
-                        applyPreset(MainV5.presets.hang);
-                        presetState = PresetStates.L2_HANG;
-                    }
                 }
                 // limelight
                 if (currentGamepad1.a && !previousGamepad1.a && !gamepad1.options) {
