@@ -104,16 +104,19 @@ public class FiveSpecAuto extends OpMode {
     private static SlidersStates extendArmState = SlidersStates.FLOATING;
     /* preload lines */
     boolean scoreSpecimen1Started = false;
-    boolean pushBlock1Started = false;
-    boolean pushBlock2Started = false;
-    boolean pushBlock3Started = false;
+    boolean grabBlock1Started = false;
+    boolean grabBlock2Started = false;
+    boolean grabBlock3Started = false;
+    boolean grabSpecimen1Started = false;
     boolean scoreSpecimen2Started = false;
-    boolean grabSpecimen3Started = false;
+    boolean grabSpecimen2Started = false;
     boolean scoreSpecimen3Started = false;
-    boolean grabSpecimen4Started = false;
+    boolean grabSpecimen3Started = false;
     boolean scoreSpecimen4Started = false;
-    boolean grabSpecimen5Started = false;
+    boolean grabSpecimen4Started = false;
     boolean scoreSpecimen5Started = false;
+    boolean grabSpecimen5Started = false;
+    boolean scoreSpecimen6Started = false;
     boolean parkStarted = false;
 
     /** movements **/
@@ -135,134 +138,7 @@ public class FiveSpecAuto extends OpMode {
                     }
                 }
                 break;
-            case 2: /* line2 */
-                if (!pushBlock1Started) {
-                    presetState = AutoPresetStates.TRANSITION;
-                    follower.followPath(FiveSpecAutoPaths.returnAndPushBlock1(), true);
-                    pushBlock1Started = true;
-                }
-                if (!follower.isBusy() || (Math.abs(follower.getPose().getX() - FiveSpecAutoPaths.pushBlock1Points.endPointX) < 2 && Math.abs(follower.getPose().getY() - FiveSpecAutoPaths.pushBlock1Points.endPointY) < 2)) {
-                    setPathState(291);
-                }
-                break;
-            case 291: /* line2a */
-                if (!pushBlock2Started) {
-                    follower.followPath(FiveSpecAutoPaths.pushBlock2(), true);
-                    pushBlock2Started = true;
-                }
-                if (!follower.isBusy() || (Math.abs(follower.getPose().getX() - FiveSpecAutoPaths.pushBlock2Points.endPointX) < 3 && Math.abs(follower.getPose().getY() - FiveSpecAutoPaths.pushBlock2Points.endPointY) < 2)) {
-                    Timer.wait(pauses);
-                    setPathState(292);
-                }
-                break;
-            case 292: /* line2b */
-                if (!pushBlock3Started) {
-                    presetState = AutoPresetStates.HUMAN_PLAYER;
-                    follower.followPath(FiveSpecAutoPaths.pushBlock3(), true);
-                    pushBlock3Started = true;
-                }
-                if (!follower.isBusy()) {
-                    FiveSpecAuto.claw.close(1);
-                    Timer.wait(pauses);
-                    setPathState(3);
-                }
-                break;
-            case 3: /* line3 */
-                if (!scoreSpecimen2Started) {
-                    presetState = AutoPresetStates.SCORE_STAGE_1_BACK;
-                    follower.followPath(FiveSpecAutoPaths.scoreSpecimen2(), true);
-                    scoreSpecimen2Started = true;
-                }
-                if (!follower.isBusy() && extendArmState == SlidersStates.PRESET_REACHED) {
-                    if (armPos > 10) {
-                        FiveSpecAuto.claw.open(1);
-                        setPathState(4);
-                    } else {
-                        presetState = AutoPresetStates.SCORE_STAGE_2_BACK;
-                    }
-                }
-                break;
-            case 4: /* line4 */
-                if (!grabSpecimen3Started) {
-                    presetState = AutoPresetStates.HUMAN_PLAYER;
-                    follower.followPath(FiveSpecAutoPaths.grabSpecimen3(), true);
-                    grabSpecimen3Started = true;
-                }
-                if (!follower.isBusy()) {
-                    FiveSpecAuto.claw.close(1);
-                    Timer.wait(pauses);
-                    setPathState(5);
-                }
-                break;
-            case 5: /* line5 */
-                if (!scoreSpecimen3Started) {
-                    presetState = AutoPresetStates.SCORE_STAGE_1_BACK;
-                    follower.followPath(FiveSpecAutoPaths.scoreSpecimen3(), true);
-                    scoreSpecimen3Started = true;
-                }
-                if (!follower.isBusy() && extendArmState == SlidersStates.PRESET_REACHED) {
-                    if (armPos > 10) {
-                        FiveSpecAuto.claw.open(1);
-                        setPathState(6);
-                    } else {
-                        presetState = AutoPresetStates.SCORE_STAGE_2_BACK;
-                    }
-                }
-                break;
-            case 6: /* line8 */
-                if (!grabSpecimen4Started) {
-                    presetState = AutoPresetStates.HUMAN_PLAYER;
-                    follower.followPath(FiveSpecAutoPaths.grabSpecimen4(), true);
-                    grabSpecimen4Started = true;
-                }
-                if (!follower.isBusy()) {
-                    FiveSpecAuto.claw.close(1);
-                    Timer.wait(pauses);
-                    setPathState(7);
-                }
-                break;
-            case 7: /* line7 */
-                if (!scoreSpecimen4Started) {
-                    presetState = AutoPresetStates.SCORE_STAGE_1_BACK;
-                    follower.followPath(FiveSpecAutoPaths.scoreSpecimen4(), true);
-                    scoreSpecimen4Started = true;
-                }
-                if (!follower.isBusy() && extendArmState == SlidersStates.PRESET_REACHED) {
-                    if (armPos > 10) {
-                        FiveSpecAuto.claw.open(1);
-                        setPathState(8);
-                    } else {
-                        presetState = AutoPresetStates.SCORE_STAGE_2_BACK;
-                    }
-                }
-                break;
-            case 8: /* line8 */
-                if (!grabSpecimen5Started) {
-                    presetState = AutoPresetStates.HUMAN_PLAYER;
-                    follower.followPath(FiveSpecAutoPaths.grabSpecimen5(), true);
-                    grabSpecimen5Started = true;
-                }
-                if (!follower.isBusy()) {
-                    FiveSpecAuto.claw.close(1);
-                    Timer.wait(pauses);
-                    setPathState(9);
-                }
-                break;
-            case 9: /* line9 */
-                if (!scoreSpecimen5Started) {
-                    presetState = AutoPresetStates.SCORE_STAGE_1_BACK;
-                    follower.followPath(FiveSpecAutoPaths.scoreSpecimen5(), true);
-                    scoreSpecimen5Started = true;
-                }
-                if (!follower.isBusy() && extendArmState == SlidersStates.PRESET_REACHED) {
-                    if (armPos > 10) {
-                        FiveSpecAuto.claw.open(1);
-                        setPathState(10);
-                    } else {
-                        presetState = AutoPresetStates.SCORE_STAGE_2_BACK;
-                    }
-                }
-                break;
+
             case 10: /* line10 */
                 if (!parkStarted) {
                     presetState = AutoPresetStates.TRANSITION;
@@ -362,13 +238,13 @@ public class FiveSpecAuto extends OpMode {
     private static class presets {
         public static CustomPresets humanPlayer = new CustomPresets(
                 MainV6.eaLimitLow,
-                -1.0,
+                1.0,
                 -1.0,
                 0.0,
-                -1.0,
-                0.42,
-                0.96,
-                -1.0,
+                0.0,
+                0.5,
+                0.1,
+                0.0,
                 0.0);
         public static CustomPresets park = new CustomPresets(
                 MainV6.eaLimitLow,
@@ -385,13 +261,13 @@ public class FiveSpecAuto extends OpMode {
                 1.0,
                 1.0,
                 0.0,
-                1.0,
+                0.0,
                 0.5,
-                0.18,
-                0.52,
+                0.1,
+                0.0,
                 0.0);
         public static CustomPresets scoreStage1F = new CustomPresets(
-                10,
+                7,
                 -1.0,
                 -1.0,
                 1.0,
@@ -399,35 +275,35 @@ public class FiveSpecAuto extends OpMode {
                 0.6,
                 0.23,
                 -1.0,
-                0.0);
+                -1.0);
         public static CustomPresets scoreStage2F = new CustomPresets(
                 20,
                 -1.0,
                 -1.0,
+                1.0,
                 -1.0,
-                -1.0,
-                -1.0,
-                -1.0,
+                0.6,
+                0.23,
                 -1.0,
                 -1.0);
         public static CustomPresets scoreStage1B = new CustomPresets(
+                MainV6.eaLimitLow,
                 -1.0,
                 -1.0,
+                1.0,
                 -1.0,
-                -1.0,
-                -1.0,
-                -1.0,
-                -1.0,
-                -1.0,
+                0.6,
+                0.55,
+                1.0,
                 -1.0);
         public static CustomPresets scoreStage2B = new CustomPresets(
+                -1,
                 -1.0,
                 -1.0,
                 -1.0,
                 -1.0,
                 -1.0,
-                -1.0,
-                -1.0,
+                0.75,
                 -1.0,
                 -1.0);
     }
@@ -445,6 +321,20 @@ public class FiveSpecAuto extends OpMode {
         rotation2(preset.rotational2 != -1.0 ? preset.rotational2 : rotationalCpos2);
         rotation1(preset.rotational1 != -1.0 ? preset.rotational1 : rotationalCpos1);
         presetState = AutoPresetStates.NO_PRESET;
+    }
+    // transition
+    public void transition() {
+        subArmCpos = 1;
+        clawCpos2 = 0.8;
+        wristCpos2 = 0.65;
+        armCpos = 0.27;
+        clawCpos1 = 0;
+        wristCpos1 = 0;
+    }
+    public void transition2() {
+        clawCpos2 = 0.85;
+        rotationalCpos1 = 1;
+        wristCpos2 = 1;
     }
     
     /** change state of the paths and actions and reset the timer **/

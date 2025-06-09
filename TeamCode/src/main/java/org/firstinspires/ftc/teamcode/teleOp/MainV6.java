@@ -288,6 +288,10 @@ public class MainV6 extends LinearOpMode {
                         if (gamepad2.right_trigger > 0) {
                             specStates = SpecModeStates.GRAB;
                             presetState = PresetStates.HUMAN_PLAYER;
+                        } else if (currentGamepad2.b && !previousGamepad2.b) {
+                            applyPreset(MainV6Presets.preSpecimen);
+                            presetState = PresetStates.PRE_SPECIMEN_SCORE;
+                            specStates = SpecModeStates.PRE_SPECIMEN;
                         }
                         break;
                     case SUB_OUT:
@@ -426,9 +430,11 @@ public class MainV6 extends LinearOpMode {
                         break;
                 }
                 // claws
-                if (gamepad2.right_trigger > 0) {
+                if (gamepad2.right_trigger > 0 && armCpos != MainV6Presets.humanPlayer.arm && wristCpos1 != MainV6Presets.humanPlayer.wrist1) {
                     clawCpos1 = 0;
-                } else if (!(currentGamepad1.right_trigger > 0) && previousGamepad2.right_trigger > 0) {
+                } else if (!(currentGamepad1.right_trigger > 0) && previousGamepad2.right_trigger > 0 && armCpos != MainV6Presets.humanPlayer.arm && wristCpos1 != MainV6Presets.humanPlayer.wrist1) {
+                    clawCpos1 = 1;
+                } else if (gamepad2.right_trigger > 0 && armCpos == MainV6Presets.humanPlayer.arm && wristCpos1 == MainV6Presets.humanPlayer.wrist1) {
                     clawCpos1 = 1;
                 }
                 // arm
