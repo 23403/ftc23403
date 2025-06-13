@@ -146,7 +146,7 @@ public class MainV6 extends LinearOpMode {
         CachingServo rotation2 = new CachingServo(hardwareMap.get(Servo.class, "rotation1")); // 1x axon max
         CombinedServo subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 2x axon mini
         // limits
-        claw2.scaleRange(0, 0.27);
+        claw2.scaleRange(0, 0.3);
         wrist2.scaleRange(0.1, 0.86);
         rotation1.scaleRange(0, 0.55);
         arm.scaleRange(0.12, 1);
@@ -391,10 +391,12 @@ public class MainV6 extends LinearOpMode {
                  */
                 // high basket preset
                 if (gamepad2.y) {
+                    specStates = SpecModeStates.GRAB;
                     presetState = PresetStates.HIGH_BASKET;
                 }
                 // low basket preset
                 if (gamepad2.x) {
+                    specStates = SpecModeStates.GRAB;
                     presetState = PresetStates.LOW_BASKET;
                 }
                 if (gamepad2.dpad_right) {
@@ -430,11 +432,9 @@ public class MainV6 extends LinearOpMode {
                         break;
                 }
                 // claws
-                if (gamepad2.right_trigger > 0 && armCpos != MainV6Presets.humanPlayer.arm && wristCpos1 != MainV6Presets.humanPlayer.wrist1) {
+                if (gamepad2.right_trigger > 0) {
                     clawCpos1 = 0;
-                } else if (!(currentGamepad1.right_trigger > 0) && previousGamepad2.right_trigger > 0 && armCpos != MainV6Presets.humanPlayer.arm && wristCpos1 != MainV6Presets.humanPlayer.wrist1) {
-                    clawCpos1 = 1;
-                } else if (gamepad2.right_trigger > 0 && armCpos == MainV6Presets.humanPlayer.arm && wristCpos1 == MainV6Presets.humanPlayer.wrist1) {
+                } else if (!(currentGamepad1.right_trigger > 0) && previousGamepad2.right_trigger > 0) {
                     clawCpos1 = 1;
                 }
                 // arm
@@ -533,7 +533,7 @@ public class MainV6 extends LinearOpMode {
         wristCpos1 = 0;
     }
     public void transition2() {
-        clawCpos2 = 0.85;
+        clawCpos2 = 0.95;
         rotationalCpos1 = 1;
         wristCpos2 = 1;
     }
