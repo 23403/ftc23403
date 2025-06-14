@@ -20,7 +20,7 @@ public class FiveSpecAutoPaths {
     public static Pose startPos = new Pose(7.6, 63.9, Math.toRadians(0));
     /* line1 */
     public static PPPoint.beizerLine scoreSpecimen1Points = new PPPoint.beizerLine(
-            34.5,
+            34.3,
             70,
             0
     );
@@ -74,7 +74,7 @@ public class FiveSpecAutoPaths {
     );
     /* line6 */
     public static PPPoint.beizerLine scoreSpecimen2Points = new PPPoint.beizerLine(
-            33,
+            32.5,
             68,
             180
     );

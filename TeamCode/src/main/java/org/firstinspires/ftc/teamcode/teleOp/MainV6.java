@@ -274,11 +274,11 @@ public class MainV6 extends LinearOpMode {
                         break;
                     case HIGH_BASKET:
                         applyPreset(MainV6Presets.highBasket);
-                        if (clawCpos1 == 0 || gamepad2.right_trigger > 0) presetState = PresetStates.TRANSITION;
+                        if (clawCpos1 == 0 || gamepad2.right_trigger > 0) presetState = PresetStates.HUMAN_PLAYER;
                         break;
                     case LOW_BASKET:
                         applyPreset(MainV6Presets.lowBasket);
-                        if (clawCpos1 == 0 || gamepad2.right_trigger > 0) presetState = PresetStates.TRANSITION;
+                        if (clawCpos1 == 0 || gamepad2.right_trigger > 0) presetState = PresetStates.HUMAN_PLAYER;
                         break;
                     case TRANSITION:
                         applyPreset(MainV6Presets.transition);
@@ -288,7 +288,8 @@ public class MainV6 extends LinearOpMode {
                         if (gamepad2.right_trigger > 0) {
                             specStates = SpecModeStates.GRAB;
                             presetState = PresetStates.HUMAN_PLAYER;
-                        } else if (currentGamepad2.b && !previousGamepad2.b) {
+                        }
+                        if (currentGamepad2.a && !previousGamepad2.a) {
                             applyPreset(MainV6Presets.preSpecimen);
                             presetState = PresetStates.PRE_SPECIMEN_SCORE;
                             specStates = SpecModeStates.PRE_SPECIMEN;
@@ -302,7 +303,7 @@ public class MainV6 extends LinearOpMode {
                         applyPreset(MainV6Presets.subThrow);
                         if (subArmThrowTimer.milliseconds() > SUB_THROW_DELAY) {
                             subStates = SubModeStates.RETURN;
-                            presetState = PresetStates.RETURN;
+                            presetState = PresetStates.HUMAN_PLAYER;
                         }
                         break;
                     case RETURN:
@@ -425,10 +426,6 @@ public class MainV6 extends LinearOpMode {
                             presetState = PresetStates.SCORE_SPECIMEN;
                             specStates = SpecModeStates.SCORE;
                         }
-                        if (currentGamepad2.a && !previousGamepad2.a) {
-                            presetState = PresetStates.HUMAN_PLAYER;
-                            specStates = SpecModeStates.GRAB;
-                        }
                         break;
                 }
                 // claws
@@ -526,14 +523,14 @@ public class MainV6 extends LinearOpMode {
 
     public void transition() {
         subArmCpos = 1;
-        clawCpos2 = 0.8;
+        clawCpos2 = 0.75;
         wristCpos2 = 0.65;
         armCpos = 0.27;
         clawCpos1 = 0;
-        wristCpos1 = 0;
+        wristCpos1 = 0.1;
     }
     public void transition2() {
-        clawCpos2 = 0.95;
+        clawCpos2 = 0.9;
         rotationalCpos1 = 1;
         wristCpos2 = 1;
     }

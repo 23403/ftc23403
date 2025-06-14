@@ -388,7 +388,7 @@ public class FiveSpecAuto extends OpMode {
                 -1.0,
                 0.0,
                 0.0,
-                0.5,
+                0.6,
                 0.1,
                 0.0,
                 0.0);

@@ -13,27 +13,27 @@ public class MainV6Presets {
             -1.0,
             0.0,
             0.0,
-            0.5,
+            0.6,
             0.1,
             0.0,
             0.0);
     public static CustomPresets highBasket = new CustomPresets(
-            20,
+            23,
             -1.0,
             0.0,
             1.0,
             -1.0,
-            0.6,
+            0.9,
             0.55,
             1.0,
             -1.0);
     public static CustomPresets lowBasket = new CustomPresets(
-            4,
+            7,
             -1.0,
             0.0,
             1.0,
             -1.0,
-            0.6,
+            0.9,
             0.55,
             1.0,
             -1.0);
