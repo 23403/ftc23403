@@ -82,7 +82,7 @@ public class FiveSpecAuto extends OpMode {
     CachingServo submersibleArm1; // 1x axon mini
     CachingServo submersibleArm2; // 1x axon mini
     private static CachingServo wrist2; // 1x axon mini
-    private static CachingServo claw2; // 1x 2  5kg
+    private static CachingServo claw2; // 1x goBilda speed
     private static CachingServo rotation2; // 1x axon max
     private static CombinedServo subArm; // 2x axon mini
     // servo positions
@@ -134,8 +134,8 @@ public class FiveSpecAuto extends OpMode {
                         claw1.setPosition(0);
                         claw.open(1);
                     }
-                    if (extendArmSS.getInches1() > 15.15) setPathState(2);
                 }
+                if (extendArmSS.getInches1() > 15.15) setPathState(2);
                 break;
             case 2: /* line2 */
                 if (!pushBlock1Started) {
@@ -530,7 +530,7 @@ public class FiveSpecAuto extends OpMode {
         submersibleArm1 = new CachingServo(hardwareMap.get(Servo.class, "subArm1")); // 1x axon mini
         submersibleArm2 = new CachingServo(hardwareMap.get(Servo.class, "subArm2")); // 1x axon mini
         wrist2 = new CachingServo(hardwareMap.get(Servo.class, "wrist2")); // 1x axon mini
-        claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x 25kg
+        claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x goBilda speed
         rotation2 = new CachingServo(hardwareMap.get(Servo.class, "rotation1")); // 1x axon max
         subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 2x axon mini
         // directions

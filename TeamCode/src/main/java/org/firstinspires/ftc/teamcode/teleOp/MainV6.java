@@ -4,18 +4,18 @@
  * coding from scratch because i hate my old code again
  * based off of MainV5 but better
  * started recoding at 5/12/25  @  11:38 am
- * finished recoding at 5/17/25 @ 11:32 am
- * robot v6 finished building at 5/31/25
+ * finished recoding at 6/13/25 @ 8:32 pm
+ * robot v6 finished building at 6/08/25
 ***/
 package org.firstinspires.ftc.teamcode.teleOp;
 
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
+import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;
@@ -63,7 +63,6 @@ import xyz.nin1275.utils.Motors;
 @TeleOp(name="Main v6", group=".ftc23403")
 public class MainV6 extends LinearOpMode {
     /**
-     * @TODO new controls
      * MAIN V6 BY DAVID
      * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
     **/
@@ -142,7 +141,7 @@ public class MainV6 extends LinearOpMode {
         CachingServo submersibleArm1 = new CachingServo(hardwareMap.get(Servo.class, "subArm1")); // 1x axon mini
         CachingServo submersibleArm2 = new CachingServo(hardwareMap.get(Servo.class, "subArm2")); // 1x axon mini
         CachingServo wrist2 = new CachingServo(hardwareMap.get(Servo.class, "wrist2")); // 1x axon mini
-        CachingServo claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x 25kg
+        CachingServo claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x goBilda speed
         CachingServo rotation2 = new CachingServo(hardwareMap.get(Servo.class, "rotation1")); // 1x axon max
         CombinedServo subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 2x axon mini
         // limits
@@ -175,12 +174,12 @@ public class MainV6 extends LinearOpMode {
         rotation2.setPosition(rotationalCpos2 = 0);
         hardwareMap.get(IMU.class, "imu").resetYaw();
         if (Calibrate.Auto.getLastKnownPos() != null) follower.setStartingPose(Calibrate.Auto.getLastKnownPos());
-        else follower.setStartingPose(new Pose(9,63.4,0));
+        else follower.setStartingPose(new Pose(7.6,63.9,0));
         Calibrate.Auto.clearEverything();
         // Draw the robot on the dashboard
         PoseUpdater poseUpdater = new PoseUpdater(hardwareMap);
         if (Calibrate.Auto.getLastKnownPos() != null) poseUpdater.setStartingPose(Calibrate.Auto.getLastKnownPos());
-        else poseUpdater.setStartingPose(new Pose(9,63.4,0));
+        else poseUpdater.setStartingPose(new Pose(7.6,63.9,0));
         DashboardPoseTracker dashboardPoseTracker = new DashboardPoseTracker(poseUpdater);
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();
