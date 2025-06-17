@@ -79,6 +79,7 @@ public class MainV6 extends LinearOpMode {
     public static double wheelSpeedMinEA = 0.7;
     public static double wheelSpeedMinSA = 0.8;
     private double wheelSpeed = wheelSpeedMax;
+    private double heading = 0;
     // timers
     ElapsedTime loopTime;
     ElapsedTime subArmThrowTimer;
@@ -105,6 +106,8 @@ public class MainV6 extends LinearOpMode {
     public static boolean debugMode = true;
     public static double wheelSpeedMax = 1;
     public static int TRANSITION_DELAY = 200;
+    public static boolean headingLock = true;
+    public static double headingTolerance = 0.1;
     @Override
     public void runOpMode() {
         // hardware
@@ -200,6 +203,7 @@ public class MainV6 extends LinearOpMode {
         telemetryM.update();
         waitForStart();
         if (opModeIsActive()) {
+            heading = follower.getPose().getHeading();
             follower.startTeleopDrive();
             while (opModeIsActive()) {
                 // variables
@@ -256,6 +260,12 @@ public class MainV6 extends LinearOpMode {
                     leftRear.setPower(0);
                     rightFront.setPower(0);
                     rightRear.setPower(0);
+                }
+                // heading lock
+                if (Math.abs(gamepad1.right_stick_x) > 0) {
+                    heading = follower.getPose().getHeading();
+                } else if (Math.abs(heading - follower.getPose().getHeading()) > headingTolerance && headingLock) {
+                    follower.turnTo(heading);
                 }
                 // extendArm code
                 extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
@@ -476,6 +486,11 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "submersible state", subStates);
                 telemetryM.addData(true, "specimen state", specStates);
                 telemetryM.addData(true, "llState", llState);
+                telemetryM.addData(true, "heading R", follower.getPose().getHeading());
+                telemetryM.addData(true, "headingCpos R", heading);
+                telemetryM.addData(true, "heading D", Math.toDegrees(follower.getPose().getHeading()));
+                telemetryM.addData(true, "headingCpos D", Math.toDegrees(heading));
+                telemetryM.addData(true, "heading lock error", Math.abs(heading - follower.getPose().getHeading()));
                 telemetryM.addData(true, "PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
                 telemetryM.addData(true, "target", slidesTARGET);
                 telemetryM.addData(true, "eaCpos1", extendArmSS.getInches1());

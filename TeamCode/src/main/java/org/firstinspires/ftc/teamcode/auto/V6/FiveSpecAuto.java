@@ -68,6 +68,8 @@ public class FiveSpecAuto extends OpMode {
     private double autoTime;
     private TelemetryM telemetryM;
     public static boolean debugMode = true;
+    public static boolean headingLock = false;
+    public static double headingTolerance = 0.1;
     /** store the state of our auto. **/
     private int pathState;
     // servos
@@ -611,6 +613,10 @@ public class FiveSpecAuto extends OpMode {
         extendArmSS.setLimits(MainV6.eaLimitHigh, MainV6.eaLimitLow);
         extendArmSS.setMaxSpeedDown(MainV6.EA_MAX_SPEED_DOWN);
         extendArmState = extendArmSS.getState();
+        // heading lock
+        if (Math.abs(follower.getHeadingError()) > headingTolerance && headingLock) {
+            follower.turnTo(follower.getCurrentPath().getHeadingGoal(0.1));
+        }
         // preset code
         switch (presetState) {
             case HUMAN_PLAYER:
