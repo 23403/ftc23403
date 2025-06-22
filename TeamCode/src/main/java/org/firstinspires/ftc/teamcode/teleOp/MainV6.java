@@ -82,6 +82,7 @@ public class MainV6 extends LinearOpMode {
     // timers
     ElapsedTime loopTime;
     ElapsedTime subArmThrowTimer;
+    ElapsedTime subWristTimer;
     ElapsedTime transitionTimer;
     // odometry
     public static boolean odoDrive = true;
@@ -100,6 +101,7 @@ public class MainV6 extends LinearOpMode {
     SpecModeStates specStates = SpecModeStates.GRAB;
     // config stuff
     public static int SUB_THROW_DELAY = 200;
+    public static int SUB_WRIST_DELAY = 200;
     public static double EA_MAX_SPEED_DOWN = -0.4;
     public static boolean redSide = true;
     public static boolean debugMode = true;
@@ -193,9 +195,11 @@ public class MainV6 extends LinearOpMode {
         loopTime = new ElapsedTime();
         subArmThrowTimer = new ElapsedTime();
         transitionTimer = new ElapsedTime();
+        subWristTimer = new ElapsedTime();
         loopTime.reset();
         subArmThrowTimer.reset();
         transitionTimer.reset();
+        subWristTimer.reset();
         // telemetry
         telemetryM.addLine("BEASTKIT Team 23403!");
         telemetryM.addLine(true, "INIT DONE!");
@@ -305,13 +309,16 @@ public class MainV6 extends LinearOpMode {
                         break;
                     case SUB_OUT:
                         applyPreset(MainV6Presets.slidesOut);
-                        presetState = PresetStates.NO_PRESET;
+                        if (subWristTimer.milliseconds() > SUB_WRIST_DELAY) {
+                            wristCpos2 = 0;
+                            presetState = PresetStates.NO_PRESET;
+                        }
                         break;
                     case SUB_THROW:
                         applyPreset(MainV6Presets.subThrow);
                         if (subArmThrowTimer.milliseconds() > SUB_THROW_DELAY) {
                             subStates = SubModeStates.RETURN;
-                            presetState = PresetStates.HUMAN_PLAYER;
+                            presetState = PresetStates.RETURN;
                         }
                         break;
                     case RETURN:
@@ -368,6 +375,7 @@ public class MainV6 extends LinearOpMode {
                         break;
                     case RETURN:
                         if (currentGamepad1.a && !previousGamepad1.a) {
+                            subWristTimer.reset();
                             presetState = PresetStates.SUB_OUT;
                             subStates = SubModeStates.MOVE_OUT;
                         }

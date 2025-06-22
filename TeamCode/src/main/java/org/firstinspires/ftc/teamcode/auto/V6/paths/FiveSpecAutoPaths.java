@@ -98,7 +98,7 @@ public class FiveSpecAutoPaths {
     );
     /* line10 */
     public static PPPoint.beizerLine scoreSpecimen4Points = new PPPoint.beizerLine(
-            33.3,
+            34,
             73,
             180
     );
@@ -110,7 +110,7 @@ public class FiveSpecAutoPaths {
     );
     /* line12 */
     public static PPPoint.beizerLine scoreSpecimen5Points = new PPPoint.beizerLine(
-            33.8,
+            35.3,
             74,
             180
     );
@@ -143,7 +143,7 @@ public class FiveSpecAutoPaths {
                         scoreSpecimen1Points.getEndPoint()
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(scoreSpecimen1Points.getEndHeading()))
-                .setZeroPowerAccelerationMultiplier(8)
+                .setZeroPowerAccelerationMultiplier(5)
                 .build();
     }
 
