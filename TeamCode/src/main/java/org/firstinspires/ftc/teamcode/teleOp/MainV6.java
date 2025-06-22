@@ -375,6 +375,10 @@ public class MainV6 extends LinearOpMode {
                         break;
                     case RETURN:
                         if (currentGamepad1.a && !previousGamepad1.a) {
+                            if (wristCpos2 <= 0.4) {
+                                wrist2.setPosition(1);
+                                wristCpos2 = 1;
+                            }
                             subWristTimer.reset();
                             presetState = PresetStates.SUB_OUT;
                             subStates = SubModeStates.MOVE_OUT;
