@@ -14,7 +14,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 
-import org.firstinspires.ftc.teamcode.teleOp.MainV5;
+import org.firstinspires.ftc.teamcode.teleOp.MainV6;
 
 import xyz.nin1275.controllers.PID;
 import xyz.nin1275.subsystems.SlidesSS;
@@ -33,7 +33,7 @@ public class ExtendArmSSTest extends LinearOpMode {
         DcMotorEx extendArm2 = hardwareMap.get(DcMotorEx.class, "ExtendArm2");
         extendArm2.setDirection(DcMotor.Direction.REVERSE);
         PID controller = new PID(Math.sqrt(P), I, D);
-        SlidesSS extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV5.eaLimitHigh, MainV5.eaLimitLow, eaCorrection, false);
+        SlidesSS extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV6.eaLimitHigh, MainV6.eaLimitLow, eaCorrection, false);
         // telemetry
         telemetry.addData("currentState", extendArmSS.getState());
         telemetry.addData("power1", extendArmSS.getPower1());
@@ -44,7 +44,7 @@ public class ExtendArmSSTest extends LinearOpMode {
             while (opModeIsActive()) {
                 // values
                 extendArmSS.setEaCorrection(eaCorrection);
-                extendArmSS.setLimits(MainV5.eaLimitHigh, MainV5.eaLimitLow);
+                extendArmSS.setLimits(MainV6.eaLimitHigh, MainV6.eaLimitLow);
                 // preset
                 if (gamepad1.b) {
                     extendArmSS.moveTo(presetPos);

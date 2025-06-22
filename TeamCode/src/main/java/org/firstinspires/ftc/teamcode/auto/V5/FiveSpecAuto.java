@@ -7,7 +7,7 @@ import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
-import static org.firstinspires.ftc.teamcode.teleOp.MainV5.eaLimitHigh;
+import static org.firstinspires.ftc.teamcode.teleOp.old.MainV5.eaLimitHigh;
 
 import com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.config.Config;

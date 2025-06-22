@@ -7,7 +7,7 @@
  * finished recoding at 4/12/25 @ 4:26 pm
  * robot v5 finished building at 4/9/25
 ***/
-package org.firstinspires.ftc.teamcode.teleOp;
+package org.firstinspires.ftc.teamcode.teleOp.old;
 
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
@@ -27,6 +27,7 @@ import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 import com.qualcomm.hardware.limelightvision.Limelight3A;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -54,6 +55,7 @@ import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Timer;
 import xyz.nin1275.utils.CombinedServo;
 
+@Disabled
 @Configurable
 @Config("MainV5")
 @TeleOp(name="Main v5", group=".ftc23403")

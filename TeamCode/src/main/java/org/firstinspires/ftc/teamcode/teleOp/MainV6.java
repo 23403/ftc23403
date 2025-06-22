@@ -79,7 +79,6 @@ public class MainV6 extends LinearOpMode {
     public static double wheelSpeedMinEA = 0.7;
     public static double wheelSpeedMinSA = 0.8;
     private double wheelSpeed = wheelSpeedMax;
-    private double heading = 0;
     // timers
     ElapsedTime loopTime;
     ElapsedTime subArmThrowTimer;
@@ -203,7 +202,7 @@ public class MainV6 extends LinearOpMode {
         telemetryM.update();
         waitForStart();
         if (opModeIsActive()) {
-            heading = follower.getPose().getHeading();
+            double heading = follower.getPose().getHeading();
             follower.startTeleopDrive();
             while (opModeIsActive()) {
                 // variables

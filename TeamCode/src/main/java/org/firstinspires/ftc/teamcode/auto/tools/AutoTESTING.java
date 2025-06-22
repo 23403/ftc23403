@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.auto.tools;
 
-import static org.firstinspires.ftc.teamcode.teleOp.MainV5.eaLimitHigh;
+import static org.firstinspires.ftc.teamcode.teleOp.old.MainV5.eaLimitHigh;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
 import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
