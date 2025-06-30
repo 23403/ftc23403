@@ -49,7 +49,7 @@ import xyz.nin1275.utils.CombinedServo;
  * Started code  @  5/26/25  @  10:59 am
  * It is a 5 specimen auto with park. It hangs a preloaded specimen then pushes the 3 samples from the ground and hang them.
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
- * @version 1.7, 5/26/25
+ * @version 1.8, 6/30/25
 **/
 
 @Config("5 Spec Auto")
@@ -61,7 +61,7 @@ public class FiveSpecAuto extends OpMode {
     public static Integer pauses = 150;
     private DashboardPoseTracker dashboardPoseTracker;
     private PoseUpdater poseUpdater;
-    ElapsedTime autoTimeE = new ElapsedTime();
+    ElapsedTime autoTimeE;
     ElapsedTime transitionTimer;
     ElapsedTime timer;
     ElapsedTime subArmThrowTimer;
@@ -287,7 +287,7 @@ public class FiveSpecAuto extends OpMode {
                     if (eDelay(pauses)) setPathState(15);
                 }
                 break;
-            case 15: /* line15 */
+            case 15: /* line13 */
                 if (!parkStarted) {
                     presetState = AutoPresetStates.TRANSITION;
                     follower.followPath(FiveSpecAutoPaths.park(), true);
@@ -454,16 +454,6 @@ public class FiveSpecAuto extends OpMode {
                 0.75,
                 -1.0,
                 -1.0);
-        public static CustomPresets slidesOut = new CustomPresets(
-                -1,
-                0.0,
-                0.0,
-                -1.0,
-                0.0,
-                -1.0,
-                -1.0,
-                0.0,
-                -1.0);
     }
 
     // preset controls
@@ -547,12 +537,12 @@ public class FiveSpecAuto extends OpMode {
         subArm.scaleRange(0.25, 0.47);
         rotation2.scaleRange(0.02, 0.565);
         // extendArm
-        extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV6.eaLimitHigh, MainV6.eaLimitLow, eaCorrection, false);
+        extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, false);
         // colors
         gamepad1.setLedColor(0, 255, 255, -1);
         gamepad2.setLedColor(0, 255, 0, -1);
         LynxUtils.setLynxColor(255, 0, 255);
-        // limits
+        // starting pos
         wrist1.setPosition(wristCpos1 = 1);
         wrist2.setPosition(wristCpos2 = 1);
         claw1.setPosition(clawCpos1 = 1);
@@ -571,6 +561,7 @@ public class FiveSpecAuto extends OpMode {
         timer.reset();
         subArmThrowTimer = new ElapsedTime();
         subArmThrowTimer.reset();
+        autoTimeE = new ElapsedTime();
         follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
         follower.setStartingPose(FiveSpecAutoPaths.startPos);
         // Draw the robot on the dashboard
@@ -687,9 +678,10 @@ public class FiveSpecAuto extends OpMode {
     @Override
     public void init_loop() {}
 
-    /** idk **/
+    /** play not loop **/
     @Override
     public void start() {
+        autoTimeE.reset();
         opmodeTimer.resetTimer();
         setPathState(1);
     }

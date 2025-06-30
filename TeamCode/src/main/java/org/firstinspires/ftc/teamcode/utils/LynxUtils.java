@@ -1,7 +1,7 @@
 /***
  * LynxUtils
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
- * Change the color of the Control Hub, Expansion Hub, and/or Servo Hub
+ * Change the color of the Control Hub, Expansion Hub, and Servo Hub
 ***/
 package org.firstinspires.ftc.teamcode.utils;
 

@@ -17,6 +17,7 @@ import com.pedropathing.localization.PoseUpdater;
 import com.pedropathing.localization.constants.ThreeWheelIMUConstants;
 import com.pedropathing.pathgen.BezierLine;
 import com.pedropathing.pathgen.Path;
+import com.pedropathing.pathgen.Point;
 import com.pedropathing.util.DashboardPoseTracker;
 import com.pedropathing.util.Drawing;
 
@@ -27,7 +28,6 @@ import xyz.nin1275.custom.PPPoint;
 import xyz.nin1275.subsystems.SlidesSS;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -47,7 +47,7 @@ import xyz.nin1275.utils.CombinedServo;
  * MetroBotics/Code Conductors auto using odometry.
  * Test out points using the dashboard without having to upload code.
  * @author David Grieas - 14212 MetroBotics - former member of - 23403 C{}de C<>nduct<>rs
- * @version 1.3, 5/26/25
+ * @version 1.4, 6/30/25
 **/
 
 @Config("P2P")
@@ -61,18 +61,20 @@ public class P2P extends OpMode {
     /** store the state of our auto. */
     private int pathState;
     // servos
+    // ea
     CachingServo arm1; // 1x axon max
     CachingServo arm2; // 1x axon max
     private static CachingServo wrist1; // 1x axon mini
     private static CachingServo claw1; // 1x axon mini
     private static CachingServo rotation1; // 1x axon max
     private static CombinedServo arm; // 2x axon max
-    CachingServo submersibleArm1; // 1x axon max
-    CachingServo submersibleArm2; // 1x 25kg
+    // sa
+    CachingServo submersibleArm1; // 1x axon mini
+    CachingServo submersibleArm2; // 1x axon mini
     private static CachingServo wrist2; // 1x axon mini
-    private static CachingServo claw2; // 1x axon mini
+    private static CachingServo claw2; // 1x goBilda speed
     private static CachingServo rotation2; // 1x axon max
-    private static CombinedServo subArm; // 1x axon max : 1x 25kg
+    private static CombinedServo subArm; // 2x axon mini
     // servo positions
     public static double wristCpos1 = 1;
     public static double clawCpos1 = 1;
@@ -80,13 +82,8 @@ public class P2P extends OpMode {
     public static double clawCpos2 = 1;
     public static double armCpos = 0.15;
     public static double subArmCpos = 1;
-    public static double rotationalCpos2 = 0;
     public static double rotationalCpos1 = 0;
-    private AnalogInput subArms;
-    private AnalogInput arms;
-    // analog
-    private double subArmPos;
-    private double armPos;
+    public static double rotationalCpos2 = 0;
     // extend arm
     public static double slidesTARGET = 0;
     public static boolean eaCorrection = true;
@@ -94,8 +91,8 @@ public class P2P extends OpMode {
     private CachingDcMotorEx extendArm1;
     private CachingDcMotorEx extendArm2;
     // start pos
-    public static double startPosX = 9;
-    public static double startPosY = 63.4;
+    public static double startPosX = 7.6;
+    public static double startPosY = 63.9;
     public static double startPosRotation = 0;
     // rand
     boolean pointStarted = false;
@@ -121,9 +118,6 @@ public class P2P extends OpMode {
     public static PPPoint.beizerLine pointPoints = new PPPoint.beizerLine(
             38.4,
             84,
-            startPos.getX(),
-            startPos.getY(),
-            startPos.getHeading(),
             0
     );
     /** create paths */
@@ -131,10 +125,10 @@ public class P2P extends OpMode {
         /* line1 */
         point = new Path(
                 new BezierLine(
-                        pointPoints.getStartPoint(),
+                        new Point(startPos.getX(), startPos.getY()),
                         pointPoints.getEndPoint()
                 ));
-        point.setLinearHeadingInterpolation(Math.toRadians(pointPoints.getStartHeading()), Math.toRadians(pointPoints.getEndHeading()));
+        point.setLinearHeadingInterpolation(startPos.getHeading(), Math.toRadians(pointPoints.getEndHeading()));
     }
     /** movements **/
     public void autonomousPathUpdate() {
@@ -219,9 +213,6 @@ public class P2P extends OpMode {
         subArm.setPosition(subArmCpos);
         rotation1.setPosition(rotationalCpos1);
         rotation2.setPosition(rotationalCpos2);
-        // analog
-        subArmPos = subArms.getVoltage() / 3.3 * 360;
-        armPos = arms.getVoltage() / 3.3 * 360;
         // extendArm code
         extendArmSS.update(false, false);
         extendArmSS.setEaCorrection(eaCorrection);
@@ -238,8 +229,6 @@ public class P2P extends OpMode {
         telemetry.addData("error1", Math.abs(slidesTARGET - extendArmSS.getInches1()));
         telemetry.addData("error2", Math.abs(slidesTARGET - extendArmSS.getInches2()));
         telemetry.addData("errorAvg", (Math.abs(slidesTARGET - extendArmSS.getInches1()) + Math.abs(slidesTARGET - extendArmSS.getInches2())) / 2);
-        telemetry.addData("subArmPos", subArmPos);
-        telemetry.addData("armPos", armPos);
         telemetry.addData("Submersible Arm Position:", subArm.getPosition());
         telemetry.addData("Wrist Position1:", wrist1.getPosition());
         telemetry.addData("Wrist Position2:", wrist2.getPosition());
@@ -271,8 +260,6 @@ public class P2P extends OpMode {
         extendArm1 = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "ExtendArm1"));
         extendArm2 = new CachingDcMotorEx(hardwareMap.get(DcMotorEx.class, "ExtendArm2"));
         // servos
-        subArms = hardwareMap.get(AnalogInput.class, "subArm1");
-        arms = hardwareMap.get(AnalogInput.class, "arm1");
         // ea
         arm1 = new CachingServo(hardwareMap.get(Servo.class, "arm1")); // 1x axon max
         arm2 = new CachingServo(hardwareMap.get(Servo.class, "arm2")); // 1x axon max
@@ -281,25 +268,23 @@ public class P2P extends OpMode {
         rotation1 = new CachingServo(hardwareMap.get(Servo.class, "rotation2")); // 1x axon max
         arm = new CombinedServo(arm1, arm2); // 2x axon max
         // sa
-        submersibleArm1 = new CachingServo(hardwareMap.get(Servo.class, "subArm1")); // 1x axon max
-        submersibleArm2 = new CachingServo(hardwareMap.get(Servo.class, "subArm2")); // 1x 25kg
+        submersibleArm1 = new CachingServo(hardwareMap.get(Servo.class, "subArm1")); // 1x axon mini
+        submersibleArm2 = new CachingServo(hardwareMap.get(Servo.class, "subArm2")); // 1x axon mini
         wrist2 = new CachingServo(hardwareMap.get(Servo.class, "wrist2")); // 1x axon mini
-        claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x axon mini
+        claw2 = new CachingServo(hardwareMap.get(Servo.class, "claw2")); // 1x goBilda speed
         rotation2 = new CachingServo(hardwareMap.get(Servo.class, "rotation1")); // 1x axon max
-        subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 1x axon max : 1x 25kg
-        // analog
-        subArmPos = subArms.getVoltage() / 3.3 * 360;
-        armPos = arms.getVoltage() / 3.3 * 360;
+        subArm = new CombinedServo(submersibleArm1, submersibleArm2); // 2x axon mini
         // directions
         extendArm2.setDirection(DcMotorEx.Direction.REVERSE);
         // limits
-        claw2.scaleRange(0.01, 0.08);
-        wrist2.scaleRange(0.05, 0.8);
-        rotation2.scaleRange(0.43, 0.55);
+        claw2.scaleRange(0, 0.3);
+        wrist2.scaleRange(0.1, 0.86);
+        rotation1.scaleRange(0, 0.55);
         arm.scaleRange(0.12, 1);
-        wrist1.scaleRange(0, 0.6);
-        claw1.scaleRange(0, 0.4);
-        subArm.scaleRange(0.385, 0.85);
+        wrist1.scaleRange(0, 0.58);
+        claw1.scaleRange(0, 0.43);
+        subArm.scaleRange(0.25, 0.47);
+        rotation2.scaleRange(0.02, 0.565);
         // extendArm
         extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, MainV6.eaLimitHigh, MainV6.eaLimitLow, eaCorrection, false);
         // colors

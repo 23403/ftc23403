@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode.testCode.slides;
+package org.firstinspires.ftc.teamcode.testCode.slides.sa;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;

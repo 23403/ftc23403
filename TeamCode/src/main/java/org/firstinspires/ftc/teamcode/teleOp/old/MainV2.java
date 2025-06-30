@@ -16,7 +16,7 @@ import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 
-import org.firstinspires.ftc.teamcode.variables.ConfigVariables;
+import org.firstinspires.ftc.teamcode.variables.old.ConfigVariables;
 
 @TeleOp(name="Main v2", group="old_ftc23403")
 public class MainV2 extends LinearOpMode {

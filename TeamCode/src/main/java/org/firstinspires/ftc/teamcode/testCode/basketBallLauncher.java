@@ -6,8 +6,6 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
-import org.firstinspires.ftc.teamcode.variables.ConfigVariables;
-
 
 @TeleOp(name="Basket Ball", group="test_ftc23403")
 public class basketBallLauncher extends LinearOpMode {

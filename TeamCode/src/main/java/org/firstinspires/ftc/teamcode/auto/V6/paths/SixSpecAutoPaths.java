@@ -12,7 +12,7 @@ import xyz.nin1275.custom.PPMP;
 import xyz.nin1275.custom.PPPoint;
 
 @Config("5+0 Auto Paths")
-public class FiveSpecAutoPaths {
+public class SixSpecAutoPaths {
     /***
      * POINTS
     ***/
@@ -115,6 +115,18 @@ public class FiveSpecAutoPaths {
             180
     );
     /* line13 */
+    public static PPPoint.beizerLine grabSpecimen5Points = new PPPoint.beizerLine(
+            9.8,
+            29.7,
+            180
+    );
+    /* line14 */
+    public static PPPoint.beizerLine scoreSpecimen6Points = new PPPoint.beizerLine(
+            34,
+            74.5,
+            180
+    );
+    /* line15 */
     public static PPPoint.beizerLine parkPoints = new PPPoint.beizerLine(
             21.3,
             50.6,
@@ -122,7 +134,7 @@ public class FiveSpecAutoPaths {
     );
     /***
      * PATHS
-    ***/
+     ***/
     /* line1 */
     public static PathChain scoreSpecimen1() {
         return new PathBuilder()
@@ -292,12 +304,36 @@ public class FiveSpecAutoPaths {
                 .setZeroPowerAccelerationMultiplier(8)
                 .build();
     }
-
     /* line13 */
-    public static PathChain park() {
+    public static PathChain grabSpecimen5() {
         return new PathBuilder()
                 .addPath(new BezierLine(
                                 scoreSpecimen5Points.getEndPoint(),
+                                grabSpecimen5Points.getEndPoint()
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(grabSpecimen5Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(5)
+                .build();
+    }
+
+    /* line14 */
+    public static PathChain scoreSpecimen6() {
+        return new PathBuilder()
+                .addPath(new BezierLine(
+                                grabSpecimen5Points.getEndPoint(),
+                                scoreSpecimen6Points.getEndPoint()
+                        )
+                )
+                .setConstantHeadingInterpolation(Math.toRadians(scoreSpecimen6Points.getEndHeading()))
+                .setZeroPowerAccelerationMultiplier(8)
+                .build();
+    }
+    /* line15 */
+    public static PathChain park() {
+        return new PathBuilder()
+                .addPath(new BezierLine(
+                                scoreSpecimen6Points.getEndPoint(),
                                 parkPoints.getEndPoint()
                         )
                 )
