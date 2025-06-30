@@ -1,12 +1,12 @@
-package org.firstinspires.ftc.teamcode.testCode.slides;
+package org.firstinspires.ftc.teamcode.testCode.slides.ea;
 
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.INCHES_PER_REV;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.CPR;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.D;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.F;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.I;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.K;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.P;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.arcrobotics.ftclib.controller.PIDController;
@@ -16,8 +16,6 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.variables.enums.ExtendArmStates;
-
-import java.util.List;
 
 import xyz.nin1275.utils.Motors;
 import xyz.nin1275.utils.Timer;

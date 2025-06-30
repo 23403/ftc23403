@@ -21,7 +21,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 
-import org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides;
+import org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
 import org.firstinspires.ftc.teamcode.variables.constants.MConstants;
 

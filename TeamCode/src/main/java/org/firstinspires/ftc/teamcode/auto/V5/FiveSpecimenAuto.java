@@ -1,12 +1,12 @@
 package org.firstinspires.ftc.teamcode.auto.V5;
 
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.INCHES_PER_REV;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.CPR;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.P;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.I;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.D;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.F;
-import static org.firstinspires.ftc.teamcode.testCode.slides.PIDTuneSlides.K;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.INCHES_PER_REV;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.CPR;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.P;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.I;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.D;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.F;
+import static org.firstinspires.ftc.teamcode.testCode.slides.ea.PIDTuneSlides.K;
 import static org.firstinspires.ftc.teamcode.teleOp.old.MainV5.eaLimitHigh;
 
 import com.acmerobotics.dashboard.FtcDashboard;
