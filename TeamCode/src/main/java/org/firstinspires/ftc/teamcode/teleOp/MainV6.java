@@ -86,6 +86,7 @@ public class MainV6 extends LinearOpMode {
     ElapsedTime transitionTimer;
     // odometry
     public static boolean odoDrive = true;
+    public static boolean headingLock = false;
     // extend arm
     public static double slidesTARGET = 0;
     public static double eaLimitHigh = 33.6;
@@ -107,8 +108,10 @@ public class MainV6 extends LinearOpMode {
     public static boolean debugMode = true;
     public static double wheelSpeedMax = 1;
     public static int TRANSITION_DELAY = 200;
-    public static boolean headingLock = true;
+    // heading config
     public static double headingTolerance = 0.1;
+    public static boolean headingLockStatic = true;
+    public static double headingStaticPos = 0;
     @Override
     public void runOpMode() {
         // hardware
@@ -255,7 +258,7 @@ public class MainV6 extends LinearOpMode {
                     rightRear.setPower(rightBackPower);
                 } else {
                     follower.setMaxPower(wheelSpeed);
-                    follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, -gamepad1.right_stick_x, true);
+                    follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, headingLockStatic && headingLock ? 0 : -gamepad1.right_stick_x, true);
                     follower.update();
                 }
                 if (!moving && !odoDrive) {
@@ -265,10 +268,13 @@ public class MainV6 extends LinearOpMode {
                     rightRear.setPower(0);
                 }
                 // heading lock
-                if (Math.abs(gamepad1.right_stick_x) > 0) {
-                    heading = follower.getPose().getHeading();
-                } else if (Math.abs(heading - follower.getPose().getHeading()) > headingTolerance && headingLock) {
-                    follower.turnTo(heading);
+                if (currentGamepad1.dpad_right && !previousGamepad1.dpad_right) headingLock = !headingLock;
+                if (!headingLockStatic) {
+                    boolean turning = Math.abs(gamepad1.right_stick_x) > 0;
+                    if (Math.abs(gamepad1.right_stick_x) > 0) heading = follower.getPose().getHeading();
+                    if (!follower.isBusy() && !turning && Math.abs(heading - follower.getPose().getHeading()) > headingTolerance && headingLock) follower.turnTo(heading);
+                } else {
+                    if (headingLock && !follower.isBusy() && Math.abs(headingStaticPos - follower.getPose().getHeading()) > headingTolerance) follower.turnTo(headingStaticPos);
                 }
                 // extendArm code
                 extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
@@ -502,6 +508,10 @@ public class MainV6 extends LinearOpMode {
                 telemetryM.addData(true, "heading D", Math.toDegrees(follower.getPose().getHeading()));
                 telemetryM.addData(true, "headingCpos D", Math.toDegrees(heading));
                 telemetryM.addData(true, "heading lock error", Math.abs(heading - follower.getPose().getHeading()));
+                telemetryM.addData(true, "heading lock", headingLock);
+                telemetryM.addData(true, "heading lock static", headingLockStatic);
+                telemetryM.addData(true, "heading static pos", headingStaticPos);
+                telemetryM.addData(true, "heading tolerance", headingTolerance);
                 telemetryM.addData(true, "PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
                 telemetryM.addData(true, "target", slidesTARGET);
                 telemetryM.addData(true, "eaCpos1", extendArmSS.getInches1());

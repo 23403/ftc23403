@@ -132,6 +132,7 @@ public class FiveSpecAutoPaths {
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(scoreSpecimen1Points.getEndHeading()))
                 .setZeroPowerAccelerationMultiplier(4.5)
+                .setPathEndTimeoutConstraint(5)
                 .build();
     }
 
@@ -152,6 +153,7 @@ public class FiveSpecAutoPaths {
                 ))
                 .setConstantHeadingInterpolation(Math.toRadians(pushBlock1Points.getEndHeading()))
                 .setZeroPowerAccelerationMultiplier(6)
+                .setPathEndTimeoutConstraint(50)
                 .build();
     }
 
