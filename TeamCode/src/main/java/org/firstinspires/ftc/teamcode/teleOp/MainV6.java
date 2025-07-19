@@ -204,10 +204,12 @@ public class MainV6 extends LinearOpMode {
         subArmThrowTimer = new ElapsedTime();
         transitionTimer = new ElapsedTime();
         subWristTimer = new ElapsedTime();
+        basketsTimer = new ElapsedTime();
         loopTime.reset();
         subArmThrowTimer.reset();
         transitionTimer.reset();
         subWristTimer.reset();
+        basketsTimer.reset();
         // telemetry
         telemetryM.addLine("BEASTKIT Team 23403!");
         telemetryM.addLine(true, "INIT DONE!");
@@ -221,7 +223,7 @@ public class MainV6 extends LinearOpMode {
                 llState = limelight.getState();
                 extendArmState = extendArmSS.getState();
                 extendArmSS.setEaCorrection(eaCorrection);
-                extendArmSS.updatePIDKFValues(P, I, D, F, K);
+                extendArmSS.updatePIDKFValues(P, I, D, K, F);
                 extendArmSS.setMaxSpeedDown(EA_MAX_SPEED_DOWN);
                 extendArmSS.setLimits(MainV6.eaLimitHigh, MainV6.eaLimitLow);
                 limelight.setFollower(follower);
@@ -572,7 +574,7 @@ public class MainV6 extends LinearOpMode {
         rotationalCpos1 = 0;
         clawCpos2 = 0.75;
         wristCpos2 = 0.65;
-        armCpos = 0.28;
+        armCpos = 0.27;
         clawCpos1 = 0;
         wristCpos1 = 0.1;
     }
