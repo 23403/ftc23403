@@ -85,8 +85,8 @@ public class MainV6Presets {
             -1.0,
             -1.0,
             -1.0,
-            0.0,
-            -1.0);
+            -1.0,
+            0.0);
     public static CustomPresets subThrow = new CustomPresets(
             -1,
             0.0,

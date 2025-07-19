@@ -30,6 +30,8 @@ public class FConstants {
 
         FollowerConstants.zeroPowerAccelerationMultiplier = 4;
 
+        FollowerConstants.useBrakeModeInTeleOp = true;
+
         FollowerConstants.pathEndVelocityConstraint = 0.1;
         FollowerConstants.pathEndTranslationalConstraint = 0.1;
         FollowerConstants.pathEndHeadingConstraint = 0.007;

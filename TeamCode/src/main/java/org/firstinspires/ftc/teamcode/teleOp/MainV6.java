@@ -35,6 +35,7 @@ import com.qualcomm.robotcore.hardware.IMU;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.subsystems.LimelightState;
 import org.firstinspires.ftc.teamcode.subsystems.Vision;
 import org.firstinspires.ftc.teamcode.utils.CustomPresets;
@@ -77,16 +78,17 @@ public class MainV6 extends LinearOpMode {
     public static double rotationalCpos2 = 0;
     // misc
     public static double wheelSpeedMinEA = 0.7;
-    public static double wheelSpeedMinSA = 0.8;
+    public static double wheelSpeedMinSA = 0.6;
     private double wheelSpeed = wheelSpeedMax;
+    boolean basketsTimerInit = false;
     // timers
     ElapsedTime loopTime;
     ElapsedTime subArmThrowTimer;
     ElapsedTime subWristTimer;
     ElapsedTime transitionTimer;
+    ElapsedTime basketsTimer;
     // odometry
     public static boolean odoDrive = true;
-    public static boolean headingLock = false;
     // extend arm
     public static double slidesTARGET = 0;
     public static double eaLimitHigh = 33.6;
@@ -103,20 +105,23 @@ public class MainV6 extends LinearOpMode {
     // config stuff
     public static int SUB_THROW_DELAY = 200;
     public static int SUB_WRIST_DELAY = 200;
+    public static int BASKETS_DELAY = 100;
     public static double EA_MAX_SPEED_DOWN = -0.4;
     public static boolean redSide = true;
     public static boolean debugMode = true;
     public static double wheelSpeedMax = 1;
     public static int TRANSITION_DELAY = 200;
-    // heading config
-    public static double headingTolerance = 0.1;
-    public static boolean headingLockStatic = true;
-    public static double headingStaticPos = 0;
+    // heading lock
+    public static boolean headingLock = false;
+    public static double headingLockPos = 0;
+    double headingCalc = 0;
+    double headingError = 0;
     @Override
     public void runOpMode() {
         // hardware
         Follower follower = new Follower(hardwareMap, FConstants.class, LConstants.class);
-        PID controller = new PID(Math.sqrt(P), I, D);
+        PID eaController = new PID(Math.sqrt(P), I, D);
+        PID headingController = new PID(0.7, 0, 0.05);
         MetroLib.teleOp.init(this, telemetry, gamepad1, gamepad2, follower);
         telemetry = new MultipleTelemetry(this.telemetry, FtcDashboard.getInstance().getTelemetry());
         TelemetryM telemetryM = new TelemetryM(telemetry, debugMode);
@@ -191,7 +196,7 @@ public class MainV6 extends LinearOpMode {
         Drawing.drawRobot(poseUpdater.getPose(), "#4CAF50");
         Drawing.sendPacket();
         // setup slides
-        extendArmSS = new SlidesSS(extendArm1, extendArm2, controller, K, F, CPR, INCHES_PER_REV, false);
+        extendArmSS = new SlidesSS(extendArm1, extendArm2, eaController, K, F, CPR, INCHES_PER_REV, false);
         // misc
         subStates = SubModeStates.RETURN;
         specStates = SpecModeStates.GRAB;
@@ -209,7 +214,6 @@ public class MainV6 extends LinearOpMode {
         telemetryM.update();
         waitForStart();
         if (opModeIsActive()) {
-            double heading = follower.getPose().getHeading();
             follower.startTeleopDrive();
             while (opModeIsActive()) {
                 // variables
@@ -217,11 +221,13 @@ public class MainV6 extends LinearOpMode {
                 llState = limelight.getState();
                 extendArmState = extendArmSS.getState();
                 extendArmSS.setEaCorrection(eaCorrection);
-                extendArmSS.setLimits(MainV6.eaLimitHigh, MainV6.eaLimitLow);
+                extendArmSS.updatePIDKFValues(P, I, D, F, K);
                 extendArmSS.setMaxSpeedDown(EA_MAX_SPEED_DOWN);
+                extendArmSS.setLimits(MainV6.eaLimitHigh, MainV6.eaLimitLow);
                 limelight.setFollower(follower);
                 telemetryM.setDebug(debugMode);
                 boolean moving = Math.abs(gamepad1.left_stick_x) > 0 || Math.abs(gamepad1.left_stick_y) > 0 || Math.abs(gamepad1.right_stick_x) > 0;
+                double heading = follower.getPose().getHeading();
                 // gamepad stuff
                 previousGamepad1.copy(currentGamepad1);
                 previousGamepad2.copy(currentGamepad2);
@@ -258,7 +264,7 @@ public class MainV6 extends LinearOpMode {
                     rightRear.setPower(rightBackPower);
                 } else {
                     follower.setMaxPower(wheelSpeed);
-                    follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, headingLockStatic && headingLock ? 0 : -gamepad1.right_stick_x, true);
+                    follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, headingLock ? (Math.toDegrees(headingError) > 2 ? headingCalc : 0) : -gamepad1.right_stick_x, true);
                     follower.update();
                 }
                 if (!moving && !odoDrive) {
@@ -268,14 +274,13 @@ public class MainV6 extends LinearOpMode {
                     rightRear.setPower(0);
                 }
                 // heading lock
-                if (currentGamepad1.dpad_right && !previousGamepad1.dpad_right) headingLock = !headingLock;
-                if (!headingLockStatic) {
-                    boolean turning = Math.abs(gamepad1.right_stick_x) > 0;
-                    if (Math.abs(gamepad1.right_stick_x) > 0) heading = follower.getPose().getHeading();
-                    if (!follower.isBusy() && !turning && Math.abs(heading - follower.getPose().getHeading()) > headingTolerance && headingLock) follower.turnTo(heading);
-                } else {
-                    if (headingLock && !follower.isBusy() && Math.abs(headingStaticPos - follower.getPose().getHeading()) > headingTolerance) follower.turnTo(headingStaticPos);
+                if (currentGamepad1.dpad_right && !previousGamepad1.dpad_right) {
+                    headingLock = !headingLock;
+                    if (headingLock) headingLockPos = follower.getPose().getHeading();
                 }
+                // calc heading error and pid
+                headingCalc = headingController.calculate(heading, headingLockPos);
+                headingError = Math.abs(heading - headingLockPos);
                 // extendArm code
                 extendArmSS.update(gamepad2.dpad_up, gamepad2.dpad_down);
                 // submersibleArm code
@@ -291,12 +296,16 @@ public class MainV6 extends LinearOpMode {
                         presetState = PresetStates.NO_PRESET;
                         break;
                     case HIGH_BASKET:
-                        applyPreset(MainV6Presets.highBasket);
-                        if (clawCpos1 == 0 || gamepad2.right_trigger > 0) presetState = PresetStates.HUMAN_PLAYER;
-                        break;
                     case LOW_BASKET:
-                        applyPreset(MainV6Presets.lowBasket);
-                        if (clawCpos1 == 0 || gamepad2.right_trigger > 0) presetState = PresetStates.HUMAN_PLAYER;
+                        applyPreset(presetState == PresetStates.HIGH_BASKET ? MainV6Presets.highBasket : MainV6Presets.lowBasket);
+                        if (clawCpos1 == 0 || gamepad2.right_trigger > 0) {
+                            basketsTimer.reset();
+                            basketsTimerInit = true;
+                        }
+                        if (basketsTimer.milliseconds() > BASKETS_DELAY && basketsTimerInit) {
+                            presetState = PresetStates.HUMAN_PLAYER;
+                            basketsTimerInit = false;
+                        }
                         break;
                     case TRANSITION:
                         applyPreset(MainV6Presets.transition);
@@ -334,10 +343,10 @@ public class MainV6 extends LinearOpMode {
                 }
                 /**
                  * GAMEPAD 1
-                 *   X / ▢         - Transition from Submersible arm to Extend arm
-                 *   Y / Δ         - Limelight grabbing
-                 *   B / O         - Return
-                 *   A / X         - Submersible grabbing and stuff
+                 *   X / ▢         - N/A
+                 *   Y / Δ         - N/A
+                 *   B / O         - Throw block
+                 *   A / X         - Submersible grabbing
                  *
                  *                    ________
                  *                   / ______ \\
@@ -398,10 +407,10 @@ public class MainV6 extends LinearOpMode {
                 }
                 /**
                  * GAMEPAD 2
-                 *   X / ▢         - Transition from Submersible arm to Extend arm
+                 *   X / ▢         - Place in Low Basket
                  *   Y / Δ         - Place in High Basket
                  *   B / O         - Score Specimen Preset
-                 *   A / X         - Place in Low basket
+                 *   A / X         - N/A
                  *
                  *                    ________
                  *                   / ______ \\
@@ -497,21 +506,23 @@ public class MainV6 extends LinearOpMode {
                 }
                 // telemetry
                 telemetryM.addLine("BEASTKIT Team 23403!");
+                telemetryM.addData("fl", leftFront.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData("bl", leftRear.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData("fr", rightFront.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData("br", rightRear.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData("ea1", extendArm1.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData("ea2", extendArm2.getCurrent(CurrentUnit.AMPS));
                 telemetryM.addData(true, "extendArmState", extendArmState);
                 telemetryM.addData(true, "presetState", presetState);
                 telemetryM.addData(true, "rotationState", rotationState);
                 telemetryM.addData(true, "submersible state", subStates);
                 telemetryM.addData(true, "specimen state", specStates);
                 telemetryM.addData(true, "llState", llState);
-                telemetryM.addData(true, "heading R", follower.getPose().getHeading());
-                telemetryM.addData(true, "headingCpos R", heading);
-                telemetryM.addData(true, "heading D", Math.toDegrees(follower.getPose().getHeading()));
-                telemetryM.addData(true, "headingCpos D", Math.toDegrees(heading));
-                telemetryM.addData(true, "heading lock error", Math.abs(heading - follower.getPose().getHeading()));
+                telemetryM.addData(true, "heading", Math.toDegrees(heading));
                 telemetryM.addData(true, "heading lock", headingLock);
-                telemetryM.addData(true, "heading lock static", headingLockStatic);
-                telemetryM.addData(true, "heading static pos", headingStaticPos);
-                telemetryM.addData(true, "heading tolerance", headingTolerance);
+                telemetryM.addData(true, "heading lock pos", Math.toDegrees(headingLockPos));
+                telemetryM.addData(true, "heading calc", headingCalc);
+                telemetryM.addData(true, "heading error", Math.toDegrees(headingError));
                 telemetryM.addData(true, "PIDFK", "P: " + P + " I: " + I + " D: " + D + " F: " + F + " K: " + K);
                 telemetryM.addData(true, "target", slidesTARGET);
                 telemetryM.addData(true, "eaCpos1", extendArmSS.getInches1());
@@ -558,9 +569,10 @@ public class MainV6 extends LinearOpMode {
 
     public void transition() {
         subArmCpos = 1;
+        rotationalCpos1 = 0;
         clawCpos2 = 0.75;
         wristCpos2 = 0.65;
-        armCpos = 0.27;
+        armCpos = 0.28;
         clawCpos1 = 0;
         wristCpos1 = 0.1;
     }

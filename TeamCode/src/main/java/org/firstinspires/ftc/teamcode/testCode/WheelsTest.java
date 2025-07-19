@@ -4,18 +4,21 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+
+import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 
 @TeleOp(name="Wheels Test", group="test_ftc23403")
 public class WheelsTest extends OpMode {
-    private DcMotor leftFront, leftBack, rightFront, rightBack;
+    private DcMotorEx leftFront, leftBack, rightFront, rightBack;
 
     @Override
     public void init() {
         // Hardware mapping
-        leftFront = hardwareMap.get(DcMotor.class, "leftFront");
-        leftBack = hardwareMap.get(DcMotor.class, "leftRear");
-        rightFront = hardwareMap.get(DcMotor.class, "rightFront");
-        rightBack = hardwareMap.get(DcMotor.class, "rightRear");
+        leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+        leftBack = hardwareMap.get(DcMotorEx.class, "leftRear");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
+        rightBack = hardwareMap.get(DcMotorEx.class, "rightRear");
 
         // Reverse motors if needed
         leftFront.setDirection(DcMotor.Direction.REVERSE);
@@ -48,13 +51,17 @@ public class WheelsTest extends OpMode {
 
         // Debugging telemetry
         telemetry.addData("Wheel Speed", wheelSpeed);
-        telemetry.addData("Joystick X", gamepad1.left_stick_x);
-        telemetry.addData("Joystick Y", gamepad1.left_stick_y);
-        telemetry.addData("Turn", gamepad1.right_stick_x);
-        telemetry.addData("LF Power", leftFrontPower);
-        telemetry.addData("LB Power", leftBackPower);
-        telemetry.addData("RF Power", rightFrontPower);
-        telemetry.addData("RB Power", rightBackPower);
+        telemetry.addData("Left stick X", gamepad1.left_stick_x);
+        telemetry.addData("Left stick Y", gamepad1.left_stick_y);
+        telemetry.addData("Right stick X", gamepad1.right_stick_x);
+        telemetry.addData("FL Power", leftFrontPower);
+        telemetry.addData("BL Power", leftBackPower);
+        telemetry.addData("FR Power", rightFrontPower);
+        telemetry.addData("BR Power", rightBackPower);
+        telemetry.addData("FL Current", leftFront.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("BL Current", leftBack.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("FR Current", rightFront.getCurrent(CurrentUnit.AMPS));
+        telemetry.addData("BR Current", rightBack.getCurrent(CurrentUnit.AMPS));
         telemetry.update();
     }
 }
