@@ -300,7 +300,7 @@ public class MainV6 extends LinearOpMode {
                     case HIGH_BASKET:
                     case LOW_BASKET:
                         applyPreset(presetState == PresetStates.HIGH_BASKET ? MainV6Presets.highBasket : MainV6Presets.lowBasket);
-                        if (clawCpos1 == 0 || (currentGamepad2.right_trigger && !previousGamepad2.right_trigger)) {
+                        if (clawCpos1 == 0 || (currentGamepad2.right_trigger > 0 && !(previousGamepad2.right_trigger > 0))) {
                             basketsTimer.reset();
                             basketsTimerInit = true;
                         }
@@ -508,12 +508,12 @@ public class MainV6 extends LinearOpMode {
                 }
                 // telemetry
                 telemetryM.addLine("BEASTKIT Team 23403!");
-                telemetryM.addData("fl", leftFront.getCurrent(CurrentUnit.AMPS));
-                telemetryM.addData("bl", leftRear.getCurrent(CurrentUnit.AMPS));
-                telemetryM.addData("fr", rightFront.getCurrent(CurrentUnit.AMPS));
-                telemetryM.addData("br", rightRear.getCurrent(CurrentUnit.AMPS));
-                telemetryM.addData("ea1", extendArm1.getCurrent(CurrentUnit.AMPS));
-                telemetryM.addData("ea2", extendArm2.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData(true, "fl", leftFront.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData(true, "bl", leftRear.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData(true, "fr", rightFront.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData(true, "br", rightRear.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData(true, "ea1", extendArm1.getCurrent(CurrentUnit.AMPS));
+                telemetryM.addData(true, "ea2", extendArm2.getCurrent(CurrentUnit.AMPS));
                 telemetryM.addData(true, "extendArmState", extendArmState);
                 telemetryM.addData(true, "presetState", presetState);
                 telemetryM.addData(true, "rotationState", rotationState);
@@ -568,7 +568,7 @@ public class MainV6 extends LinearOpMode {
         rotationalCpos1 = preset.rotational1 != -1.0 ? preset.rotational1 : rotationalCpos1;
         extendArmSS.moveTo(slidesTARGET);
     }
-
+    // transition functions
     public void transition() {
         subArmCpos = 1;
         rotationalCpos1 = 0;
