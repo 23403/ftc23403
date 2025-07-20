@@ -300,7 +300,7 @@ public class MainV6 extends LinearOpMode {
                     case HIGH_BASKET:
                     case LOW_BASKET:
                         applyPreset(presetState == PresetStates.HIGH_BASKET ? MainV6Presets.highBasket : MainV6Presets.lowBasket);
-                        if (clawCpos1 == 0 || gamepad2.right_trigger > 0) {
+                        if (clawCpos1 == 0 || (currentGamepad2.right_trigger && !previousGamepad2.right_trigger)) {
                             basketsTimer.reset();
                             basketsTimerInit = true;
                         }
