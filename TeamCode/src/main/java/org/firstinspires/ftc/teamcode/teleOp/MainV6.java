@@ -81,12 +81,14 @@ public class MainV6 extends LinearOpMode {
     public static double wheelSpeedMinSA = 0.6;
     private double wheelSpeed = wheelSpeedMax;
     boolean basketsTimerInit = false;
+    boolean updateLL = false;
     // timers
     ElapsedTime loopTime;
     ElapsedTime subArmThrowTimer;
     ElapsedTime subWristTimer;
     ElapsedTime transitionTimer;
     ElapsedTime basketsTimer;
+    ElapsedTime LLTimer;
     // odometry
     public static boolean odoDrive = true;
     // extend arm
@@ -205,6 +207,9 @@ public class MainV6 extends LinearOpMode {
         transitionTimer = new ElapsedTime();
         subWristTimer = new ElapsedTime();
         basketsTimer = new ElapsedTime();
+        LLTimer = new ElapsedTime();
+        // reset
+        LLTimer.reset();
         loopTime.reset();
         subArmThrowTimer.reset();
         transitionTimer.reset();
@@ -219,7 +224,7 @@ public class MainV6 extends LinearOpMode {
             follower.startTeleopDrive();
             while (opModeIsActive()) {
                 // variables
-                limelight.update();
+                if (updateLL) limelight.update();
                 llState = limelight.getState();
                 extendArmState = extendArmSS.getState();
                 extendArmSS.setEaCorrection(eaCorrection);
@@ -400,6 +405,23 @@ public class MainV6 extends LinearOpMode {
                             presetState = PresetStates.SUB_OUT;
                             subStates = SubModeStates.MOVE_OUT;
                         }
+                        if (currentGamepad1.y && !previousGamepad1.y) {
+                            if (wristCpos2 <= 0.4) {
+                                wrist2.setPosition(1);
+                                wristCpos2 = 1;
+                            }
+                            updateLL = true;
+                            LLTimer.reset();
+                        }
+                        if (updateLL && limelight.getState() == LimelightState.FOUND_SAMPLE)  {
+                            subWristTimer.reset();
+                            presetState = PresetStates.SUB_OUT;
+                            subStates = SubModeStates.MOVE_OUT;
+                            subArmCpos = limelight.getSubmersible();
+                            // rotationalCpos2 = limelight.getRotation();
+                            updateLL = false;
+                        }
+                        if (updateLL && LLTimer.milliseconds() > 1000) updateLL = false;
                         if (currentGamepad1.b && !previousGamepad1.b) {
                             subArmThrowTimer.reset();
                             presetState = PresetStates.SUB_THROW;
