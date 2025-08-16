@@ -271,7 +271,7 @@ public class MainV6 extends LinearOpMode {
                     rightRear.setPower(rightBackPower);
                 } else {
                     follower.setMaxPower(wheelSpeed);
-                    follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, headingLock ? (Math.toDegrees(headingError) > 2 ? headingCalc : 0) : -gamepad1.right_stick_x, true);
+                    follower.setTeleOpMovementVectors(-gamepad1.left_stick_y, -gamepad1.left_stick_x, headingLock ? (Math.toDegrees(headingError) > 2 && Math.toDegrees(headingError) < 50 ? headingCalc : 0) : -gamepad1.right_stick_x, true);
                     follower.update();
                 }
                 if (!moving && !odoDrive) {
